@@ -93,14 +93,14 @@ public class UserService {
     // 중복된 회원 존재하는지 검증하는 메소드
     public void validateSignUp(String token) {
 
-        //요청으러 부터 email 추출
+        //요청으로 부터 email 추출
         String[] inf = jwtValidator.validateToken(token);
 
         // 이메일로 사용자 조회
         Optional<User> optionalStudent = userRepository.findByEmail(inf[0]);
         // email이 등록되어 있으면 예외 처리
         if (optionalStudent.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 가입된 사용자입니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 가입된 사용자입니다.");
         }
     }
 
