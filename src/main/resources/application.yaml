@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${secrets.RDS_URL}
+    username: ${secrets.RDS_USERNAME}
+    password: ${secrets.RDS_PASSWORD}
+
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    database: mysql
+    hibernate:
+      ddl-auto:
+    properties:
+      hibernate.format_sql: true
+      hibernate.dialect: org.hibernate.dialect.MySQLDialect
+
+
+
+spring.mvc.pathmatch.matching-strategy: ant_path_matcher
+server:
+  error:
+    include-message: always
