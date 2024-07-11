@@ -17,7 +17,7 @@ public class FororoAppMakingStudyApplication {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("https://forif.org");
+				registry.addMapping("/**").allowedOrigins("*");
 			}
 		};
 	}
