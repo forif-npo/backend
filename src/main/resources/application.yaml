@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://database-1.c1800c86ily5.ap-northeast-2.rds.amazonaws.com/forif
+    url: jdbc:mysql://forifdb.c1800c86ily5.ap-northeast-2.rds.amazonaws.com/forif
     username: "root"
     password: "Kangbh98!"
 
