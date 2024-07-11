@@ -60,10 +60,6 @@ public class StudyService {
 
     @Transactional(readOnly = true)
     public StudyInfoResponse getStudyInfo(StudyInfoRequest request) {
-        Optional<ClubInfo> optionalClubInfo = clubInfoRepository.findByActivityYearAndActivitySemester(request.getActivityYear(), request.getActivitySemester());
-        if (optionalClubInfo.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "연도 또는 학기가 잘못되었습니다.");
-        }
         Study study = studyRepository.findById(request.getStudyId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
 
@@ -196,7 +192,7 @@ public class StudyService {
     }
 
     @Transactional
-    public List<AllStudyInfoResponse> convertToStudyInfoResponse(List<Study> studies) {
+    public List<AllStudyInfoResponse> convertToStudyInfoResponse(List<Study> studies, Integer year, Integer semester) {
         List<AllStudyInfoResponse> result = new ArrayList<>();
         //Tag 가져오기
         for (Study study : studies) {
@@ -226,6 +222,8 @@ public class StudyService {
             studyInfoResponse.setStudyType(study.getStudyType().toString());
             studyInfoResponse.setTags(tagDetails);
             studyInfoResponse.setStudyStatus(study.getStudyStatus().toString());
+            studyInfoResponse.setYear(year);
+            studyInfoResponse.setSemester(semester);
             result.add(studyInfoResponse);
         }
         return result;

@@ -28,17 +28,25 @@ public class StudyController {
     private final StudyService studyService;
     private final UserService userService;
 
-    @GetMapping("/all")
+    @GetMapping
     public List<AllStudyInfoResponse> getAllStudiesInfo(
             @RequestParam(value = "year") Integer year,
             @RequestParam(value = "semester") Integer semester
     ) {
         List<Study> studies = studyService.getAllStudiesInfo(year, semester);
-        return studyService.convertToStudyInfoResponse(studies);
+        return studyService.convertToStudyInfoResponse(studies, year, semester);
+    }
+
+    @GetMapping("/{studyId}")
+    public ResponseEntity<StudyInfoResponse> getStudyInfo(
+            @PathVariable Integer studyId
+    ) {
+        // 성공 시 200 OK 상태 코드와 함께 응답
+        return new ResponseEntity<>(studyService.getStudyInfo(new StudyInfoRequest(studyId)),HttpStatus.OK);
     }
 
     // 모든 스터디의 이름만 가져옴
-    @GetMapping("/name")
+    @GetMapping("/names")
     public ResponseEntity<Map<String, List<String>>> getAllStudyNames(
             @RequestParam(value = "year") Integer year,
             @RequestParam(value = "semester") Integer semester
@@ -60,15 +68,26 @@ public class StudyController {
         return studyService.convertToStudyInfoResponse(studies, status);
     }
 
+    @RequireJWT
+    @GetMapping("/user")
+    public ResponseEntity<StudyUserResponse> getStudyOfUser(
+            @RequestHeader("Authorization") String token
+    ){
+        User user = userService.validateUserExist(token);
 
-    @GetMapping
-    public ResponseEntity<StudyInfoResponse> getStudyInfo(
-            @RequestParam(value = "year") Integer year,
-            @RequestParam(value = "semester") Integer semester,
-            @RequestParam(value = "studyId") Integer studyId
-    ) {
-        // 성공 시 200 OK 상태 코드와 함께 응답
-        return new ResponseEntity<>(studyService.getStudyInfo(new StudyInfoRequest(year, semester, studyId)),HttpStatus.OK);
+        return new ResponseEntity<>(studyService.getStudyOfUser(user), HttpStatus.OK);
+    }
+
+    /**
+     * 관리자용 기능, 추후 옮기기
+     * @param userId 유저 학번
+     * @return userName, studyName
+     */
+    @GetMapping("/names/{userId}")
+    public ResponseEntity<StudyNameResponse> getStudyNameOfUser(
+            @PathVariable Integer userId
+    ){
+        return new ResponseEntity<>(studyService.getStudyNameOfUser(userId), HttpStatus.OK);
     }
 
     @RequireJWT
@@ -99,6 +118,17 @@ public class StudyController {
     }
 
     @RequireJWT
+    @PatchMapping("/{studyId}/status")
+    public ResponseEntity<StudyResponse> changeStatus(
+            @PathVariable Integer studyId,
+            @RequestParam String status
+    ){
+        studyService.changeStatus(studyId, status);
+        // 성공 시 204 No Content 상태 코드 응답
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @RequireJWT
     @DeleteMapping("/{studyId}")
     public ResponseEntity<StudyResponse> deleteStudy(
             @RequestHeader("Authorization") String token,
@@ -112,49 +142,14 @@ public class StudyController {
     }
 
     @RequireJWT
-    @DeleteMapping("/{studyId}/deleteUser")
+    @DeleteMapping("/{studyId}/user/{userId}")
     public ResponseEntity<StudyResponse> deleteUserFromStudy(
             @PathVariable Integer studyId,
-            @RequestParam Integer userId) {
+            @PathVariable Integer userId) {
         studyService.deleteUserFromStudy(studyId, userId);
 
         // 성공 시 204 No Content 상태 코드 응답
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @RequireJWT
-    @PatchMapping("/{studyId}/changeStatus")
-    public ResponseEntity<StudyResponse> changeStatus(
-            @PathVariable Integer studyId,
-            @RequestParam String status
-    ){
-        studyService.changeStatus(studyId, status);
-
-        // 성공 시 204 No Content 상태 코드 응답
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @RequireJWT
-    @GetMapping("/user")
-    public ResponseEntity<StudyUserResponse> getStudyOfUser(
-            @RequestHeader("Authorization") String token
-    ){
-        User user = userService.validateUserExist(token);
-
-        return new ResponseEntity<>(studyService.getStudyOfUser(user), HttpStatus.OK);
-    }
-
-
-    /**
-     * 관리자용 기능, 추후 옮기기
-     * @param userId 유저 학번
-     * @return userName, studyName
-     */
-    @GetMapping("/")
-    public ResponseEntity<StudyNameResponse> getStudyNameOfUser(
-            @RequestParam Integer userId
-    ){
-        return new ResponseEntity<>(studyService.getStudyNameOfUser(userId), HttpStatus.OK);
     }
 
 }

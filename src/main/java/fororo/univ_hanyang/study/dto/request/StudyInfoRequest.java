@@ -7,8 +7,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class StudyInfoRequest {
-    private Integer activityYear;
-    private Integer activitySemester;
     private Integer studyId;
 }
 
