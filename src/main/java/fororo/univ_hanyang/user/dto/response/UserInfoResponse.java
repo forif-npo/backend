@@ -18,5 +18,6 @@ public class UserInfoResponse {
     private String userAuthorization;
     private Integer currentStudyId;
     private String image;
+    private Integer myStudy;
     private Set<Integer> passedStudyId;
 }

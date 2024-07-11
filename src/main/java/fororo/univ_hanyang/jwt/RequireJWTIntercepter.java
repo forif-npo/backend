@@ -18,15 +18,17 @@ public class RequireJWTIntercepter implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
-        Method method = handlerMethod.getMethod();
-        if (method.isAnnotationPresent(RequireJWT.class) || handlerMethod.getBeanType().isAnnotationPresent(RequireJWT.class)) {
-            String token = request.getHeader("Authorization");
-            // JWT 토큰 검증 로직을 수행하고, 토큰이 유효하지 않다면 예외를 발생시킵니다.
-            if (token == null){
-                return false;
+        if (handler instanceof HandlerMethod) {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            Method method = handlerMethod.getMethod();
+            if (method.isAnnotationPresent(RequireJWT.class) || handlerMethod.getBeanType().isAnnotationPresent(RequireJWT.class)) {
+                String token = request.getHeader("Authorization");
+                // JWT 토큰 검증 로직을 수행하고, 토큰이 유효하지 않다면 예외를 발생시킵니다.
+                if (token == null){
+                    return false;
+                }
+                jwtValidator.validateToken(token);
             }
-            jwtValidator.validateToken(token);
         }
         return true;
     }

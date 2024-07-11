@@ -37,7 +37,7 @@ public class Study {
     @Column(name = "mentor_name")
     private String mentorName;
 
-    @Column(name = "explanation", length = 501)
+    @Column(name = "explanation", length = 801)
     private String explanation;
 
     @Column(name = "interview")
@@ -46,8 +46,8 @@ public class Study {
     @Column(name = "goal", length = 501)
     private String goal;
 
-    @Column(name = "date")
-    private String date;
+    @Column(name = "week_day")
+    private Integer weekDay;
 
     @Column(name = "start_time")
     private Time startTime;
