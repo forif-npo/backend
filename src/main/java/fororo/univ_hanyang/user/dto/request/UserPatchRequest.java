@@ -4,7 +4,9 @@ import lombok.Data;
 
 @Data
 public class UserPatchRequest {
-    private String department;
     private Integer id;
+    private String department;
+    private String userName;
+    private String phoneNumber;
     private String image;
 }

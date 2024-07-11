@@ -1,11 +1,10 @@
 package fororo.univ_hanyang.apply.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import fororo.univ_hanyang.apply.dto.request.ApplyRequest;
 import fororo.univ_hanyang.apply.dto.request.AcceptRequest;
+import fororo.univ_hanyang.apply.dto.request.ApplyRequest;
 import fororo.univ_hanyang.apply.dto.request.IsPaidRequest;
 import fororo.univ_hanyang.apply.dto.response.ApplyResponse;
+import fororo.univ_hanyang.apply.dto.response.RankedStudyResponse;
 import fororo.univ_hanyang.apply.dto.response.UnpaidUserResponse;
 import fororo.univ_hanyang.apply.entity.Apply;
 import fororo.univ_hanyang.apply.service.ApplyService;
@@ -13,13 +12,16 @@ import fororo.univ_hanyang.jwt.RequireJWT;
 import fororo.univ_hanyang.user.entity.User;
 import fororo.univ_hanyang.user.entity.UserAuthorization;
 import fororo.univ_hanyang.user.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
+@Tag(name = "지원서", description = "지원서 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/apply")
@@ -71,22 +73,30 @@ public class ApplyController {
 
     @RequireJWT
     @GetMapping("/all")
-    public ResponseEntity<List<Apply>> getAllApplicationsOfStudy(
+    public ResponseEntity<?> getAllApplicationsOfStudy(
             @RequestParam Integer studyId,
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-        List<Apply> applications = applyService.getAllApplicationsOfStudy(studyId, user);
+        Map<String,List<RankedStudyResponse>> applications = applyService.getAllApplicationsOfStudy(studyId, user);
+        if(applications.isEmpty()){
+            ApplyResponse responseObj = new ApplyResponse(500, "지원서가 없습니다.");
+            return new ResponseEntity<>(responseObj,HttpStatus.BAD_GATEWAY);
+        }
         return new ResponseEntity<>(applications, HttpStatus.OK);
     }
 
     @RequireJWT
     @GetMapping("/mentor/all")
-    public ResponseEntity<List<Apply>> getAllApplicationsOfStudyForMentor(
+    public ResponseEntity<?> getAllApplicationsOfStudyForMentor(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-        List<Apply> applications = applyService.getAllApplicationsOfStudyForMentor(user);
+        Map<String, List<RankedStudyResponse>> applications = applyService.getAllApplicationsOfStudyForMentor(user);
+        if(applications.isEmpty()){
+            ApplyResponse responseObj = new ApplyResponse(500, "지원서가 없습니다.");
+            return new ResponseEntity<>(responseObj,HttpStatus.BAD_GATEWAY);
+        }
         return new ResponseEntity<>(applications, HttpStatus.OK);
     }
 
@@ -106,7 +116,6 @@ public class ApplyController {
 
         if(application== null){
             ApplyResponse responseObj = new ApplyResponse(500, "지원서가 없습니다.");
-
             return new ResponseEntity<>(responseObj,HttpStatus.BAD_GATEWAY);
         }
         return new ResponseEntity<>(application, HttpStatus.OK);
