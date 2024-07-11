@@ -15,8 +15,9 @@ public class AllStudyInfoResponse {
     private String mentorName;
     private Time startTime;
     private Time endTime;
+    private String explanation;
     private Short level;
-    private String date;
+    private Integer weekDay;
     private Boolean interview;
     private String image;
     private String studyType;

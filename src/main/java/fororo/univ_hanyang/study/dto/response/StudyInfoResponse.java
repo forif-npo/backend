@@ -23,7 +23,7 @@ public class StudyInfoResponse {
     private String goal;
     private Short level;
     private String explanation;
-    private String date;
+    private Integer weekDay;
     private Boolean interview;
     private String image;
     private String location;

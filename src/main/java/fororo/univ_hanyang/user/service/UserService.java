@@ -1,11 +1,15 @@
 package fororo.univ_hanyang.user.service;
 
 import fororo.univ_hanyang.apply.repository.ApplyRepository;
+import fororo.univ_hanyang.clubInfo.service.ClubInfoService;
 import fororo.univ_hanyang.jwt.JWTValidator;
 import fororo.univ_hanyang.study.entity.Study;
 import fororo.univ_hanyang.study.repository.StudyRepository;
 import fororo.univ_hanyang.user.dto.request.UserInfoRequest;
 import fororo.univ_hanyang.user.dto.request.UserPatchRequest;
+import fororo.univ_hanyang.user.dto.response.AllUserInfoResponse;
+import fororo.univ_hanyang.user.dto.response.StudyMemberResponse;
+import fororo.univ_hanyang.user.dto.response.TotalUserNumberResponse;
 import fororo.univ_hanyang.user.dto.response.UserInfoResponse;
 import fororo.univ_hanyang.user.entity.User;
 import fororo.univ_hanyang.user.entity.UserAuthorization;
@@ -14,25 +18,24 @@ import fororo.univ_hanyang.user.repository.UserRepository;
 import fororo.univ_hanyang.user.repository.UserStudyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
 
     private final UserRepository userRepository;
     private final JWTValidator jwtValidator;
     private final UserStudyRepository userStudyRepository;
     private final StudyRepository studyRepository;
     private final ApplyRepository applyRepository;
+    private final ClubInfoService clubInfoService;
 
     public User setUser(UserInfoRequest userInfoRequest, String token) {
 
@@ -63,19 +66,19 @@ public class UserService {
     }
 
 
-    public User patchUser(UserPatchRequest request, User user) {
-        if(user.getUserAuthorization().equals(UserAuthorization.회원)
+    public User patchUser(UserPatchRequest request, User user) throws IllegalAccessException, InvocationTargetException {
+        if (user.getUserAuthorization().equals(UserAuthorization.회원)
                 || user.getUserAuthorization().equals(UserAuthorization.멘토))
             throw new IllegalArgumentException("권한이 없습니다.");
+        User targetUser = userRepository.findById(request.getId())
+                .orElseThrow(() -> new EntityNotFoundException("유저가 존재하지 않습니다."));
 
-        user.setDepartment(request.getDepartment());
-        user.setImage(request.getImage());
-        user.setId(request.getId());
+        // request 객체에서 user 객체로 null이 아닌 필드만 복사
+        BeanUtils.copyProperties(targetUser, request);
 
-        // 사용자 정보 저장
-        userRepository.save(user);
+        userRepository.save(targetUser);
 
-        return user;
+        return targetUser;
     }
 
 
@@ -93,14 +96,14 @@ public class UserService {
     // 중복된 회원 존재하는지 검증하는 메소드
     public void validateSignUp(String token) {
 
-        //요청으로 부터 email 추출
+        //요청으러 부터 email 추출
         String[] inf = jwtValidator.validateToken(token);
 
         // 이메일로 사용자 조회
         Optional<User> optionalStudent = userRepository.findByEmail(inf[0]);
         // email이 등록되어 있으면 예외 처리
         if (optionalStudent.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 가입된 사용자입니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 가입된 사용자입니다.");
         }
     }
 
@@ -118,6 +121,14 @@ public class UserService {
     public UserInfoResponse getUserInfo(User user) {
         UserStudy userStudy = userStudyRepository.findRecentUserStudyById_UserId(user.getId()).orElse(null);
 
+        Study myStudy = studyRepository.findByMentorIdAndClubId(user.getId(), clubInfoService.makeClubID()).orElse(null);
+
+        Integer studyId;
+        if (myStudy == null) {
+            studyId = 0;
+        } else {
+            studyId = myStudy.getStudyId();
+        }
         // 스터디 경험이 있을 시
         if (userStudy != null) {
             Study recentStudy = studyRepository.findByStudyId(userStudy.getId().getStudyId())
@@ -145,6 +156,7 @@ public class UserService {
                     .currentStudyId(recentStudyId)
                     .phoneNumber(user.getPhoneNumber())
                     .passedStudyId(studyIds)
+                    .myStudy(studyId)
                     .build();
         }
         return UserInfoResponse.builder()
@@ -157,7 +169,59 @@ public class UserService {
                 .currentStudyId(null)
                 .phoneNumber(user.getPhoneNumber())
                 .passedStudyId(null)
+                .myStudy(studyId)
                 .build();
 
+    }
+
+    public List<StudyMemberResponse> getStudyMembers(User mentor, Integer studyId) {
+        if (mentor.getUserAuthorization().equals(UserAuthorization.회원))
+            throw new IllegalArgumentException("권한이 없습니다.");
+
+        List<UserStudy> userStudies = userStudyRepository.findAllById_StudyId(studyId);
+        List<StudyMemberResponse> userList = new ArrayList<>();
+        for (UserStudy userStudy : userStudies) {
+            User member = userStudy.getUser();
+            StudyMemberResponse studyMemberResponse = new StudyMemberResponse();
+            studyMemberResponse.setUserId(member.getId());
+            studyMemberResponse.setName(member.getUserName());
+            studyMemberResponse.setDepartment(member.getDepartment());
+            studyMemberResponse.setEmail(member.getEmail());
+            studyMemberResponse.setPhoneNumber(member.getPhoneNumber());
+
+            userList.add(studyMemberResponse);
+        }
+
+        return userList;
+    }
+
+    public List<AllUserInfoResponse> getAllUsersInfo(User admin)
+    {
+        if (!admin.getUserAuthorization().equals(UserAuthorization.관리자))
+            throw new IllegalArgumentException("권한이 없습니다.");
+
+        List<User> users = userRepository.findAll();
+        List<AllUserInfoResponse> allUserInfoResponses = new ArrayList<>();
+        for (User user : users) {
+            AllUserInfoResponse allUserInfoResponse = new AllUserInfoResponse();
+            allUserInfoResponse.setUserName(user.getUserName());
+            allUserInfoResponse.setUserId(user.getId());
+            allUserInfoResponse.setEmail(user.getEmail());
+            allUserInfoResponse.setDepartment(user.getDepartment());
+            allUserInfoResponse.setPhoneNumber(user.getPhoneNumber());
+            allUserInfoResponse.setImage(user.getImage());
+
+            List<UserStudy> userStudies = userStudyRepository.findAllById_UserId(user.getId());
+            allUserInfoResponse.setPayment(!userStudies.isEmpty());
+            allUserInfoResponses.add(allUserInfoResponse);
+        }
+        return allUserInfoResponses;
+    }
+
+    public TotalUserNumberResponse getTotalUserNumber(){
+        TotalUserNumberResponse totalUserNumberResponse = new TotalUserNumberResponse();
+        totalUserNumberResponse.setUserNumber(userRepository.findAll().size());
+
+        return totalUserNumberResponse;
     }
 }

@@ -3,6 +3,7 @@ package fororo.univ_hanyang.apply.service;
 import fororo.univ_hanyang.apply.dto.request.AcceptRequest;
 import fororo.univ_hanyang.apply.dto.request.ApplyRequest;
 import fororo.univ_hanyang.apply.dto.request.IsPaidRequest;
+import fororo.univ_hanyang.apply.dto.response.RankedStudyResponse;
 import fororo.univ_hanyang.apply.dto.response.UnpaidUserResponse;
 import fororo.univ_hanyang.apply.entity.Apply;
 import fororo.univ_hanyang.apply.entity.ApplyStatus;
@@ -21,8 +22,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -30,7 +32,6 @@ import java.util.stream.Collectors;
 @Getter
 @RequiredArgsConstructor
 public class ApplyService {
-
     private final StudyRepository studyRepository;
     private final UserRepository userRepository;
     private final UserStudyRepository userStudyRepository;
@@ -54,8 +55,7 @@ public class ApplyService {
         }
 
         if (applyRepository.findByApplierId(user.getId()).isPresent())
-            throw new IllegalStateException("이미 지원서를 접수한 유저입니다. 유저 아이디: " + user.getId());
-
+            throw new IllegalStateException("이미 지원서를 접수한 유저입니다. 학번: " + user.getId());
 
         Apply apply = new Apply();
         apply.setApplierId(user.getId());
@@ -68,6 +68,7 @@ public class ApplyService {
         apply.setIsPaid(false);
         apply.setPrimaryStatus(ApplyStatus.대기);
         apply.setSecondaryStatus(ApplyStatus.대기);
+        apply.setDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
 
         applyRepository.save(apply);
     }
@@ -94,9 +95,12 @@ public class ApplyService {
                 continue;
 
             // 2순위 스터디를 이미 승낙받은 상황에서, 1순위 스터디가 승낙된다면, 2순위 스터디는 제거
-            if (apply.getSecondaryStatus() == ApplyStatus.승낙) {
-                if (apply.getPrimaryStudy().equals(study.getStudyName()))
-                    userStudyRepository.deleteById_StudyId(study.getStudyId());
+            if (apply.getSecondaryStatus().equals(ApplyStatus.승낙)) {
+                if (apply.getPrimaryStudy().equals(study.getStudyName())) {
+                    Study secondStudy = studyRepository.findByStudyName(apply.getSecondaryStudy())
+                            .orElseThrow(() -> new EntityNotFoundException("스터디 없음"));
+                    userStudyRepository.deleteById_StudyIdAndId_UserId(secondStudy.getStudyId(), applierId);
+                }
             }
 
             // 1순위 스터디인지 2순위 스터디인지 구분
@@ -124,19 +128,34 @@ public class ApplyService {
     @Transactional(readOnly = true)
     public List<UnpaidUserResponse> getUnpaidUsers() {
         return applyRepository.findAllByIsPaidFalse().stream()
-                .map(apply -> new UnpaidUserResponse(apply.getApplierId(), getUserPhoneNumber(apply.getApplierId())))
+                .map(apply -> new UnpaidUserResponse(apply.getApplierId(),
+                        getUserName(apply), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
                 .collect(Collectors.toList());
     }
 
     /**
-     * 있는지 여부를 판단하기 때문에, 예외 처리하지 않고 null 값으로 대체
+     * 있는지 여부를 판단하기 때문에, 없을 시 예외 처리하지 않고 null 값으로 대체
      */
     @Transactional(readOnly = true)
     public Apply getUserApplication(User user) {
-
         return applyRepository.findByApplierId(user.getId()).orElse(null);
     }
 
+    /**
+     * @param apply 지원서를 변수로 받음
+     * @return userName 지원서 상의 유저 이름
+     */
+    @Transactional(readOnly = true)
+    public String getUserName(Apply apply) {
+        return userRepository.findById(apply.getApplierId())
+                .orElseThrow(() -> new EntityNotFoundException("유저가 없습니다."))
+                .getUserName();
+    }
+
+    /**
+     * @param userId 유저의 학번
+     * @return phoneNumber 유저의 전화번호
+     */
     @Transactional(readOnly = true)
     public String getUserPhoneNumber(Integer userId) {
         return userRepository.findById(userId).map(User::getPhoneNumber)
@@ -144,7 +163,7 @@ public class ApplyService {
     }
 
     @Transactional(readOnly = true)
-    public List<Apply> getAllApplicationsOfStudy(Integer studyId, User user) {
+    public Map<String, List<RankedStudyResponse>> getAllApplicationsOfStudy(Integer studyId, User user) {
         if (user.getUserAuthorization().equals(UserAuthorization.멘토)
                 || user.getUserAuthorization().equals(UserAuthorization.회원))
             throw new IllegalStateException("잘못된 접근입니다.");
@@ -154,32 +173,106 @@ public class ApplyService {
 
         String studyName = study.getStudyName();
 
-        return applyRepository.findAllByPrimaryStudyOrSecondaryStudy(studyName, studyName);
+        List<Apply> primaryStudies = applyRepository.findAllByPrimaryStudy(studyName);
+        List<Apply> secondaryStudies = applyRepository.findAllBySecondaryStudy(studyName);
+
+        Map<String, List<RankedStudyResponse>> applications = new TreeMap<>();
+
+        List<RankedStudyResponse> studyResponses1 = new LinkedList<>();
+
+        for (Apply apply : primaryStudies) {
+            RankedStudyResponse rankedStudyResponse = new RankedStudyResponse();
+            rankedStudyResponse.setName(getUserName(apply));
+            rankedStudyResponse.setIntro(apply.getPrimaryIntro());
+            rankedStudyResponse.setId(apply.getApplierId());
+            rankedStudyResponse.setCareer(apply.getCareer());
+            rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
+
+            studyResponses1.add(rankedStudyResponse);
+        }
+
+        applications.put("first", studyResponses1);
+
+        List<RankedStudyResponse> studyResponses2 = new LinkedList<>();
+
+        for (Apply apply : secondaryStudies) {
+            RankedStudyResponse rankedStudyResponse = new RankedStudyResponse();
+            rankedStudyResponse.setName(getUserName(apply));
+            rankedStudyResponse.setIntro(apply.getSecondaryIntro());
+            rankedStudyResponse.setId(apply.getApplierId());
+            rankedStudyResponse.setCareer(apply.getCareer());
+            rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
+
+            studyResponses2.add(rankedStudyResponse);
+        }
+
+        applications.put("second", studyResponses2);
+
+        return applications;
     }
 
     @Transactional(readOnly = true)
-    public List<Apply> getAllApplicationsOfStudyForMentor(User user) {
-        if (!user.getUserAuthorization().equals(UserAuthorization.멘토))
+    public Map<String, List<RankedStudyResponse>> getAllApplicationsOfStudyForMentor(User user) {
+        if (user.getUserAuthorization().equals(UserAuthorization.회원))
             throw new IllegalArgumentException("잘못된 접근입니다.");
 
         Study study = studyRepository.findByMentorIdAndClubId(user.getId(), clubInfoService.makeClubID())
-                .orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다."));
+                .orElse(null);
 
+        if (study == null) {
+            throw new EntityNotFoundException("스터디가 없습니다.");
+        }
         if (!user.getId().equals(study.getMentorId()))
             throw new IllegalArgumentException("해당 스터디의 멘토가 아닙니다.");
 
         String studyName = study.getStudyName();
 
-        return applyRepository.findAllByPrimaryStudyOrSecondaryStudy(studyName, studyName);
+        List<Apply> primaryStudies = applyRepository.findAllByPrimaryStudy(studyName);
+        List<Apply> secondaryStudies = applyRepository.findAllBySecondaryStudy(studyName);
+
+        Map<String, List<RankedStudyResponse>> applications = new TreeMap<>();
+
+        List<RankedStudyResponse> studyResponses1 = new LinkedList<>();
+
+        for (Apply apply : primaryStudies) {
+            RankedStudyResponse rankedStudyResponse = new RankedStudyResponse();
+            rankedStudyResponse.setName(getUserName(apply));
+            rankedStudyResponse.setIntro(apply.getPrimaryIntro());
+            rankedStudyResponse.setId(apply.getApplierId());
+            rankedStudyResponse.setCareer(apply.getCareer());
+            rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
+
+            studyResponses1.add(rankedStudyResponse);
+        }
+
+        applications.put("first", studyResponses1);
+
+        List<RankedStudyResponse> studyResponses2 = new LinkedList<>();
+
+        for (Apply apply : secondaryStudies) {
+            RankedStudyResponse rankedStudyResponse = new RankedStudyResponse();
+            rankedStudyResponse.setName(getUserName(apply));
+            rankedStudyResponse.setIntro(apply.getSecondaryIntro());
+            rankedStudyResponse.setId(apply.getApplierId());
+            rankedStudyResponse.setCareer(apply.getCareer());
+            rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
+
+            studyResponses2.add(rankedStudyResponse);
+        }
+
+        applications.put("second", studyResponses2);
+
+
+        return applications;
     }
 
     @Transactional
-    public void patchIsPaid(User user, IsPaidRequest request){
-        if(user.getUserAuthorization().equals(UserAuthorization.회원))
+    public void patchIsPaid(User user, IsPaidRequest request) {
+        if (user.getUserAuthorization().equals(UserAuthorization.회원))
             throw new IllegalArgumentException("잘못된 접근입니다.");
 
         Set<Integer> applierIds = request.getApplierIds();
-        for (Integer applierId: applierIds){
+        for (Integer applierId : applierIds) {
             Apply apply = applyRepository.findByApplierId(applierId)
                     .orElseThrow(() -> new EntityNotFoundException("잘못된 지원자 아이디입니다. Id: " + applierId));
             apply.setIsPaid(request.getIsPaid());
@@ -187,16 +280,16 @@ public class ApplyService {
     }
 
     @Transactional
-    public void deleteApplication(User user, Integer applierId){
-        if(user.getUserAuthorization().equals(UserAuthorization.회원))
+    public void deleteApplication(User user, Integer applierId) {
+        if (user.getUserAuthorization().equals(UserAuthorization.회원))
             throw new IllegalArgumentException("권한이 없습니다.");
 
         applyRepository.deleteByApplierId(applierId);
     }
 
     @Transactional
-    public void deleteAllApplications(User user){
-        if(!user.getUserAuthorization().equals(UserAuthorization.관리자))
+    public void deleteAllApplications(User user) {
+        if (!user.getUserAuthorization().equals(UserAuthorization.관리자))
             throw new IllegalArgumentException("권한이 없습니다.");
 
         applyRepository.deleteAll();

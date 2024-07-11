@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${secrets.RDS_URL}
-    username: ${secrets.RDS_USERNAME}
-    password: ${secrets.RDS_PASSWORD}
+    url: jdbc:mysql://database-1.c1800c86ily5.ap-northeast-2.rds.amazonaws.com/forif
+    username: "root"
+    password: "Kangbh98!"
 
   jpa:
     show-sql: true
@@ -15,6 +15,25 @@ spring:
       hibernate.format_sql: true
       hibernate.dialect: org.hibernate.dialect.MySQLDialect
 
+springdoc:
+  swagger-ui:
+    groups-order: desc
+    tags-sorter: alpha
+    operations-sorter: method
+    disable-swagger-default-url: true
+    display-request-duration: true
+    default-model-expand-depth: 2
+    default-models-expand-depth: 2
+    path: /api/docs
+  api-docs:
+    path: /docs
+  show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  writer-with-default-pretty-printer: true
+  model-and-view-allowed: true
+  paths-to-match:
+    - /**
 
 
 spring.mvc.pathmatch.matching-strategy: ant_path_matcher
