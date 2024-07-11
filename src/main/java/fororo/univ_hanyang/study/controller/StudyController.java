@@ -1,17 +1,15 @@
 package fororo.univ_hanyang.study.controller;
 
-import fororo.univ_hanyang.apply.dto.response.ApplyResponse;
 import fororo.univ_hanyang.jwt.RequireJWT;
-import fororo.univ_hanyang.study.dto.request.StudyCreateRequest;
+import fororo.univ_hanyang.study.dto.request.StudyRequest;
 import fororo.univ_hanyang.study.dto.request.StudyInfoRequest;
-import fororo.univ_hanyang.study.dto.request.StudyUpdateRequest;
-import fororo.univ_hanyang.study.dto.response.AllStudyInfoResponse;
-import fororo.univ_hanyang.study.dto.response.StudyInfoResponse;
-import fororo.univ_hanyang.study.dto.response.StudyResponse;
+import fororo.univ_hanyang.study.dto.request.StudyRequest;
+import fororo.univ_hanyang.study.dto.response.*;
 import fororo.univ_hanyang.study.entity.Study;
 import fororo.univ_hanyang.study.service.StudyService;
 import fororo.univ_hanyang.user.entity.User;
 import fororo.univ_hanyang.user.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-
+@Tag(name = "스터디", description = "스터디 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies")
@@ -75,46 +73,42 @@ public class StudyController {
 
     @RequireJWT
     @PostMapping
-    public ResponseEntity<Void> saveStudy(
-            @RequestBody StudyCreateRequest request,
+    public ResponseEntity<StudyResponse> saveStudy(
+            @RequestBody StudyRequest request,
             @RequestHeader("Authorization") String token) {
         // 유저 검증
         User user = userService.validateUserExist(token);
 
-        Study createdStudy = studyService.saveStudy(request, user);
+        studyService.saveStudy(request, user);
 
-        // 생성된 스터디의 ID를 이용하여 URI 생성
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{studyId}")
-                .buildAndExpand(createdStudy.getStudyId())
-                .toUri();
-        // 저장 성공 시 201 Created 상태 코드와 함께 응답
-        return ResponseEntity.created(location).build();
+        // 저장 성공 시 201 Created 상태 코드로 응답
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PutMapping("/{studyId}")
+    @RequireJWT
+    @PatchMapping("/{studyId}")
     public ResponseEntity<StudyResponse> updateStudy(
+            @RequestHeader("Authorization") String token,
             @PathVariable Integer studyId,
-            @RequestBody StudyUpdateRequest request) {
-        studyService.updateStudy(studyId, request);
+            @RequestBody StudyRequest request) {
+        User user = userService.validateUserExist(token);
 
-        // 성공 메시지 객체 생성
-        StudyResponse responseObj = new StudyResponse(200, "정상 작동");
+        studyService.updateStudy(user, studyId, request);
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
-        return new ResponseEntity<>(responseObj, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @RequireJWT
     @DeleteMapping("/{studyId}")
     public ResponseEntity<StudyResponse> deleteStudy(
+            @RequestHeader("Authorization") String token,
             @PathVariable Integer studyId) {
-        studyService.deleteStudy(studyId);
+        User user = userService.validateUserExist(token);
 
-        // 성공 메시지 객체 생성
-        StudyResponse responseObj = new StudyResponse(200, "정상 작동");
+        studyService.deleteStudy(user, studyId);
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
-        return new ResponseEntity<>(responseObj, HttpStatus.OK);
+        // 성공 시 204 No Content 상태 코드 응답
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequireJWT
@@ -124,11 +118,8 @@ public class StudyController {
             @RequestParam Integer userId) {
         studyService.deleteUserFromStudy(studyId, userId);
 
-        // 성공 메시지 객체 생성
-        StudyResponse responseObj = new StudyResponse(200, "정상 작동");
-
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
-        return new ResponseEntity<>(responseObj, HttpStatus.OK);
+        // 성공 시 204 No Content 상태 코드 응답
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequireJWT
@@ -139,11 +130,31 @@ public class StudyController {
     ){
         studyService.changeStatus(studyId, status);
 
-        // 성공 메시지 객체 생성
-        StudyResponse responseObj = new StudyResponse(200, "정상 작동");
+        // 성공 시 204 No Content 상태 코드 응답
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
-        return new ResponseEntity<>(responseObj, HttpStatus.OK);
+    @RequireJWT
+    @GetMapping("/user")
+    public ResponseEntity<StudyUserResponse> getStudyOfUser(
+            @RequestHeader("Authorization") String token
+    ){
+        User user = userService.validateUserExist(token);
+
+        return new ResponseEntity<>(studyService.getStudyOfUser(user), HttpStatus.OK);
+    }
+
+
+    /**
+     * 관리자용 기능, 추후 옮기기
+     * @param userId 유저 학번
+     * @return userName, studyName
+     */
+    @GetMapping("/")
+    public ResponseEntity<StudyNameResponse> getStudyNameOfUser(
+            @RequestParam Integer userId
+    ){
+        return new ResponseEntity<>(studyService.getStudyNameOfUser(userId), HttpStatus.OK);
     }
 
 }

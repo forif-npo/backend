@@ -1,7 +1,5 @@
 package fororo.univ_hanyang.study.dto.request;
 
-import fororo.univ_hanyang.study.entity.StudyType;
-import fororo.univ_hanyang.study.entity.Tag;
 import lombok.Data;
 
 import java.sql.Time;
@@ -9,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class StudyCreateRequest {
+public class StudyRequest {
     private Set<String> tag;
     private String studyName;
     private Integer mentorId;
@@ -18,7 +16,7 @@ public class StudyCreateRequest {
     private Time startTime;
     private Time endTime;
     private Boolean interview;
-    private String date;
+    private Integer weekDay;
     private String goal;
     private Short level;
     private String explanation;

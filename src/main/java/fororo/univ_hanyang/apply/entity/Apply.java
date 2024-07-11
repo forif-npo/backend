@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -24,6 +26,7 @@ public class Apply {
     private String secondaryIntro;
     private String career;
     private Boolean isPaid;
+    private LocalDateTime date;
 
     @Enumerated(EnumType.STRING)
     private ApplyStatus primaryStatus;

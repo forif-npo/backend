@@ -1,7 +1,9 @@
 package fororo.univ_hanyang.clubInfo.entity;
 
-import fororo.univ_hanyang.user.entity.User;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

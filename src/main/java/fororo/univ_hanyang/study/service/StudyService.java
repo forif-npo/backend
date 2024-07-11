@@ -1,13 +1,15 @@
 package fororo.univ_hanyang.study.service;
 
+import fororo.univ_hanyang.CustomBeanUtils;
 import fororo.univ_hanyang.clubInfo.entity.ClubInfo;
 import fororo.univ_hanyang.clubInfo.repository.ClubInfoRepository;
 import fororo.univ_hanyang.clubInfo.service.ClubInfoService;
-import fororo.univ_hanyang.study.dto.request.StudyCreateRequest;
 import fororo.univ_hanyang.study.dto.request.StudyInfoRequest;
-import fororo.univ_hanyang.study.dto.request.StudyUpdateRequest;
+import fororo.univ_hanyang.study.dto.request.StudyRequest;
 import fororo.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import fororo.univ_hanyang.study.dto.response.StudyInfoResponse;
+import fororo.univ_hanyang.study.dto.response.StudyNameResponse;
+import fororo.univ_hanyang.study.dto.response.StudyUserResponse;
 import fororo.univ_hanyang.study.entity.*;
 import fororo.univ_hanyang.study.repository.StudyRepository;
 import fororo.univ_hanyang.study.repository.StudyTagRepository;
@@ -21,11 +23,13 @@ import fororo.univ_hanyang.user.repository.UserStudyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +37,7 @@ import java.util.stream.Collectors;
 @Getter
 @RequiredArgsConstructor
 public class StudyService {
-
+    
     private final StudyRepository studyRepository;
     private final TagRepository tagRepository;
     private final ClubInfoRepository clubInfoRepository;
@@ -74,7 +78,7 @@ public class StudyService {
                     }
                 }));
 
-        List<String> weeklyPlans= study.getWeeklyPlans().stream()
+        List<String> weeklyPlans = study.getWeeklyPlans().stream()
                 .map(WeeklyPlan::getPlan)
                 .toList();
 
@@ -90,7 +94,7 @@ public class StudyService {
                 .endTime(study.getEndTime())
                 .goal(study.getGoal())
                 .interview(study.getInterview())
-                .date(study.getDate())
+                .weekDay(study.getWeekDay())
                 .level(study.getLevel())
                 .tags(tagDetails)
                 .image(study.getImage())
@@ -107,7 +111,7 @@ public class StudyService {
      * 스터디를 수기로 등록해야 하므로, 멘토와 유저가 같은 지 검증하지 않음.
      */
     @Transactional
-    public Study saveStudy(StudyCreateRequest request, User user) {
+    public void saveStudy(StudyRequest request, User user) {
 //        if (!user.getUserName().equals(request.getMentorName()))
 //            throw new IllegalArgumentException("학번 혹은 이름이 잘못되었습니다.");
 
@@ -115,38 +119,7 @@ public class StudyService {
         if (user.getUserAuthorization() == null) {
             throw new IllegalArgumentException("스터디 생성 권한이 없습니다.");
         }
-
-        List<WeeklyPlan> weeklyPlans = new ArrayList<>();
-
-
-        Study study = new Study();
-
-        for (String content : request.getWeeklyPlan()) {
-            WeeklyPlan weeklyPlan = new WeeklyPlan();
-            weeklyPlan.setPlan(content);
-            weeklyPlan.setStudy(study);
-            weeklyPlans.add(weeklyPlan);
-        }
-
-        study.setStudyName(request.getStudyName());
-        study.setMentorId(request.getMentorId());
-        study.setClubId(clubInfoService.makeClubID());
-        study.setMentorEmail(request.getMentorEmail());
-        study.setMentorName(request.getMentorName());
-        study.setStartTime(request.getStartTime());
-        study.setEndTime(request.getEndTime());
-        study.setInterview(request.getInterview());
-        study.setDate(request.getDate());
-        study.setGoal(request.getGoal());
-        study.setLevel(request.getLevel());
-        study.setExplanation(request.getExplanation());
-        study.setImage(request.getImage());
-        study.setLocation(request.getLocation());
-        study.setMaximumUsers(request.getMaximumUsers());
-        study.setReference(request.getReference());
-        study.setWeeklyPlans(weeklyPlans);
-        study.setConditions(request.getConditions());
-        study.setStudyType(StudyType.valueOf(request.getStudyType()));
+        Study study = setStudy(request);
 
         // 권한이 회원일 시엔 대기 상태로 설정
         if (UserAuthorization.회원.equals(user.getUserAuthorization()))
@@ -154,59 +127,26 @@ public class StudyService {
         else
             study.setStudyStatus(StudyStatus.Approved);
 
-        // Tag 엔터티에 매핑
-        study.setTags(mapTagNamesToTags(study, request.getTag()));
-
         studyRepository.save(study);
-
-        return study;
     }
 
 
     @Transactional
-    public void updateStudy(Integer studyId, StudyUpdateRequest request) {
+    public void updateStudy(User user, Integer studyId, StudyRequest request) {
         // 기존 스터디를 찾아옴
         Study study = studyRepository.findById(studyId).orElseThrow(() -> new EntityNotFoundException("해당하는 스터디를 찾을 수 없습니다."));
-        userRepository.findById(request.getMentorId())
-                .orElseThrow(() -> new EntityNotFoundException("해당하는 유저를 찾을 수 없습니다."));
 
-        List<WeeklyPlan> weeklyPlans = new ArrayList<>();
+        if (user.getUserAuthorization().equals(UserAuthorization.회원))
+            throw new IllegalArgumentException("권한이 없습니다.");
 
-        for (String content : request.getWeeklyPlan()) {
-            WeeklyPlan weeklyPlan = new WeeklyPlan();
-            weeklyPlan.setPlan(content);
-            weeklyPlan.setStudy(study);
-            weeklyPlans.add(weeklyPlan);
-        }
-
-        // 스터디 엔터티에 요청으로 받은 데이터로 업데이트
-        study.setStudyName(request.getStudyName());
-        study.setMentorId(request.getMentorId());
-        study.setMentorEmail(request.getMentorEmail());
-        study.setMentorName(request.getMentorName());
-        study.setStartTime(request.getStartTime());
-        study.setEndTime(request.getEndTime());
-        study.setInterview(request.getInterview());
-        study.setDate(request.getDate());
-        study.setGoal(request.getGoal());
-        study.setLevel(request.getLevel());
-        study.setExplanation(request.getExplanation());
-        study.setImage(request.getImage());
-        study.setLocation(request.getLocation());
-        study.setMaximumUsers(request.getMaximumUsers());
-        study.setReference(request.getReference());
-        study.setWeeklyPlans(weeklyPlans);
-        study.setConditions(request.getConditions());
-        study.setStudyType(StudyType.valueOf(request.getStudyType()));
-        //기존 스터디 태그를 비워준 후 다시 맵핑
-        study.getTags().clear();
-        study.setTags(mapTagNamesToTags(study, request.getTag()));
-
-        studyRepository.save(study);
+        studyRepository.save(setStudy(study, request));
     }
 
     @Transactional
-    public void deleteStudy(Integer studyId) {
+    public void deleteStudy(User user, Integer studyId) {
+        if (user.getUserAuthorization().equals(UserAuthorization.회원))
+            throw new IllegalArgumentException("권한이 없습니다.");
+
         // studyId로 스터디를 찾음
         Study study = studyRepository.findById(studyId).orElseThrow(() -> new EntityNotFoundException("해당하는 스터디를 찾을 수 없습니다."));
         // 연결된 태그 비워줌
@@ -248,7 +188,6 @@ public class StudyService {
         userStudyRepository.delete(userStudy);
     }
 
-    @Transactional
     public void changeStatus(Integer studyId, String status) {
         Study study = studyRepository.findByStudyId(studyId)
                 .orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다."));
@@ -278,8 +217,9 @@ public class StudyService {
             studyInfoResponse.setStudyName(study.getStudyName());
             studyInfoResponse.setStartTime(study.getStartTime());
             studyInfoResponse.setEndTime(study.getEndTime());
-            studyInfoResponse.setDate(study.getDate());
+            studyInfoResponse.setWeekDay(study.getWeekDay());
             studyInfoResponse.setLevel(study.getLevel());
+            studyInfoResponse.setExplanation(study.getExplanation());
             studyInfoResponse.setMentorName(study.getMentorName());
             studyInfoResponse.setInterview(study.getInterview());
             studyInfoResponse.setImage(study.getImage());
@@ -316,7 +256,7 @@ public class StudyService {
             studyInfoResponse.setStudyName(study.getStudyName());
             studyInfoResponse.setStartTime(study.getStartTime());
             studyInfoResponse.setEndTime(study.getEndTime());
-            studyInfoResponse.setDate(study.getDate());
+            studyInfoResponse.setWeekDay(study.getWeekDay());
             studyInfoResponse.setLevel(study.getLevel());
             studyInfoResponse.setMentorName(study.getMentorName());
             studyInfoResponse.setInterview(study.getInterview());
@@ -348,5 +288,125 @@ public class StudyService {
 
         return result;
     }
+
+    @Transactional
+    public Study setStudy(StudyRequest request) {
+        List<WeeklyPlan> weeklyPlans = new ArrayList<>();
+
+        Study study = new Study();
+
+        for (String content : request.getWeeklyPlan()) {
+            WeeklyPlan weeklyPlan = new WeeklyPlan();
+            weeklyPlan.setPlan(content);
+            weeklyPlan.setStudy(study);
+            weeklyPlans.add(weeklyPlan);
+        }
+
+        study.setStudyName(request.getStudyName());
+        study.setMentorId(request.getMentorId());
+        study.setClubId(clubInfoService.makeClubID());
+        study.setMentorEmail(request.getMentorEmail());
+        study.setMentorName(request.getMentorName());
+        study.setStartTime(request.getStartTime());
+        study.setEndTime(request.getEndTime());
+        study.setInterview(request.getInterview());
+        study.setWeekDay(request.getWeekDay());
+        study.setGoal(request.getGoal());
+        study.setLevel(request.getLevel());
+        study.setExplanation(request.getExplanation());
+        study.setImage(request.getImage());
+        study.setLocation(request.getLocation());
+        study.setMaximumUsers(request.getMaximumUsers());
+        study.setReference(request.getReference());
+        study.setWeeklyPlans(weeklyPlans);
+        study.setConditions(request.getConditions());
+        study.setStudyType(StudyType.valueOf(request.getStudyType()));
+
+        study.getTags().clear();
+        study.setTags(mapTagNamesToTags(study, request.getTag()));
+
+        return study;
+    }
+
+    @Transactional
+    public Study setStudy(Study study, StudyRequest request) {
+        try {
+            // CustomBeanUtils 을 사용하여 null 이 아닌 속성만 복사
+            CustomBeanUtils.copyNonNullProperties(study, request);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // weeklyPlans 와 같은 복잡한 속성은 수동으로 처리
+        List<WeeklyPlan> weeklyPlans = weeklyPlanRepository.findAllByStudy_StudyIdOrderByPlanId(study.getStudyId());
+        List<String> updatedPlans = request.getWeeklyPlan();
+
+        for (int i = 0; i < weeklyPlans.size(); i++) {
+            if (i >= updatedPlans.size() || updatedPlans.get(i) == null) {
+                continue;
+            }
+            WeeklyPlan weeklyPlan = weeklyPlans.get(i);
+            weeklyPlan.setPlan(updatedPlans.get(i));
+            weeklyPlan.setStudy(study);
+        }
+        study.setWeeklyPlans(weeklyPlans);
+
+        // 열거형과 같은 특별한 처리가 필요한 속성도 수동으로 설정
+        if (request.getStudyType() != null)
+            study.setStudyType(StudyType.valueOf(request.getStudyType()));
+
+        // 태그 관련 처리
+        study.getTags().clear();
+        studyTagRepository.deleteByStudy_StudyId(study.getStudyId());
+        study.setTags(mapTagNamesToTags(study, request.getTag()));
+
+        return study;
+    }
+
+    @Transactional
+    public StudyUserResponse getStudyOfUser(User user) {
+        UserStudy userStudy = userStudyRepository.findRecentUserStudyById_UserId(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("수강한 스터디가 없습니다."));
+        Study study = studyRepository.findByStudyId(userStudy.getId().getStudyId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 스터디가 없습니다."));
+
+        StudyUserResponse studyUserResponse = new StudyUserResponse();
+        studyUserResponse.setStudyName(study.getStudyName());
+        studyUserResponse.setWeekDay(study.getWeekDay());
+        studyUserResponse.setLocation(study.getLocation());
+        studyUserResponse.setReference(study.getReference());
+        studyUserResponse.setStartTime(study.getStartTime());
+        studyUserResponse.setEndTime(study.getEndTime());
+        studyUserResponse.setMentorName(study.getMentorName());
+
+        List<String> weeklyPlans = new ArrayList<>();
+        for (WeeklyPlan weeklyPlan : study.getWeeklyPlans()) {
+            String plan = weeklyPlan.getPlan();
+            weeklyPlans.add(plan);
+        }
+        studyUserResponse.setWeeklyPlans(weeklyPlans);
+
+        return studyUserResponse;
+    }
+
+    @Transactional
+    public StudyNameResponse getStudyNameOfUser(Integer userId) {
+        StudyNameResponse studyNameResponse = new StudyNameResponse();
+
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("유저가 없습니다."));
+        Optional<UserStudy> userStudy = userStudyRepository.findRecentUserStudyById_UserId(userId);
+
+        if (userStudy.isPresent()) {
+            Study study = studyRepository.findByStudyId(userStudy.get().getId().getStudyId())
+                    .orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다."));
+            studyNameResponse.setStudyName(study.getStudyName());
+        } else {
+            studyNameResponse.setStudyName("스터디 없음");
+        }
+
+        return studyNameResponse;
+    }
+
 
 }
