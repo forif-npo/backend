@@ -1,13 +1,10 @@
 package fororo.univ_hanyang.user.entity;
 
-import fororo.univ_hanyang.apply.entity.Apply;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.*;
 
 
 @Getter
