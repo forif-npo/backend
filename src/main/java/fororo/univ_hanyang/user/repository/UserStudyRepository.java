@@ -11,7 +11,7 @@ public interface UserStudyRepository extends JpaRepository<UserStudy, Integer> {
     List<UserStudy> findAllById_StudyId(Integer studyId);
     void deleteAllById_StudyId(Integer studyId);
 
-    void deleteById_StudyId(Integer studyId);
+    void deleteById_StudyIdAndId_UserId(Integer studyId, Integer userId);
 
     void deleteAllById_UserId(Integer userId);
 

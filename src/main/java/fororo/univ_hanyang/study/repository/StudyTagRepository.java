@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface StudyTagRepository extends JpaRepository<StudyTag, Integer> {
     void deleteByStudy_StudyId(Integer StudyId);
+
 }

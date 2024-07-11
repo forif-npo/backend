@@ -9,6 +9,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UnpaidUserResponse {
     private Integer userId;
+    private String name;
+    private String primaryStudyName;
+    private String secondaryStudyName;
     private String phoneNumber;
-
 }
