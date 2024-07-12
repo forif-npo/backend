@@ -20,7 +20,6 @@ public class AllStudyInfoResponse {
     private Integer weekDay;
     private Boolean interview;
     private String image;
-    private String studyType;
     private String studyStatus;
     private Integer year;
     private Integer semester;
