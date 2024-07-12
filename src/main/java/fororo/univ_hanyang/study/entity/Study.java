@@ -72,6 +72,7 @@ public class Study {
 
     private String conditions;
 
+    private String tag;
 
     @Enumerated(EnumType.STRING)
     private StudyStatus studyStatus;
