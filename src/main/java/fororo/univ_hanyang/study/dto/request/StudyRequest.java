@@ -26,7 +26,6 @@ public class StudyRequest {
     private String reference;
     private List<String> weeklyPlan;
     private String conditions;
-    private String studyType;
 }
 
 
