@@ -76,12 +76,6 @@ public class Study {
     @Enumerated(EnumType.STRING)
     private StudyStatus studyStatus;
 
-    @Enumerated(EnumType.STRING)
-    private StudyType studyType;
-
-    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<StudyTag> tags = new HashSet<>();
-
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<WeeklyPlan> weeklyPlans = new ArrayList<>();
 
