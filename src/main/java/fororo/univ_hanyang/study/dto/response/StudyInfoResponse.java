@@ -30,6 +30,5 @@ public class StudyInfoResponse {
     private String reference;
     private List<String> weeklyPlans;
     private String conditions;
-    private String studyType;
 }
 
