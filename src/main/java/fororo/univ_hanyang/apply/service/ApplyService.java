@@ -13,9 +13,9 @@ import fororo.univ_hanyang.study.entity.Study;
 import fororo.univ_hanyang.study.repository.StudyRepository;
 import fororo.univ_hanyang.user.entity.User;
 import fororo.univ_hanyang.user.entity.UserAuthorization;
-import fororo.univ_hanyang.user.entity.UserStudy;
+import fororo.univ_hanyang.user.entity.StudyUser;
 import fororo.univ_hanyang.user.repository.UserRepository;
-import fororo.univ_hanyang.user.repository.UserStudyRepository;
+import fororo.univ_hanyang.user.repository.StudyUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -34,13 +34,13 @@ import java.util.stream.Collectors;
 public class ApplyService {
     private final StudyRepository studyRepository;
     private final UserRepository userRepository;
-    private final UserStudyRepository userStudyRepository;
+    private final StudyUserRepository studyUserRepository;
     private final ApplyRepository applyRepository;
     private final ClubInfoService clubInfoService;
 
     @Transactional
     public void applyStudy(ApplyRequest request, User user) {
-        Study study1 = studyRepository.findByStudyName(request.getPrimaryStudy())
+        Study study1 = studyRepository.findByName(request.getPrimaryStudy())
                 .orElseThrow(() -> new EntityNotFoundException("스터디가 존재하지 않습니다. 이름: " + request.getPrimaryStudy()));
 
         if (study1.getMentorId().equals(user.getId()))
@@ -48,7 +48,7 @@ public class ApplyService {
 
         // 2순위 스터디 미참여가 아닐 시에만 예외 검사
         if (!request.getSecondaryStudy().equals("미참여")) {
-            Study study2 = studyRepository.findByStudyName(request.getSecondaryStudy())
+            Study study2 = studyRepository.findByName(request.getSecondaryStudy())
                     .orElseThrow(() -> new EntityNotFoundException("스터디가 존재하지 않습니다. 이름: " + request.getSecondaryStudy()));
             if (study2.getMentorId().equals(user.getId()))
                 throw new IllegalArgumentException("자신의 스터디 입니다.");
@@ -76,7 +76,7 @@ public class ApplyService {
 
     @Transactional
     public void acceptApplication(AcceptRequest request) {
-        Study study = studyRepository.findByStudyId(request.getStudyId())
+        Study study = studyRepository.findById(request.getStudyId())
                 .orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다."));
 
         Set<Integer> ApplierIds = request.getApplierIds();
@@ -96,32 +96,32 @@ public class ApplyService {
 
             // 2순위 스터디를 이미 승낙받은 상황에서, 1순위 스터디가 승낙된다면, 2순위 스터디는 제거
             if (apply.getSecondaryStatus().equals(ApplyStatus.승낙)) {
-                if (apply.getPrimaryStudy().equals(study.getStudyName())) {
-                    Study secondStudy = studyRepository.findByStudyName(apply.getSecondaryStudy())
+                if (apply.getPrimaryStudy().equals(study.getName())) {
+                    Study secondStudy = studyRepository.findByName(apply.getSecondaryStudy())
                             .orElseThrow(() -> new EntityNotFoundException("스터디 없음"));
-                    userStudyRepository.deleteById_StudyIdAndId_UserId(secondStudy.getStudyId(), applierId);
+                    studyUserRepository.deleteById_StudyIdAndId_UserId(secondStudy.getId(), applierId);
                 }
             }
 
             // 1순위 스터디인지 2순위 스터디인지 구분
-            if (apply.getPrimaryStudy().equals(study.getStudyName()))
+            if (apply.getPrimaryStudy().equals(study.getName()))
                 apply.setPrimaryStatus(ApplyStatus.승낙);
             else
                 apply.setSecondaryStatus(ApplyStatus.승낙);
 
 
             // UserStudyId 인스턴스 생성
-            UserStudy.UserStudyId userStudyId = new UserStudy.UserStudyId();
-            userStudyId.setStudyId(study.getStudyId());
-            userStudyId.setUserId(user.getId());
+            StudyUser.StudyUserId StudyUserId = new StudyUser.StudyUserId();
+            StudyUserId.setStudyId(study.getId());
+            StudyUserId.setUserId(user.getId());
 
-            // UserStudy 엔티티를 생성하여 스터디와 유저를 연결
-            UserStudy userStudy = new UserStudy();
-            userStudy.setId(userStudyId);
-            userStudy.setStudy(study);
-            userStudy.setUser(user);
+            // StudyUser 엔티티를 생성하여 스터디와 유저를 연결
+            StudyUser StudyUser = new StudyUser();
+            StudyUser.setId(StudyUserId);
+            StudyUser.setStudy(study);
+            StudyUser.setUser(user);
 
-            userStudyRepository.save(userStudy);
+            studyUserRepository.save(StudyUser);
         }
     }
 
@@ -149,7 +149,7 @@ public class ApplyService {
     public String getUserName(Apply apply) {
         return userRepository.findById(apply.getApplierId())
                 .orElseThrow(() -> new EntityNotFoundException("유저가 없습니다."))
-                .getUserName();
+                .getName();
     }
 
     /**
@@ -168,10 +168,10 @@ public class ApplyService {
                 || user.getUserAuthorization().equals(UserAuthorization.회원))
             throw new IllegalStateException("잘못된 접근입니다.");
 
-        Study study = studyRepository.findByStudyId(studyId)
+        Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다."));
 
-        String studyName = study.getStudyName();
+        String studyName = study.getName();
 
         List<Apply> primaryStudies = applyRepository.findAllByPrimaryStudy(studyName);
         List<Apply> secondaryStudies = applyRepository.findAllBySecondaryStudy(studyName);
@@ -225,7 +225,7 @@ public class ApplyService {
         if (!user.getId().equals(study.getMentorId()))
             throw new IllegalArgumentException("해당 스터디의 멘토가 아닙니다.");
 
-        String studyName = study.getStudyName();
+        String studyName = study.getName();
 
         List<Apply> primaryStudies = applyRepository.findAllByPrimaryStudy(studyName);
         List<Apply> secondaryStudies = applyRepository.findAllBySecondaryStudy(studyName);
