@@ -77,7 +77,7 @@ public class StudyController {
 
     @RequireJWT
     @PostMapping
-    public ResponseEntity<StudyResponse> saveStudy(
+    public ResponseEntity<Void> saveStudy(
             @RequestBody StudyRequest request,
             @RequestHeader("Authorization") String token) {
         // 유저 검증
@@ -91,7 +91,7 @@ public class StudyController {
 
     @RequireJWT
     @PatchMapping("/{studyId}")
-    public ResponseEntity<StudyResponse> updateStudy(
+    public ResponseEntity<Void> updateStudy(
             @RequestHeader("Authorization") String token,
             @PathVariable Integer studyId,
             @RequestBody StudyRequest request) {
@@ -104,7 +104,7 @@ public class StudyController {
 
     @RequireJWT
     @PatchMapping("/{studyId}/status")
-    public ResponseEntity<StudyResponse> changeStatus(
+    public ResponseEntity<Void> changeStatus(
             @PathVariable Integer studyId,
             @RequestParam String status
     ){
@@ -115,7 +115,7 @@ public class StudyController {
 
     @RequireJWT
     @DeleteMapping("/{studyId}")
-    public ResponseEntity<StudyResponse> deleteStudy(
+    public ResponseEntity<Void> deleteStudy(
             @RequestHeader("Authorization") String token,
             @PathVariable Integer studyId) {
         User user = userService.validateUserExist(token);
@@ -128,7 +128,7 @@ public class StudyController {
 
     @RequireJWT
     @DeleteMapping("/{studyId}/users/{userId}")
-    public ResponseEntity<StudyResponse> deleteUserFromStudy(
+    public ResponseEntity<Void> deleteUserFromStudy(
             @PathVariable Integer studyId,
             @PathVariable Integer userId) {
         studyService.deleteUserFromStudy(studyId, userId);

@@ -1,4 +1,4 @@
-package fororo.univ_hanyang;
+package fororo.univ_hanyang.config;
 
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.Components;

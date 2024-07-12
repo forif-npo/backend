@@ -90,15 +90,13 @@ public class UserController {
 
     @RequireJWT
     @DeleteMapping("/user")
-    public ResponseEntity<UserResponse> deleteUser(
+    public ResponseEntity<Void> deleteUser(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
         userService.deleteUser(user);
 
-        UserResponse responseObj = new UserResponse(200, "회원 삭제 성공");
-
-        return new ResponseEntity<>(responseObj, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequireJWT

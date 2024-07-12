@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class StudyNameResponse {
-    private String studyName;
+    private String name;
 }
