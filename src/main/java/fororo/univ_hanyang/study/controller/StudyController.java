@@ -65,7 +65,7 @@ public class StudyController {
 
     /**
      * 관리자용 기능, 추후 옮기기
-     * @param userId 유저 학번
+     * @param id 유저 학번
      * @return userName, studyName
      */
     @GetMapping("/names/{id}")
