@@ -174,26 +174,6 @@ public class UserService {
 
     }
 
-    public List<StudyMemberResponse> getStudyMembers(User mentor, Integer studyId) {
-        if (mentor.getUserAuthorization().equals(UserAuthorization.회원))
-            throw new IllegalArgumentException("권한이 없습니다.");
-
-        List<StudyUser> userStudies = studyUserRepository.findAllById_StudyId(studyId);
-        List<StudyMemberResponse> userList = new ArrayList<>();
-        for (StudyUser StudyUser : userStudies) {
-            User member = StudyUser.getUser();
-            StudyMemberResponse studyMemberResponse = new StudyMemberResponse();
-            studyMemberResponse.setId(member.getId());
-            studyMemberResponse.setName(member.getName());
-            studyMemberResponse.setDepartment(member.getDepartment());
-            studyMemberResponse.setEmail(member.getEmail());
-            studyMemberResponse.setPhoneNumber(member.getPhoneNumber());
-
-            userList.add(studyMemberResponse);
-        }
-
-        return userList;
-    }
 
     public List<AllUserInfoResponse> getAllUsersInfo(User admin)
     {
