@@ -67,7 +67,6 @@ public class Study {
     private String location;
 
     private String maximumUsers;
-
     private String reference;
 
     private String conditions;
