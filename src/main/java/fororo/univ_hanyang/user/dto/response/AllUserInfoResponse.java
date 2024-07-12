@@ -6,8 +6,8 @@ import java.util.List;
 
 @Data
 public class AllUserInfoResponse {
-    private Integer userId;
-    private String userName;
+    private Integer id;
+    private String name;
     private String email;
     private String phoneNumber;
     private String department;

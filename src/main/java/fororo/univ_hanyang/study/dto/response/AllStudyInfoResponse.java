@@ -9,18 +9,17 @@ import java.util.Map;
 @Getter
 @Setter
 public class AllStudyInfoResponse {
-    private Integer studyId;
-    private Map<String, String> tags;
-    private String studyName;
+    private Integer id;
+    private String name;
     private String mentorName;
     private Time startTime;
     private Time endTime;
     private String explanation;
     private Short level;
     private Integer weekDay;
-    private Boolean interview;
     private String image;
     private String studyStatus;
+    private String tag;
     private Integer year;
     private Integer semester;
 }

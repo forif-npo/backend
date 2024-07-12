@@ -10,13 +10,12 @@ import fororo.univ_hanyang.user.entity.User;
 import fororo.univ_hanyang.user.repository.UserRepository;
 import fororo.univ_hanyang.cert.dto.GetCertInfosResponse;
 import fororo.univ_hanyang.cert.entity.IssueInfo;
-import fororo.univ_hanyang.user.entity.UserStudy;
+import fororo.univ_hanyang.user.entity.StudyUser;
 import fororo.univ_hanyang.study.entity.Study;
 import fororo.univ_hanyang.cert.repository.IssueInfoRepository;
-import fororo.univ_hanyang.user.repository.UserStudyRepository;
+import fororo.univ_hanyang.user.repository.StudyUserRepository;
 import fororo.univ_hanyang.study.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -31,7 +30,7 @@ public class CertService {
     private final UserRepository userRepository;
     private final ClubInfoRepository clubInfoRepository;
     private final IssueInfoRepository issueInfoRepository;
-    private final UserStudyRepository UserStudyRepository;
+    private final StudyUserRepository StudyUserRepository;
     private final StudyRepository studyRepository;
     private final CertJsonRepository certJsonRepository;
 
@@ -56,9 +55,9 @@ public class CertService {
         // 스터디마다 반복
         for (Study study : studies) {
             // 해당 스터디를 수강한 학생의 목록 뽑기
-            List<UserStudy> studentsStudies = UserStudyRepository.findAllById_StudyId(study.getStudyId());
+            List<StudyUser> studentsStudies = StudyUserRepository.findAllById_StudyId(study.getId());
             // 각 학생의 목록 별로 순회
-            for (UserStudy oneUserStudy : studentsStudies) {
+            for (StudyUser oneUserStudy : studentsStudies) {
                 User user = userRepository.findById(oneUserStudy.getId().getUserId()).get();
                 Optional<IssueInfo> issueInfo1 = issueInfoRepository.findById_StudyId(oneUserStudy.getId().getStudyId());
                 // 조건 : 출석 패스 & 해커톤 패스
@@ -69,10 +68,10 @@ public class CertService {
                 }
                 GetCertInfosResponse getCertInfosResponse = new GetCertInfosResponse();
                 getCertInfosResponse.setUserId(user.getId());
-                getCertInfosResponse.setUserName(user.getUserName());
+                getCertInfosResponse.setName(user.getName());
                 getCertInfosResponse.setActivityYear(activityYear);
                 getCertInfosResponse.setActivitySemester(activitySemester);
-                getCertInfosResponse.setStudyName(study.getStudyName());
+                getCertInfosResponse.setStudyName(study.getName());
                 ret.add(getCertInfosResponse);
             }
         }
