@@ -10,7 +10,7 @@ spring:
     generate-ddl: true
     database: mysql
     hibernate:
-      ddl-auto:
+      ddl-auto: update
     properties:
       hibernate.format_sql: true
       hibernate.dialect: org.hibernate.dialect.MySQLDialect
