@@ -68,11 +68,11 @@ public class StudyController {
      * @param userId 유저 학번
      * @return userName, studyName
      */
-    @GetMapping("/names/{userId}")
+    @GetMapping("/names/{id}")
     public ResponseEntity<StudyNameResponse> getStudyNameOfUser(
-            @PathVariable Integer userId
+            @PathVariable Integer id
     ){
-        return new ResponseEntity<>(studyService.getStudyNameOfUser(userId), HttpStatus.OK);
+        return new ResponseEntity<>(studyService.getStudyNameOfUser(id), HttpStatus.OK);
     }
 
     @RequireJWT
@@ -90,37 +90,37 @@ public class StudyController {
     }
 
     @RequireJWT
-    @PatchMapping("/{studyId}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Void> updateStudy(
             @RequestHeader("Authorization") String token,
-            @PathVariable Integer studyId,
+            @PathVariable Integer id,
             @RequestBody StudyRequest request) {
         User user = userService.validateUserExist(token);
 
-        studyService.updateStudy(user, studyId, request);
+        studyService.updateStudy(user, id, request);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequireJWT
-    @PatchMapping("/{studyId}/status")
+    @PatchMapping("/{id}/status")
     public ResponseEntity<Void> changeStatus(
-            @PathVariable Integer studyId,
+            @PathVariable Integer id,
             @RequestParam String status
     ){
-        studyService.changeStatus(studyId, status);
+        studyService.changeStatus(id, status);
         // 성공 시 204 No Content 상태 코드 응답
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequireJWT
-    @DeleteMapping("/{studyId}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudy(
             @RequestHeader("Authorization") String token,
-            @PathVariable Integer studyId) {
+            @PathVariable Integer id) {
         User user = userService.validateUserExist(token);
 
-        studyService.deleteStudy(user, studyId);
+        studyService.deleteStudy(user, id);
 
         // 성공 시 204 No Content 상태 코드 응답
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
