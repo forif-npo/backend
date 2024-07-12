@@ -13,7 +13,6 @@ import java.util.Map;
 @Setter
 public class StudyInfoResponse {
     private Integer studyId;
-    private Map<String, String> tags;
     private Integer mentorId;
     private String mentorEmail;
     private String studyName;
