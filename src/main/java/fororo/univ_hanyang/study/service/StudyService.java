@@ -10,10 +10,10 @@ import fororo.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import fororo.univ_hanyang.study.dto.response.StudyInfoResponse;
 import fororo.univ_hanyang.study.dto.response.StudyNameResponse;
 import fororo.univ_hanyang.study.dto.response.StudyUserResponse;
-import fororo.univ_hanyang.study.entity.*;
+import fororo.univ_hanyang.study.entity.Study;
+import fororo.univ_hanyang.study.entity.StudyStatus;
+import fororo.univ_hanyang.study.entity.WeeklyPlan;
 import fororo.univ_hanyang.study.repository.StudyRepository;
-import fororo.univ_hanyang.study.repository.StudyTagRepository;
-import fororo.univ_hanyang.study.repository.TagRepository;
 import fororo.univ_hanyang.study.repository.WeeklyPlanRepository;
 import fororo.univ_hanyang.user.entity.User;
 import fororo.univ_hanyang.user.entity.UserAuthorization;
@@ -23,15 +23,14 @@ import fororo.univ_hanyang.user.repository.UserStudyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Getter
@@ -39,11 +38,9 @@ import java.util.stream.Collectors;
 public class StudyService {
     
     private final StudyRepository studyRepository;
-    private final TagRepository tagRepository;
     private final ClubInfoRepository clubInfoRepository;
     private final UserRepository userRepository;
     private final UserStudyRepository userStudyRepository;
-    private final StudyTagRepository studyTagRepository;
     private final ClubInfoService clubInfoService;
     private final WeeklyPlanRepository weeklyPlanRepository;
 
@@ -54,7 +51,7 @@ public class StudyService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "연도 또는 학기가 잘못되었습니다.");
 
         Integer clubInfoId = optionalClubInfo.get().getClubId();
-        return studyRepository.findAllByClubId(clubInfoId);
+        return studyRepository.findAllByClubIdWithDetails(clubInfoId);
     }
 
 
@@ -62,17 +59,6 @@ public class StudyService {
     public StudyInfoResponse getStudyInfo(StudyInfoRequest request) {
         Study study = studyRepository.findById(request.getStudyId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
-
-        Map<String, String> tagDetails = study.getTags().stream()
-                .map(StudyTag::getTag)
-                .collect(Collectors.toMap(Tag::getTagName, Tag::getColor, (v1, v2) -> {
-                    // 태그 이름 중복 검사
-                    if (v1.equals(v2)) {
-                        return v1;
-                    } else {
-                        throw new IllegalStateException("중복된 태그 이름");
-                    }
-                }));
 
         List<String> weeklyPlans = study.getWeeklyPlans().stream()
                 .map(WeeklyPlan::getPlan)
@@ -92,14 +78,12 @@ public class StudyService {
                 .interview(study.getInterview())
                 .weekDay(study.getWeekDay())
                 .level(study.getLevel())
-                .tags(tagDetails)
                 .image(study.getImage())
                 .location(study.getLocation())
                 .reference(study.getReference())
                 .maximumUsers(study.getMaximumUsers())
                 .conditions(study.getConditions())
                 .weeklyPlans(weeklyPlans)
-                .studyType(study.getStudyType().toString())
                 .build();
     }
 
@@ -145,30 +129,12 @@ public class StudyService {
 
         // studyId로 스터디를 찾음
         Study study = studyRepository.findById(studyId).orElseThrow(() -> new EntityNotFoundException("해당하는 스터디를 찾을 수 없습니다."));
-        // 연결된 태그 비워줌
-        study.getTags().clear();
-        studyTagRepository.deleteByStudy_StudyId(studyId);
         // 해당 스터디 신청 혹은 수강 중인 유저 모두 삭제
         userStudyRepository.deleteAllById_StudyId(studyId);
         // 주간 계획 모두 삭제
         weeklyPlanRepository.deleteAllByStudy_StudyId(studyId);
         // 스터디 삭제
         studyRepository.delete(study);
-    }
-
-    @Transactional
-    public Set<StudyTag> mapTagNamesToTags(Study study, Set<String> tagNames) {
-        Set<StudyTag> studyTags = new HashSet<>();
-        for (String tagName : tagNames) {
-            Tag tag = tagRepository.findByTagName(tagName)
-                    .orElseThrow(() -> new EntityNotFoundException("태그를 찾을 수 없습니다. tagName: " + tagName));
-            StudyTag studyTag = new StudyTag();
-            studyTag.setStudy(study);
-            studyTag.setTag(tag);
-
-            studyTags.add(studyTag);
-        }
-        return studyTags;
     }
 
     @Transactional
@@ -198,17 +164,6 @@ public class StudyService {
         for (Study study : studies) {
             AllStudyInfoResponse studyInfoResponse = new AllStudyInfoResponse();
 
-            Map<String, String> tagDetails = study.getTags().stream()
-                    .map(StudyTag::getTag)
-                    .collect(Collectors.toMap(Tag::getTagName, Tag::getColor, (v1, v2) -> {
-                        // 태그 이름 중복 검사
-                        if (v1.equals(v2)) {
-                            return v1;
-                        } else {
-                            throw new IllegalStateException("중복된 태그 이름");
-                        }
-                    }));
-
             studyInfoResponse.setStudyId(study.getStudyId());
             studyInfoResponse.setStudyName(study.getStudyName());
             studyInfoResponse.setStartTime(study.getStartTime());
@@ -219,8 +174,6 @@ public class StudyService {
             studyInfoResponse.setMentorName(study.getMentorName());
             studyInfoResponse.setInterview(study.getInterview());
             studyInfoResponse.setImage(study.getImage());
-            studyInfoResponse.setStudyType(study.getStudyType().toString());
-            studyInfoResponse.setTags(tagDetails);
             studyInfoResponse.setStudyStatus(study.getStudyStatus().toString());
             studyInfoResponse.setYear(year);
             studyInfoResponse.setSemester(semester);
@@ -238,17 +191,6 @@ public class StudyService {
             if (!StudyStatus.valueOf(status).equals(study.getStudyStatus()))
                 continue;
             AllStudyInfoResponse studyInfoResponse = new AllStudyInfoResponse();
-            Map<String, String> tagDetails = study.getTags().stream()
-                    .map(StudyTag::getTag)
-                    .collect(Collectors.toMap(Tag::getTagName, Tag::getColor, (v1, v2) -> {
-                        // 태그 이름 중복 검사
-                        if (v1.equals(v2)) {
-                            return v1;
-                        } else {
-                            throw new IllegalStateException("중복된 태그 이름");
-                        }
-                    }));
-
 
             studyInfoResponse.setStudyId(study.getStudyId());
             studyInfoResponse.setStudyName(study.getStudyName());
@@ -259,33 +201,11 @@ public class StudyService {
             studyInfoResponse.setMentorName(study.getMentorName());
             studyInfoResponse.setInterview(study.getInterview());
             studyInfoResponse.setImage(study.getImage());
-            studyInfoResponse.setStudyType(study.getStudyType().toString());
-            studyInfoResponse.setTags(tagDetails);
             result.add(studyInfoResponse);
         }
         return result;
     }
 
-    /**
-     * 간단한 메서드라서 dto 안쓰고 Map 으로 구현함
-     */
-    @Transactional(readOnly = true)
-    public Map<String, List<String>> getStudyNames(List<Study> studies) {
-        Map<String, List<String>> result = new HashMap<>();
-
-        for (Study study : studies) {
-            String studyType = study.getStudyType().toString();
-            String studyName = study.getStudyName();
-
-            // 해당 스터디 타입에 대한 리스트를 가져오거나 없다면 새로 생성
-            List<String> studyList = result.computeIfAbsent(studyType, k -> new ArrayList<>());
-
-            // 스터디 이름을 리스트에 추가
-            studyList.add(studyName);
-        }
-
-        return result;
-    }
 
     @Transactional
     public Study setStudy(StudyRequest request) {
@@ -318,10 +238,6 @@ public class StudyService {
         study.setReference(request.getReference());
         study.setWeeklyPlans(weeklyPlans);
         study.setConditions(request.getConditions());
-        study.setStudyType(StudyType.valueOf(request.getStudyType()));
-
-        study.getTags().clear();
-        study.setTags(mapTagNamesToTags(study, request.getTag()));
 
         return study;
     }
@@ -348,15 +264,6 @@ public class StudyService {
             weeklyPlan.setStudy(study);
         }
         study.setWeeklyPlans(weeklyPlans);
-
-        // 열거형과 같은 특별한 처리가 필요한 속성도 수동으로 설정
-        if (request.getStudyType() != null)
-            study.setStudyType(StudyType.valueOf(request.getStudyType()));
-
-        // 태그 관련 처리
-        study.getTags().clear();
-        studyTagRepository.deleteByStudy_StudyId(study.getStudyId());
-        study.setTags(mapTagNamesToTags(study, request.getTag()));
 
         return study;
     }
