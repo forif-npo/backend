@@ -120,7 +120,7 @@ public class UserController {
     }
 
     @RequireJWT
-    @GetMapping("/users/numbers")
+    @GetMapping("/users/number")
     public ResponseEntity<TotalUserNumberResponse> getTotalUserNumber(
             @RequestHeader("Authorization") String token
     ){
