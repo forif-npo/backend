@@ -6,6 +6,7 @@ import fororo.univ_hanyang.study.dto.request.StudyRequest;
 import fororo.univ_hanyang.study.dto.response.*;
 import fororo.univ_hanyang.study.entity.Study;
 import fororo.univ_hanyang.study.service.StudyService;
+import fororo.univ_hanyang.user.dto.response.StudyMemberResponse;
 import fororo.univ_hanyang.user.entity.User;
 import fororo.univ_hanyang.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -63,9 +64,21 @@ public class StudyController {
         return new ResponseEntity<>(studyService.getStudyOfUser(user), HttpStatus.OK);
     }
 
+    @RequireJWT
+    @GetMapping("/{studyId}/users")
+    public ResponseEntity<List<StudyMemberResponse>> getStudyMembers(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Integer studyId
+    ) {
+        User mentor = userService.validateUserExist(token);
+        List<StudyMemberResponse> studyMemberList = studyService.getStudyMembers(mentor, studyId);
+
+        return new ResponseEntity<>(studyMemberList,HttpStatus.OK);
+    }
+
     /**
      * 관리자용 기능, 추후 옮기기
-     * @param userId 유저 학번
+     * @param id 유저 학번
      * @return userName, studyName
      */
     @GetMapping("/names/{id}")
