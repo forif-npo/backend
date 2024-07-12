@@ -31,12 +31,12 @@ public class IssueInfo {
 
     @ManyToOne
     @MapsId("userId")
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 
     @ManyToOne
     @MapsId("studyId")
-    @JoinColumn(name = "study_id", referencedColumnName = "study_id", insertable = false, updatable = false)
+    @JoinColumn(name = "study_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Study study;
 
     @Column(name = "attendance_pass")

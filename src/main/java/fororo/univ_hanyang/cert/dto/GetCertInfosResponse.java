@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class GetCertInfosResponse {
     private Integer userId;
-    private String userName;
+    private String name;
     private String department;
     private Integer activityYear;
     private Integer activitySemester;

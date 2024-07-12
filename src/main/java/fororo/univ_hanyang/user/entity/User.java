@@ -15,14 +15,14 @@ import lombok.Setter;
 @Table(name = "user") // 테이블 이름 지정
 public class User {
     @Id
-    @Column(name = "user_id")
+    @Column(name = "id")
     private Integer id;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "user_name")
-    private String userName;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "department")
     private String department;

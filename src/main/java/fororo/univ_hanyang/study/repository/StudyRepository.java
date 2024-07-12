@@ -12,8 +12,7 @@ import java.util.Optional;
 
 public interface StudyRepository extends JpaRepository<Study,Integer> {
     List<Study> findAllByClubId(Integer clubId);
-    Optional<Study> findByStudyName(String studyName);
-    Optional<Study> findByStudyId(Integer studyId);
+    Optional<Study> findByName(String studyName);
     Optional<Study> findByMentorIdAndClubId(Integer mentorId, Integer clubId);
     @EntityGraph(attributePaths = {"mentor", "weeklyPlans"})
     @Query("SELECT s FROM Study s WHERE s.clubId = :clubId")

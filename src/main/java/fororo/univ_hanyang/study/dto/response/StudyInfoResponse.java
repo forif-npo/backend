@@ -12,23 +12,18 @@ import java.util.Map;
 @Getter
 @Setter
 public class StudyInfoResponse {
-    private Integer studyId;
+    private Integer id;
+    private String name;
     private Integer mentorId;
-    private String mentorEmail;
-    private String studyName;
     private String mentorName;
     private Time startTime;
     private Time endTime;
-    private String goal;
     private Short level;
     private String explanation;
     private Integer weekDay;
-    private Boolean interview;
     private String image;
     private String location;
-    private String maximumUsers;
-    private String reference;
+    private String tag;
     private List<String> weeklyPlans;
-    private String conditions;
 }
 

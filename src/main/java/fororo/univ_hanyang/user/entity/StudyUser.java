@@ -1,7 +1,6 @@
 package fororo.univ_hanyang.user.entity;
 
 import fororo.univ_hanyang.study.entity.Study;
-import fororo.univ_hanyang.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,12 +14,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user_study")
-public class UserStudy {
+@Table(name = "study_user")
+public class StudyUser {
     @Embeddable
     @Getter
     @Setter
-    public static class UserStudyId implements Serializable {
+    public static class StudyUserId implements Serializable {
         @Column(name = "user_id")
         private Integer userId;
 
@@ -29,15 +28,15 @@ public class UserStudy {
     }
 
     @EmbeddedId
-    private UserStudyId id;
+    private StudyUserId id;
 
     @ManyToOne
     @MapsId("userId")
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 
     @ManyToOne
     @MapsId("studyId")
-    @JoinColumn(name = "study_id", referencedColumnName = "study_id", insertable = false, updatable = false)
+    @JoinColumn(name = "study_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Study study;
 }
