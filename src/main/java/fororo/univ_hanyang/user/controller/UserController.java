@@ -78,7 +78,7 @@ public class UserController {
     }
 
     @RequireJWT
-    @PatchMapping("/user")
+    @PatchMapping("/users")
     public ResponseEntity<User> patchUser(
             @RequestHeader("Authorization") String token,
             @RequestBody UserPatchRequest request
@@ -89,7 +89,7 @@ public class UserController {
     }
 
     @RequireJWT
-    @DeleteMapping("/user")
+    @DeleteMapping("/users")
     public ResponseEntity<Void> deleteUser(
             @RequestHeader("Authorization") String token
     ) {
@@ -100,7 +100,7 @@ public class UserController {
     }
 
     @RequireJWT
-    @GetMapping("/user")
+    @GetMapping("/users")
     public ResponseEntity<UserInfoResponse> getUser(
             @RequestHeader("Authorization") String token
     ) {
@@ -109,19 +109,7 @@ public class UserController {
     }
 
     @RequireJWT
-    @GetMapping("/user/all")
-    public ResponseEntity<List<StudyMemberResponse>> getStudyMembers(
-            @RequestHeader("Authorization") String token,
-            @RequestParam Integer studyId
-    ) {
-        User mentor = userService.validateUserExist(token);
-        List<StudyMemberResponse> studyMemberList = userService.getStudyMembers(mentor, studyId);
-
-        return new ResponseEntity<>(studyMemberList,HttpStatus.OK);
-    }
-
-    @RequireJWT
-    @GetMapping("/user/allUsers")
+    @GetMapping("/users/all")
     public ResponseEntity<List<AllUserInfoResponse>> getAllUsers(
             @RequestHeader("Authorization") String token
     ){
@@ -132,7 +120,7 @@ public class UserController {
     }
 
     @RequireJWT
-    @GetMapping("/user/number")
+    @GetMapping("/users/numbers")
     public ResponseEntity<TotalUserNumberResponse> getTotalUserNumber(
             @RequestHeader("Authorization") String token
     ){
