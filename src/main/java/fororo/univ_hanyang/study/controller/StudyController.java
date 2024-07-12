@@ -1,7 +1,6 @@
 package fororo.univ_hanyang.study.controller;
 
 import fororo.univ_hanyang.jwt.RequireJWT;
-import fororo.univ_hanyang.study.dto.request.StudyRequest;
 import fororo.univ_hanyang.study.dto.request.StudyInfoRequest;
 import fororo.univ_hanyang.study.dto.request.StudyRequest;
 import fororo.univ_hanyang.study.dto.response.*;
@@ -14,11 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Map;
 @Tag(name = "스터디", description = "스터디 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -43,17 +39,6 @@ public class StudyController {
     ) {
         // 성공 시 200 OK 상태 코드와 함께 응답
         return new ResponseEntity<>(studyService.getStudyInfo(new StudyInfoRequest(studyId)),HttpStatus.OK);
-    }
-
-    // 모든 스터디의 이름만 가져옴
-    @GetMapping("/names")
-    public ResponseEntity<Map<String, List<String>>> getAllStudyNames(
-            @RequestParam(value = "year") Integer year,
-            @RequestParam(value = "semester") Integer semester
-    ) {
-        List<Study> studies = studyService.getAllStudiesInfo(year, semester);
-
-        return new ResponseEntity<>(studyService.getStudyNames(studies), HttpStatus.OK);
     }
 
     // 주어진 상태의 모든 스터디를 가져옴
