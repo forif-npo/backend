@@ -1,4 +1,7 @@
 =======
 # backend
 
-*public 용 임시 소스 코드
+## Project setup
+```
+mvn clean install
+```
