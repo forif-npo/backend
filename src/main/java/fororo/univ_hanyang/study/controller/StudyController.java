@@ -69,7 +69,7 @@ public class StudyController {
     }
 
     @RequireJWT
-    @GetMapping("/user")
+    @GetMapping("/users")
     public ResponseEntity<StudyUserResponse> getStudyOfUser(
             @RequestHeader("Authorization") String token
     ){
@@ -142,7 +142,7 @@ public class StudyController {
     }
 
     @RequireJWT
-    @DeleteMapping("/{studyId}/user/{userId}")
+    @DeleteMapping("/{studyId}/users/{userId}")
     public ResponseEntity<StudyResponse> deleteUserFromStudy(
             @PathVariable Integer studyId,
             @PathVariable Integer userId) {
