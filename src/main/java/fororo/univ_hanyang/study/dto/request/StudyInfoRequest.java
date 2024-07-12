@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class StudyInfoRequest {
-    private Integer studyId;
+    private Integer id;
 }
 

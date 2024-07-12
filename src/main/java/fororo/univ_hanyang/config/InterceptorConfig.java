@@ -1,9 +1,8 @@
-package fororo.univ_hanyang;
+package fororo.univ_hanyang.config;
 
 import fororo.univ_hanyang.jwt.RequireJWTIntercepter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
