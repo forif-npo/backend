@@ -22,6 +22,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests.anyRequest().permitAll()
                 );
+        http.cors();
 
         return http.build();
     }
