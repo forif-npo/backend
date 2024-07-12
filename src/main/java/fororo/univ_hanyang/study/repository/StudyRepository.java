@@ -1,7 +1,10 @@
 package fororo.univ_hanyang.study.repository;
 
 import fororo.univ_hanyang.study.entity.Study;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,5 +15,8 @@ public interface StudyRepository extends JpaRepository<Study,Integer> {
     Optional<Study> findByStudyName(String studyName);
     Optional<Study> findByStudyId(Integer studyId);
     Optional<Study> findByMentorIdAndClubId(Integer mentorId, Integer clubId);
+    @EntityGraph(attributePaths = {"mentor", "weeklyPlans"})
+    @Query("SELECT s FROM Study s WHERE s.clubId = :clubId")
+    List<Study> findAllByClubIdWithDetails(@Param("clubId") Integer clubId);
 
 }
