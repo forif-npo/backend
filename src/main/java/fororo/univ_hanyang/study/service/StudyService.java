@@ -155,7 +155,7 @@ public class StudyService {
     @Transactional
     public List<AllStudyInfoResponse> convertToStudyInfoResponse(List<Study> studies, Integer year, Integer semester) {
         List<AllStudyInfoResponse> result = new ArrayList<>();
-        //Tag 가져오기
+
         for (Study study : studies) {
             AllStudyInfoResponse studyInfoResponse = new AllStudyInfoResponse();
 
