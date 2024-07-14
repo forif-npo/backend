@@ -14,7 +14,6 @@ import java.util.Map;
 public class JWTTestController {
     @ResponseBody
     @PostMapping("/v1/debugJWT")
-
     public Map<String, Object> debugJWT(@RequestBody Map<String, Object> requestBody) {
         String token = (String)requestBody.get("token");
         JWTValidator jwtValidator = new JWTValidator();
