@@ -23,11 +23,6 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return new ResponseEntity<>("연결 성공", HttpStatus.OK);
-    }
-
     @Operation(
             summary = "로그인",
             description = "사용자가 토큰을 이용해서 로그인 함",
@@ -42,7 +37,7 @@ public class UserController {
                     )
             }
     )
-    @PostMapping("/signin")
+    @PostMapping("/auth/sign-in")
     public ResponseEntity<User> signIn(
             @RequestHeader("Authorization") String token
     ) {
@@ -66,7 +61,7 @@ public class UserController {
             }
     )
     @RequireJWT
-    @PostMapping("/signup")
+    @PostMapping("/auth/sign-up")
     public ResponseEntity<User> signUp(
             @RequestHeader("Authorization") String token,
             @RequestBody UserInfoRequest userInfoRequest
@@ -77,8 +72,22 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "프로필 수정",
+            description = "프로필의 이름, 학번, 학과, 전화번호, 사진을 수정함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
     @RequireJWT
-    @PatchMapping("/users")
+    @PatchMapping("/auth/profile")
     public ResponseEntity<User> patchUser(
             @RequestHeader("Authorization") String token,
             @RequestBody UserPatchRequest request
@@ -89,7 +98,7 @@ public class UserController {
     }
 
     @RequireJWT
-    @DeleteMapping("/users")
+    @DeleteMapping("/auth/profile")
     public ResponseEntity<Void> deleteUser(
             @RequestHeader("Authorization") String token
     ) {
@@ -100,7 +109,7 @@ public class UserController {
     }
 
     @RequireJWT
-    @GetMapping("/users")
+    @GetMapping("/auth/profile")
     public ResponseEntity<UserInfoResponse> getUser(
             @RequestHeader("Authorization") String token
     ) {
@@ -109,7 +118,7 @@ public class UserController {
     }
 
     @RequireJWT
-    @GetMapping("/users/all")
+    @GetMapping("/users")
     public ResponseEntity<List<AllUserInfoResponse>> getAllUsers(
             @RequestHeader("Authorization") String token
     ){
@@ -120,7 +129,7 @@ public class UserController {
     }
 
     @RequireJWT
-    @GetMapping("/users/number")
+    @GetMapping("/users/numbers")
     public ResponseEntity<TotalUserNumberResponse> getTotalUserNumber(
             @RequestHeader("Authorization") String token
     ){
