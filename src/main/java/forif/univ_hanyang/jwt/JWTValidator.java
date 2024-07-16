@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class JWTValidator {
     public String[] validateToken(String token) {
-
         String[] s = new String[2];
         try {
             // 토큰의 페이로드 추출
