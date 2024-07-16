@@ -1,15 +1,22 @@
-#!/bin/bash
-PROJECT_NAME="github_action"
-JAR_PATH="/home/ubuntu/github_action/build/libs/*.jar"
-DEPLOY_PATH=/home/ubuntu/$PROJECT_NAME/
-DEPLOY_LOG_PATH="/home/ubuntu/$PROJECT_NAME/deploy.log"
-DEPLOY_ERR_LOG_PATH="/home/ubuntu/$PROJECT_NAME/deploy_err.log"
-APPLICATION_LOG_PATH="/home/ubuntu/$PROJECT_NAME/application.log"
-BUILD_JAR=$(ls $JAR_PATH)
-JAR_NAME=$(basename $BUILD_JAR)
+#!/usr/bin/env bash
 
-echo "===== 배포 시작 : $(date +%c) =====" >> $DEPLOY_LOG_PATH
+REPOSITORY=/home/ubuntu/github_action
+cd $REPOSITORY
 
-echo "> build 파일명: $JAR_NAME" >> $DEPLOY_LOG_PATH
-echo "> build 파일 복사" >> $DEPLOY_LOG_PATH
-cp $BUILD_JAR $DEPLOY_PATH
+APP_NAME=forif
+JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep 'SNAPSHOT.jar' | tail -n 1)
+JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
+
+CURRENT_PID=$(pgrep -f $APP_NAME)
+
+if [ -z $CURRENT_PID ]
+then
+  echo "> 종료할 애플리케이션이 없습니다."
+else
+  echo "> kill -9 $CURRENT_PID"
+  kill -15 $CURRENT_PID
+  sleep 5
+fi
+
+echo "> Deploy - $JAR_PATH "
+nohup java -jar $JAR_PATH > /dev/null 2> /dev/null < /dev/null &
