@@ -3,13 +3,13 @@
 REPOSITORY=/home/ubuntu/github_action
 cd $REPOSITORY
 
-APP_NAME=forif
+APP_NAME=backend
 JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep 'SNAPSHOT.jar' | tail -n 1)
 JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
 
 CURRENT_PID=$(pgrep -f $APP_NAME)
 
-if [ -z $CURRENT_PID ]
+if [ -z $CURRENT_PI D ]
 then
   echo "> 종료할 애플리케이션이 없습니다."
 else
