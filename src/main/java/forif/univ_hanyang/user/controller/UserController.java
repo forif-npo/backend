@@ -72,6 +72,28 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @RequireJWT
+    @GetMapping("/auth/profile")
+    public ResponseEntity<UserInfoResponse> getUser(
+            @RequestHeader("Authorization") String token
+    ) {
+        User user = userService.validateUserExist(token);
+        return ResponseEntity.ok(userService.getUserInfo(user));
+    }
+
+    @RequireJWT
+    @GetMapping("/users")
+    public ResponseEntity<List<AllUserInfoResponse>> getAllUsers(
+            @RequestHeader("Authorization") String token
+    ){
+        User admin = userService.validateUserExist(token);
+        List<AllUserInfoResponse> allUserInfoResponses = userService.getAllUsersInfo(admin);
+
+        return new ResponseEntity<>(allUserInfoResponses, HttpStatus.OK);
+    }
+
+
+
     @Operation(
             summary = "프로필 수정",
             description = "프로필의 이름, 학번, 학과, 전화번호, 사진을 수정함",
@@ -97,6 +119,21 @@ public class UserController {
         return new ResponseEntity<>(userService.patchUser(request, user), HttpStatus.OK);
     }
 
+
+    @Operation(
+            summary = "프로필 삭제",
+            description = "프로필을 삭제함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
     @RequireJWT
     @DeleteMapping("/auth/profile")
     public ResponseEntity<Void> deleteUser(
@@ -105,38 +142,7 @@ public class UserController {
         User user = userService.validateUserExist(token);
         userService.deleteUser(user);
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @RequireJWT
-    @GetMapping("/auth/profile")
-    public ResponseEntity<UserInfoResponse> getUser(
-            @RequestHeader("Authorization") String token
-    ) {
-        User user = userService.validateUserExist(token);
-        return ResponseEntity.ok(userService.getUserInfo(user));
-    }
-
-    @RequireJWT
-    @GetMapping("/users")
-    public ResponseEntity<List<AllUserInfoResponse>> getAllUsers(
-            @RequestHeader("Authorization") String token
-    ){
-        User admin = userService.validateUserExist(token);
-        List<AllUserInfoResponse> allUserInfoResponses = userService.getAllUsersInfo(admin);
-
-        return new ResponseEntity<>(allUserInfoResponses, HttpStatus.OK);
-    }
-
-    @RequireJWT
-    @GetMapping("/users/numbers")
-    public ResponseEntity<TotalUserNumberResponse> getTotalUserNumber(
-            @RequestHeader("Authorization") String token
-    ){
-        User admin = userService.validateUserExist(token);
-        TotalUserNumberResponse totalUserNumberResponse = userService.getTotalUserNumber();
-
-        return new ResponseEntity<>(totalUserNumberResponse, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 
