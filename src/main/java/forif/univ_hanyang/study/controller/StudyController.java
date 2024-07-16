@@ -135,8 +135,8 @@ public class StudyController {
 
         studyService.deleteStudy(user, id);
 
-        // 성공 시 204 No Content 상태 코드 응답
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        // 성공 시 200 상태 코드 응답
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequireJWT
@@ -146,8 +146,8 @@ public class StudyController {
             @PathVariable Integer userId) {
         studyService.deleteUserFromStudy(studyId, userId);
 
-        // 성공 시 204 No Content 상태 코드 응답
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        // 성공 시 200 No OK 상태 코드 응답
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
