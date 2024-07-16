@@ -11,8 +11,8 @@ on:
 env:
   BUCKET_NAME: forif-web
   PROJECT_NAME: forif-project
-  CODE_DEPLOY_APP_NAME: forif-code-deploy
-  DEPLOYMENT_GROUP_NAME: forif-server
+  CODE_DEPLOY_APPLICATION_NAME: forif-code-deploy
+  CODE_DEPLOYMENT_GROUP_NAME: forif-server
 
 jobs:
   build:
@@ -62,7 +62,7 @@ jobs:
       - name: Code Deploy
         run: |
           aws deploy create-deployment \
-                --application-name ${{ env.CODE_DEPLOY_APP_NAME }} 
+                --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+                --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }}
                 --deployment-config-name CodeDeployDefault.AllAtOnce
-                --deployment-group-name ${{ env.DEPLOYMENT_GROUP_NAME }}
                 --s3-location bucket=$BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
