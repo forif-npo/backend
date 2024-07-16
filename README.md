@@ -1,6 +1,7 @@
 =======
 # backend
 
+## Project setup
 ```
-JAVA, Spring Boot, MySQL
+mvn clean install
 ```
