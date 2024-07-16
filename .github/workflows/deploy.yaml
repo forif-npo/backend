@@ -13,6 +13,9 @@ env:
   PROJECT_NAME: forif-project
   CODE_DEPLOY_APPLICATION_NAME: forif-code-deploy
   CODE_DEPLOYMENT_GROUP_NAME: forif-server
+  JAVA_HOME_17.0.11_x64: /opt/hostedtoolcache/jdk/17.0.11/x64
+  JAVA_HOME: /opt/hostedtoolcache/jdk/17.0.11/x64
+  JAVA_HOME_17_0_11_X64: /opt/hostedtoolcache/jdk/17.0.11/x64
 
 jobs:
   build:
@@ -59,10 +62,11 @@ jobs:
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
 
-      - name: Code Deploy
+      - name: Create deployment
         run: |
           aws deploy create-deployment \
-                --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
-                --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
-                --deployment-config-name CodeDeployDefault.AllAtOnce \
-                --s3-location bucket=$BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+            --application-name $CODE_DEPLOY_APPLICATION_NAME \
+            --deployment-group-name $CODE_DEPLOYMENT_GROUP_NAME \
+            --deployment-config-name CodeDeployDefault.AllAtOnce \
+            --s3-location bucket=$BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+        shell: bash
