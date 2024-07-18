@@ -46,5 +46,4 @@ if [ -z "$NEW_PID" ]; then
 else
   echo "> 어플리케이션이 성공적으로 시작되었습니다. PID: $NEW_PID" >> $DEPLOY_LOG_PATH
 fi
-
 echo "> 배포 종료 : $(date +%c)" >> $DEPLOY_LOG_PATH
