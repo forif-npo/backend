@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 @Component
 @RequiredArgsConstructor
 public class RequireJWTIntercepter implements HandlerInterceptor {
-    private final JWTValidator jwtValidator;
+    private final JwtUtils jwtUtils;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -27,7 +27,7 @@ public class RequireJWTIntercepter implements HandlerInterceptor {
                 if (token == null){
                     return false;
                 }
-                jwtValidator.validateToken(token);
+                jwtUtils.validateToken(token);
             }
         }
         return true;

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -24,6 +25,19 @@ public class IssueInfo {
 
         @Column(name = "study_id")
         private Integer studyId;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            IssueInfoId that = (IssueInfoId) o;
+            return Objects.equals(userId, that.userId) && Objects.equals(studyId, that.studyId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(userId, studyId);
+        }
     }
 
     @EmbeddedId

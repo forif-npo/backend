@@ -1,9 +1,9 @@
-package forif.univ_hanyang.user.dto.request;
+package forif.univ_hanyang.auth.dto;
 
 import lombok.Data;
 
 @Data
-public class UserInfoRequest {
+public class SignUpRequest {
     private String name;
     private String department;
     private Integer id;
