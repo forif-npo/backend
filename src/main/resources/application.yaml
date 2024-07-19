@@ -8,12 +8,11 @@ spring:
   jpa:
     show-sql: true
     generate-ddl: true
-    database: mysql
+    open-in-view: false
     hibernate:
       ddl-auto: update
     properties:
       hibernate.format_sql: true
-      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
 
 springdoc:
   swagger-ui:
