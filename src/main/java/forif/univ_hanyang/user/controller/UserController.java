@@ -1,9 +1,10 @@
 package forif.univ_hanyang.user.controller;
 
 import forif.univ_hanyang.jwt.RequireJWT;
-import forif.univ_hanyang.user.dto.request.UserInfoRequest;
 import forif.univ_hanyang.user.dto.request.UserPatchRequest;
-import forif.univ_hanyang.user.dto.response.*;
+import forif.univ_hanyang.user.dto.response.AllUserInfoResponse;
+import forif.univ_hanyang.user.dto.response.UserInfoResponse;
+import forif.univ_hanyang.user.dto.response.UserNumberResponse;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,55 +24,6 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @Operation(
-            summary = "로그인",
-            description = "사용자가 토큰을 이용해서 로그인 함",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
-            }
-    )
-    @PostMapping("/auth/sign-in")
-    public ResponseEntity<User> signIn(
-            @RequestHeader("Authorization") String token
-    ) {
-        User user = userService.validateUserExist(token);
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-
-    @Operation(
-            summary = "회원가입",
-            description = "사용자가 토큰을 이용해서 회원가입 함",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
-            }
-    )
-    @RequireJWT
-    @PostMapping("/auth/sign-up")
-    public ResponseEntity<User> signUp(
-            @RequestHeader("Authorization") String token,
-            @RequestBody UserInfoRequest userInfoRequest
-    ) {
-        userService.validateSignUp(token);
-        User user = userService.setUser(userInfoRequest, token);
-
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
     @RequireJWT
     @GetMapping("/auth/profile")
     public ResponseEntity<UserInfoResponse> getUser(
@@ -90,6 +42,15 @@ public class UserController {
         List<AllUserInfoResponse> allUserInfoResponses = userService.getAllUsersInfo(admin);
 
         return new ResponseEntity<>(allUserInfoResponses, HttpStatus.OK);
+    }
+
+    @RequireJWT
+    @GetMapping
+    public UserNumberResponse getUserNumber(
+            @RequestHeader("Authorization") String token
+    ){
+        User admin = userService.validateUserExist(token);
+        return userService.getUserNumber(admin);
     }
 
 
@@ -144,6 +105,7 @@ public class UserController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 }
 
 
