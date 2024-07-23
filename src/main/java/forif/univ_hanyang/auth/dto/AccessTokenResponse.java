@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class AccessTokenResponse {
-    private String g_access_token;
+    private String access_token;
 }
