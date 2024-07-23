@@ -134,7 +134,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다.");
 
         AccessTokenResponse accessTokenResponse = new AccessTokenResponse();
-        accessTokenResponse.setG_access_token(jwtUtils.generateAccessToken(userId));
+        accessTokenResponse.setAccess_token(jwtUtils.generateAccessToken(userId));
 
         return accessTokenResponse;
     }
