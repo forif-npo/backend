@@ -65,7 +65,11 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public User validateUserExist(String token) {
+    public User validateUserExist(String accessToken) {
+        // 'Bearer ' 접두사 제거
+        String token = accessToken.startsWith("Bearer ") ? accessToken.substring(7) : accessToken;
+        token = token.trim();  // 양 끝의 공백 제거
+
         // JWT 토큰 검증
         if (!jwtValidator.validateToken(token)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유효하지 않은 토큰입니다.");
