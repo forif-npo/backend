@@ -180,7 +180,6 @@ public class StudyService {
 
         for (Study study : studies) {
             AllStudyInfoResponse studyInfoResponse = new AllStudyInfoResponse();
-
             studyInfoResponse.setId(study.getId());
             studyInfoResponse.setName(study.getName());
             studyInfoResponse.setStartTime(study.getStartTime());
@@ -208,7 +207,6 @@ public class StudyService {
             if (!StudyStatus.valueOf(status).equals(study.getStudyStatus()))
                 continue;
             AllStudyInfoResponse studyInfoResponse = new AllStudyInfoResponse();
-
             studyInfoResponse.setId(study.getId());
             studyInfoResponse.setName(study.getName());
             studyInfoResponse.setStartTime(study.getStartTime());
