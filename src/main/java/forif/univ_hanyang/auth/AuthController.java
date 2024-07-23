@@ -67,8 +67,8 @@ public class AuthController {
     }
 
     @PostMapping("/auth/token")
-    public ResponseEntity<AccessTokenResponse> getAccessToken(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refresh_token").trim(); // JSON 객체에서 값 추출 및 공백 제거
+    public ResponseEntity<AccessTokenResponse> getAccessToken(@RequestBody TokenRequest request) {
+        String refreshToken = request.getRefresh_token().trim(); // JSON 객체에서 값 추출 및 공백 제거
         AccessTokenResponse accessTokenResponse = authService.getAccessToken(refreshToken);
         return new ResponseEntity<>(accessTokenResponse, HttpStatus.OK);
 
