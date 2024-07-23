@@ -1,7 +1,9 @@
 package forif.univ_hanyang.auth;
 
+import forif.univ_hanyang.auth.dto.AccessTokenResponse;
 import forif.univ_hanyang.auth.dto.AuthResponse;
 import forif.univ_hanyang.auth.dto.SignUpRequest;
+import forif.univ_hanyang.auth.dto.TokenRequest;
 import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Tag(name = "인증", description = "인증 관련 API")
 @RestController
@@ -54,12 +58,19 @@ public class AuthController {
     @RequireJWT
     @PostMapping("/auth/sign-up")
     public ResponseEntity<User> signUp(
-            @RequestHeader("Authorization") String access_token,
+            @RequestHeader("Authorization") String accessToken,
             @RequestBody SignUpRequest request
-            ) {
-        User user = authService.setUser(request, access_token);
+    ) {
+        User user = authService.setUser(request, accessToken);
 
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @PostMapping("/auth/token")
+    public ResponseEntity<AccessTokenResponse> getAccessToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refresh_token").trim(); // JSON 객체에서 값 추출 및 공백 제거
+        AccessTokenResponse accessTokenResponse = authService.getAccessToken(refreshToken);
+        return new ResponseEntity<>(accessTokenResponse, HttpStatus.OK);
+
+    }
 }

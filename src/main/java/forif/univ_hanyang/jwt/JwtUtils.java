@@ -1,8 +1,11 @@
 package forif.univ_hanyang.jwt;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -12,8 +15,12 @@ import java.util.Date;
 public class JwtUtils {
     private static final long ACCESS_TOKEN_EXPIRATION_TIME = 3600_000; // 1 hour
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 30 * 24 * 60 * 60 * 1000L; // 30 days
-    private static final SecretKey key = Jwts.SIG.HS256.key().build(); // HS256 알고리즘에 사용할 SecretKey 생성
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+    private final SecretKey key;
+
+    public JwtUtils(@Value("${jwt.secret}") String key) {
+        this.key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(key));
+    }
 
     // 액세스 토큰 발급
     public String generateAccessToken(String userId) {
@@ -21,7 +28,7 @@ public class JwtUtils {
                 .subject(userId)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
-                .signWith(key)
+                .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }
 
@@ -31,13 +38,14 @@ public class JwtUtils {
                 .subject(userId)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
-                .signWith(key)
+                .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }
 
     // 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
+            logger.info("Validating token: '{}'", token);
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
         } catch (Exception e) {
@@ -56,8 +64,7 @@ public class JwtUtils {
                 .getSubject();
     }
 
-
-    public static boolean isExpired(String token) {
+    public boolean isExpired(String token) {
         return Jwts.parser()
                 .verifyWith(key)
                 .build()
