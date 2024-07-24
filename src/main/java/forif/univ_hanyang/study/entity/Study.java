@@ -41,9 +41,6 @@ public class Study {
     private String location;
     private String tag;
 
-    @Enumerated(EnumType.STRING)
-    private StudyStatus studyStatus;
-
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<WeeklyPlan> weeklyPlans = new ArrayList<>();
 

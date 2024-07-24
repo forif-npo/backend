@@ -42,18 +42,6 @@ public class StudyController {
         return new ResponseEntity<>(studyService.getStudyInfo(new StudyInfoRequest(studyId)),HttpStatus.OK);
     }
 
-    // 주어진 상태의 모든 스터디를 가져옴
-    @GetMapping("/status")
-    public List<AllStudyInfoResponse> getAllStudiesByStatus(
-            @RequestParam(value = "year") Integer year,
-            @RequestParam(value = "semester") Integer semester,
-            @RequestParam(value = "status") String status
-    ){
-        List<Study> studies = studyService.getAllStudiesInfo(year, semester);
-
-        return studyService.convertToStudyInfoResponse(studies, status);
-    }
-
     @RequireJWT
     @GetMapping("/users")
     public ResponseEntity<StudyUserResponse> getStudyOfUser(
@@ -112,17 +100,6 @@ public class StudyController {
 
         studyService.updateStudy(user, id, request);
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @RequireJWT
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<Void> changeStatus(
-            @PathVariable Integer id,
-            @RequestParam String status
-    ){
-        studyService.changeStatus(id, status);
-        // 성공 시 204 No Content 상태 코드 응답
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
