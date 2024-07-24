@@ -11,16 +11,15 @@ import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.StudyNameResponse;
 import forif.univ_hanyang.study.dto.response.StudyUserResponse;
 import forif.univ_hanyang.study.entity.Study;
-import forif.univ_hanyang.study.entity.StudyStatus;
 import forif.univ_hanyang.study.entity.WeeklyPlan;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.study.repository.WeeklyPlanRepository;
 import forif.univ_hanyang.user.dto.response.StudyMemberResponse;
+import forif.univ_hanyang.user.entity.StudyUser;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.entity.UserAuthorization;
-import forif.univ_hanyang.user.entity.StudyUser;
-import forif.univ_hanyang.user.repository.UserRepository;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
+import forif.univ_hanyang.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -118,12 +117,6 @@ public class StudyService {
         }
         Study study = setStudy(request);
 
-        // 권한이 회원일 시엔 대기 상태로 설정
-        if (UserAuthorization.회원.equals(user.getUserAuthorization()))
-            study.setStudyStatus(StudyStatus.Pending);
-        else
-            study.setStudyStatus(StudyStatus.Approved);
-
         studyRepository.save(study);
     }
 
@@ -167,13 +160,6 @@ public class StudyService {
         studyUserRepository.delete(StudyUser);
     }
 
-    public void changeStatus(Integer studyId, String status) {
-        Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다."));
-
-        study.setStudyStatus(StudyStatus.valueOf(status));
-    }
-
     @Transactional
     public List<AllStudyInfoResponse> convertToStudyInfoResponse(List<Study> studies, Integer year, Integer semester) {
         List<AllStudyInfoResponse> result = new ArrayList<>();
@@ -189,7 +175,6 @@ public class StudyService {
             studyInfoResponse.setExplanation(study.getExplanation());
             studyInfoResponse.setMentorName(study.getMentorName());
             studyInfoResponse.setImage(study.getImage());
-            studyInfoResponse.setStudyStatus(study.getStudyStatus().toString());
             studyInfoResponse.setTag(study.getTag());
             studyInfoResponse.setYear(year);
             studyInfoResponse.setSemester(semester);
@@ -197,30 +182,6 @@ public class StudyService {
         }
         return result;
     }
-
-    @Transactional
-    public List<AllStudyInfoResponse> convertToStudyInfoResponse(List<Study> studies, String status) {
-        List<AllStudyInfoResponse> result = new ArrayList<>();
-        //Tag 가져오기
-        for (Study study : studies) {
-            // 스터디 상태가 주어진 상태와 같은 지 확인 후 같지 않다면 그 스터디는 스킵
-            if (!StudyStatus.valueOf(status).equals(study.getStudyStatus()))
-                continue;
-            AllStudyInfoResponse studyInfoResponse = new AllStudyInfoResponse();
-            studyInfoResponse.setId(study.getId());
-            studyInfoResponse.setName(study.getName());
-            studyInfoResponse.setStartTime(study.getStartTime());
-            studyInfoResponse.setEndTime(study.getEndTime());
-            studyInfoResponse.setWeekDay(study.getWeekDay());
-            studyInfoResponse.setLevel(study.getLevel());
-            studyInfoResponse.setMentorName(study.getMentorName());
-            studyInfoResponse.setImage(study.getImage());
-            studyInfoResponse.setTag(study.getTag());
-            result.add(studyInfoResponse);
-        }
-        return result;
-    }
-
 
     @Transactional
     public Study setStudy(StudyRequest request) {
