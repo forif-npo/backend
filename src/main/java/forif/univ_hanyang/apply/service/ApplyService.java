@@ -82,7 +82,7 @@ public class ApplyService {
      * 있는지 여부를 판단하기 때문에, 없을 시 예외 처리하지 않고 null 값으로 대체
      */
     @Transactional(readOnly = true)
-    public Apply getUserApplication(User user) {
+    public MyApplicationResponse getUserApplication(User user) {
         Apply apply = applyRepository.findByApplierId(user.getId()).orElse(null);
         if (apply == null) {
             return null;
@@ -90,6 +90,7 @@ public class ApplyService {
         MyApplicationResponse response = new MyApplicationResponse();
         AppliedStudyResponse primaryStudy = new AppliedStudyResponse();
         AppliedStudyResponse secondaryStudy = new AppliedStudyResponse();
+
         primaryStudy.setId(apply.getPrimaryStudy());
         primaryStudy.setName(studyRepository.findById(apply.getPrimaryStudy()).orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다.")).getName());
         primaryStudy.setIntroduction(apply.getPrimaryIntro());
@@ -103,7 +104,7 @@ public class ApplyService {
         response.setApplyPath(apply.getApplyPath());
         response.setTimestamp(apply.getDate());
 
-        return apply;
+        return response;
     }
 
 
