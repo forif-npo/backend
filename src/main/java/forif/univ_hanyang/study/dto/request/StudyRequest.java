@@ -12,7 +12,6 @@ public class StudyRequest {
     private String mentorName;
     private Time startTime;
     private Time endTime;
-    private Boolean interview;
     private Integer weekDay;
     private Short level;
     private String explanation;

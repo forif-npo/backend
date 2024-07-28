@@ -9,8 +9,8 @@ import java.util.Optional;
 public interface ApplyRepository extends JpaRepository<Apply, Integer> {
     Optional<Apply> findByApplierId(Integer applierId);
     List<Apply> findAllByIsPaidFalse();
-    List<Apply> findAllByPrimaryStudy(String primary);
-    List<Apply> findAllBySecondaryStudy(String secondary);
+    List<Apply> findAllByPrimaryStudy(Integer primary);
+    List<Apply> findAllBySecondaryStudy(Integer secondary);
     void deleteByApplierId(Integer applierId);
     void deleteAll();
 

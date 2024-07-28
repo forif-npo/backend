@@ -20,11 +20,12 @@ public class Apply {
     private Integer applyId;
     @Column(name = "applier_id", unique = true)
     private Integer applierId;
-    private String primaryStudy;
+    private Integer primaryStudy;
+    private Integer secondaryStudy;
     private String primaryIntro;
-    private String secondaryStudy;
     private String secondaryIntro;
-    private String career;
+    private String applyPath;
+
     private Boolean isPaid;
     private LocalDateTime date;
 
