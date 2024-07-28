@@ -10,7 +10,7 @@ import lombok.Setter;
 public class UnpaidUserResponse {
     private Integer userId;
     private String name;
-    private String primaryStudyName;
-    private String secondaryStudyName;
+    private Integer primaryStudyId;
+    private Integer secondaryStudyId;
     private String phoneNumber;
 }

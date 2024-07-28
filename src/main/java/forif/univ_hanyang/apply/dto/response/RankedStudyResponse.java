@@ -10,5 +10,5 @@ public class RankedStudyResponse {
     private String name;
     private String phoneNumber;
     private String intro;
-    private String career;
+    private String applyPath;
 }

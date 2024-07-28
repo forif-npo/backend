@@ -3,6 +3,8 @@ package forif.univ_hanyang.apply.service;
 import forif.univ_hanyang.apply.dto.request.AcceptRequest;
 import forif.univ_hanyang.apply.dto.request.ApplyRequest;
 import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
+import forif.univ_hanyang.apply.dto.response.AppliedStudyResponse;
+import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
 import forif.univ_hanyang.apply.dto.response.RankedStudyResponse;
 import forif.univ_hanyang.apply.dto.response.UnpaidUserResponse;
 import forif.univ_hanyang.apply.entity.Apply;
@@ -19,9 +21,11 @@ import forif.univ_hanyang.user.repository.StudyUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -40,16 +44,16 @@ public class ApplyService {
 
     @Transactional
     public void applyStudy(ApplyRequest request, User user) {
-        Study study1 = studyRepository.findByName(request.getPrimaryStudy())
-                .orElseThrow(() -> new EntityNotFoundException("스터디가 존재하지 않습니다. 이름: " + request.getPrimaryStudy()));
+        Study study1 = studyRepository.findById(request.getPrimaryStudy())
+                .orElseThrow(() -> new EntityNotFoundException("스터디가 존재하지 않습니다. ID: " + request.getPrimaryStudy()));
 
         if (study1.getMentorId().equals(user.getId()))
             throw new IllegalArgumentException("자신의 스터디 입니다.");
 
         // 2순위 스터디 미참여가 아닐 시에만 예외 검사
-        if (!request.getSecondaryStudy().equals("미참여")) {
-            Study study2 = studyRepository.findByName(request.getSecondaryStudy())
-                    .orElseThrow(() -> new EntityNotFoundException("스터디가 존재하지 않습니다. 이름: " + request.getSecondaryStudy()));
+        if (request.getSecondaryStudy() != null) {
+            Study study2 = studyRepository.findById(request.getSecondaryStudy())
+                    .orElseThrow(() -> new EntityNotFoundException("스터디가 존재하지 않습니다. ID: " + request.getSecondaryStudy()));
             if (study2.getMentorId().equals(user.getId()))
                 throw new IllegalArgumentException("자신의 스터디 입니다.");
         }
@@ -63,7 +67,7 @@ public class ApplyService {
         apply.setSecondaryStudy(request.getSecondaryStudy());
         apply.setPrimaryIntro(request.getPrimaryIntro());
         apply.setSecondaryIntro(request.getSecondaryIntro());
-        apply.setCareer(request.getCareer());
+        apply.setApplyPath(request.getApplyPath());
         // 모든 지원서 초기엔 false 로 설정 (합격 후 금액 납부 원칙)
         apply.setIsPaid(false);
         apply.setPrimaryStatus(ApplyStatus.대기);
@@ -72,6 +76,60 @@ public class ApplyService {
 
         applyRepository.save(apply);
     }
+
+
+    /**
+     * 있는지 여부를 판단하기 때문에, 없을 시 예외 처리하지 않고 null 값으로 대체
+     */
+    @Transactional(readOnly = true)
+    public Apply getUserApplication(User user) {
+        Apply apply = applyRepository.findByApplierId(user.getId()).orElse(null);
+        if (apply == null) {
+            return null;
+        }
+        MyApplicationResponse response = new MyApplicationResponse();
+        AppliedStudyResponse primaryStudy = new AppliedStudyResponse();
+        AppliedStudyResponse secondaryStudy = new AppliedStudyResponse();
+        primaryStudy.setId(apply.getPrimaryStudy());
+        primaryStudy.setName(studyRepository.findById(apply.getPrimaryStudy()).orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다.")).getName());
+        primaryStudy.setIntroduction(apply.getPrimaryIntro());
+
+        secondaryStudy.setId(apply.getSecondaryStudy());
+        secondaryStudy.setName(studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다.")).getName());
+        secondaryStudy.setIntroduction(apply.getSecondaryIntro());
+
+        response.setPrimaryStudy(primaryStudy);
+        response.setSecondaryStudy(secondaryStudy);
+        response.setApplyPath(apply.getApplyPath());
+        response.setTimestamp(apply.getDate());
+
+        return apply;
+    }
+
+
+    @Transactional
+    public Apply patchApplication(User user, ApplyRequest request) throws IllegalAccessException, InvocationTargetException {
+        Apply apply = applyRepository.findByApplierId(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("지원서가 없습니다."));
+        // request 객체에서 apply 객체로 null이 아닌 필드만 복사
+        BeanUtils.copyProperties(user, request);
+
+        applyRepository.save(apply);
+
+        return apply;
+    }
+
+
+
+    @Transactional
+    public void deleteApplication(User user, Integer applierId) {
+        if (user.getUserAuthorization().equals(UserAuthorization.회원))
+            throw new IllegalArgumentException("권한이 없습니다.");
+
+        applyRepository.deleteByApplierId(applierId);
+    }
+
+
 
 
     @Transactional
@@ -96,15 +154,15 @@ public class ApplyService {
 
             // 2순위 스터디를 이미 승낙받은 상황에서, 1순위 스터디가 승낙된다면, 2순위 스터디는 제거
             if (apply.getSecondaryStatus().equals(ApplyStatus.승낙)) {
-                if (apply.getPrimaryStudy().equals(study.getName())) {
-                    Study secondStudy = studyRepository.findByName(apply.getSecondaryStudy())
+                if (apply.getPrimaryStudy().equals(study.getId())) {
+                    Study secondStudy = studyRepository.findById(apply.getSecondaryStudy())
                             .orElseThrow(() -> new EntityNotFoundException("스터디 없음"));
                     studyUserRepository.deleteById_StudyIdAndId_UserId(secondStudy.getId(), applierId);
                 }
             }
 
             // 1순위 스터디인지 2순위 스터디인지 구분
-            if (apply.getPrimaryStudy().equals(study.getName()))
+            if (apply.getPrimaryStudy().equals(study.getId()))
                 apply.setPrimaryStatus(ApplyStatus.승낙);
             else
                 apply.setSecondaryStatus(ApplyStatus.승낙);
@@ -133,13 +191,6 @@ public class ApplyService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 있는지 여부를 판단하기 때문에, 없을 시 예외 처리하지 않고 null 값으로 대체
-     */
-    @Transactional(readOnly = true)
-    public Apply getUserApplication(User user) {
-        return applyRepository.findByApplierId(user.getId()).orElse(null);
-    }
 
     /**
      * @param apply 지원서를 변수로 받음
@@ -171,10 +222,9 @@ public class ApplyService {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다."));
 
-        String studyName = study.getName();
 
-        List<Apply> primaryStudies = applyRepository.findAllByPrimaryStudy(studyName);
-        List<Apply> secondaryStudies = applyRepository.findAllBySecondaryStudy(studyName);
+        List<Apply> primaryStudies = applyRepository.findAllByPrimaryStudy(studyId);
+        List<Apply> secondaryStudies = applyRepository.findAllBySecondaryStudy(studyId);
 
         Map<String, List<RankedStudyResponse>> applications = new TreeMap<>();
 
@@ -185,7 +235,7 @@ public class ApplyService {
             rankedStudyResponse.setName(getUserName(apply));
             rankedStudyResponse.setIntro(apply.getPrimaryIntro());
             rankedStudyResponse.setId(apply.getApplierId());
-            rankedStudyResponse.setCareer(apply.getCareer());
+            rankedStudyResponse.setApplyPath(apply.getApplyPath());
             rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
 
             studyResponses1.add(rankedStudyResponse);
@@ -200,7 +250,7 @@ public class ApplyService {
             rankedStudyResponse.setName(getUserName(apply));
             rankedStudyResponse.setIntro(apply.getSecondaryIntro());
             rankedStudyResponse.setId(apply.getApplierId());
-            rankedStudyResponse.setCareer(apply.getCareer());
+            rankedStudyResponse.setApplyPath(apply.getApplyPath());
             rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
 
             studyResponses2.add(rankedStudyResponse);
@@ -225,10 +275,9 @@ public class ApplyService {
         if (!user.getId().equals(study.getMentorId()))
             throw new IllegalArgumentException("해당 스터디의 멘토가 아닙니다.");
 
-        String studyName = study.getName();
 
-        List<Apply> primaryStudies = applyRepository.findAllByPrimaryStudy(studyName);
-        List<Apply> secondaryStudies = applyRepository.findAllBySecondaryStudy(studyName);
+        List<Apply> primaryStudies = applyRepository.findAllByPrimaryStudy(study.getId());
+        List<Apply> secondaryStudies = applyRepository.findAllBySecondaryStudy(study.getId());
 
         Map<String, List<RankedStudyResponse>> applications = new TreeMap<>();
 
@@ -239,7 +288,7 @@ public class ApplyService {
             rankedStudyResponse.setName(getUserName(apply));
             rankedStudyResponse.setIntro(apply.getPrimaryIntro());
             rankedStudyResponse.setId(apply.getApplierId());
-            rankedStudyResponse.setCareer(apply.getCareer());
+            rankedStudyResponse.setApplyPath(apply.getApplyPath());
             rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
 
             studyResponses1.add(rankedStudyResponse);
@@ -254,7 +303,7 @@ public class ApplyService {
             rankedStudyResponse.setName(getUserName(apply));
             rankedStudyResponse.setIntro(apply.getSecondaryIntro());
             rankedStudyResponse.setId(apply.getApplierId());
-            rankedStudyResponse.setCareer(apply.getCareer());
+            rankedStudyResponse.setApplyPath(apply.getApplyPath());
             rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
 
             studyResponses2.add(rankedStudyResponse);
@@ -279,13 +328,6 @@ public class ApplyService {
         }
     }
 
-    @Transactional
-    public void deleteApplication(User user, Integer applierId) {
-        if (user.getUserAuthorization().equals(UserAuthorization.회원))
-            throw new IllegalArgumentException("권한이 없습니다.");
-
-        applyRepository.deleteByApplierId(applierId);
-    }
 
     @Transactional
     public void deleteAllApplications(User user) {

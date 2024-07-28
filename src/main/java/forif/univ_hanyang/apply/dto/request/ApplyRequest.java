@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class ApplyRequest {
-    private String primaryStudy;
+    private Integer primaryStudy;
+    private Integer secondaryStudy;
     private String primaryIntro;
-    private String secondaryStudy;
     private String secondaryIntro;
-    private String career;
+    private String applyPath;
 }
