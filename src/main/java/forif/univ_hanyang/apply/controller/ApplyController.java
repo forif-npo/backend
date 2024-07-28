@@ -4,6 +4,7 @@ import forif.univ_hanyang.apply.dto.request.AcceptRequest;
 import forif.univ_hanyang.apply.dto.request.ApplyRequest;
 import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
 import forif.univ_hanyang.apply.dto.response.ApplyResponse;
+import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
 import forif.univ_hanyang.apply.dto.response.RankedStudyResponse;
 import forif.univ_hanyang.apply.dto.response.UnpaidUserResponse;
 import forif.univ_hanyang.apply.entity.Apply;
@@ -53,7 +54,7 @@ public class ApplyController {
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-        Apply application = applyService.getUserApplication(user);
+        MyApplicationResponse application = applyService.getUserApplication(user);
 
         if (application == null) {
             ApplyResponse responseObj = new ApplyResponse(500, "지원서가 없습니다.");
