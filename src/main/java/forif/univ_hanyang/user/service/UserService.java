@@ -39,18 +39,12 @@ public class UserService {
     private final ClubInfoService clubInfoService;
 
     public User patchUser(UserPatchRequest request, User user) throws IllegalAccessException, InvocationTargetException {
-        if (user.getUserAuthorization().equals(UserAuthorization.회원)
-                || user.getUserAuthorization().equals(UserAuthorization.멘토))
-            throw new IllegalArgumentException("권한이 없습니다.");
-        User targetUser = userRepository.findById(request.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 없습니다."));
-
         // request 객체에서 user 객체로 null이 아닌 필드만 복사
-        BeanUtils.copyProperties(targetUser, request);
+        BeanUtils.copyProperties(user, request);
 
-        userRepository.save(targetUser);
+        userRepository.save(user);
 
-        return targetUser;
+        return user;
     }
 
 
