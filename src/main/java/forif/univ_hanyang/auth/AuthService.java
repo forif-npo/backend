@@ -74,7 +74,6 @@ public class AuthService {
         authUserResponse.setId(user.getId());
         authUserResponse.setPhoneNumber(user.getPhoneNumber());
         authUserResponse.setDepartment(user.getDepartment());
-        authUserResponse.setImage(user.getImage());
         authResponse.setUser(authUserResponse);
 
         authResponse.setAccess_token(jwtUtils.generateAccessToken(user.getId().toString()));

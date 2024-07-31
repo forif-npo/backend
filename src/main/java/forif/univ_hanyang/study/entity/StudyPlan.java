@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,13 +20,26 @@ public class StudyPlan {
     @Embeddable
     @Getter
     @Setter
-    public static class StudyWeekId implements Serializable {
+    public static class StudyPlanId implements Serializable {
         private Integer studyId;
         private Integer weekNum;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            StudyPlanId that = (StudyPlanId) o;
+            return Objects.equals(studyId, that.studyId) && Objects.equals(weekNum, that.weekNum);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(studyId, weekNum);
+        }
     }
 
     @EmbeddedId
-    private StudyWeekId id;
+    private StudyPlanId id;
     private String section;
     private String content;
 
