@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StudyUserRepository extends JpaRepository<StudyUser, Integer> {
-
     List<StudyUser> findAllById_StudyId(Integer studyId);
     void deleteAllById_StudyId(Integer studyId);
 

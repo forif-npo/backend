@@ -1,24 +1,28 @@
 package forif.univ_hanyang.study.dto.request;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Time;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 public class StudyRequest {
     private String name;
-    private Integer mentorId;
-    private String mentorName;
-    private Time startTime;
-    private Time endTime;
+    private String primaryMentorName;
+    private String SecondaryMentorName;
+    private String oneLiner;
+    private String startTime;
+    private String endTime;
     private Integer weekDay;
-    private Short level;
+    private Integer difficulty;
     private String explanation;
     private String image;
     private String location;
     private String tag;
-    private List<String> weeklyPlan;
+    private List<String> sections;
+    private List<String> contents;
 }
 
 

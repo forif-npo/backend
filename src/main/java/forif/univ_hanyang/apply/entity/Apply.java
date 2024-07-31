@@ -13,11 +13,9 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "apply") // 테이블 이름 지정
+@Table(name = "tb_user_apply") // 테이블 이름 지정
 public class Apply {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer applyId;
     @Column(name = "applier_id", unique = true)
     private Integer applierId;
     private Integer primaryStudy;
@@ -25,9 +23,8 @@ public class Apply {
     private String primaryIntro;
     private String secondaryIntro;
     private String applyPath;
-
-    private Boolean isPaid;
-    private LocalDateTime date;
+    private String payYn;
+    private String applyDate;
 
     @Enumerated(EnumType.STRING)
     private ApplyStatus primaryStatus;

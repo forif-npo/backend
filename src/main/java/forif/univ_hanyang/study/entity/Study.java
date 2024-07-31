@@ -1,7 +1,5 @@
 package forif.univ_hanyang.study.entity;
 
-import forif.univ_hanyang.clubInfo.entity.ClubInfo;
-import forif.univ_hanyang.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,38 +15,33 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "study")
+@Table(name = "tb_study")
 public class Study {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "study_id")
     private Integer id;
+    @Column(name = "study_name")
     private String name;
-    @Column(name = "mentor_id")
-    private Integer mentorId;
-    @Column(name = "mentor_name")
-    private String mentorName;
+    private String primaryMentorName;
+    private String secondaryMentorName;
+    private String oneLiner;
     private String explanation;
     @Column(name = "week_day")
     private Integer weekDay;
     @Column(name = "start_time")
-    private Time startTime;
+    private String startTime;
     @Column(name = "end_time")
-    private Time endTime;
-    private Short level;
-    @Column(name = "club_id")
-    private Integer clubId;
+    private String endTime;
+    private Integer difficulty;
+    @Column(name = "img_url")
     private String image;
+    private String webUrl;
     private String location;
     private String tag;
+    private Integer actYear;
+    private Integer actSemester;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<WeeklyPlan> weeklyPlans = new ArrayList<>();
-
-    @ManyToOne
-    @JoinColumn(name = "mentor_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User mentor;
-
-    @ManyToOne
-    @JoinColumn(name = "club_id", referencedColumnName = "club_id", insertable = false, updatable = false)
-    private ClubInfo clubInfo;
+    private List<StudyPlan> studyPlans = new ArrayList<>();
 }

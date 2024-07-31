@@ -1,9 +1,10 @@
 package forif.univ_hanyang.study.controller;
 
 import forif.univ_hanyang.jwt.RequireJWT;
-import forif.univ_hanyang.study.dto.request.StudyInfoRequest;
 import forif.univ_hanyang.study.dto.request.StudyRequest;
-import forif.univ_hanyang.study.dto.response.*;
+import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
+import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
+import forif.univ_hanyang.study.dto.response.StudyNameResponse;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.service.StudyService;
 import forif.univ_hanyang.user.dto.response.StudyMemberResponse;
@@ -39,17 +40,7 @@ public class StudyController {
             @PathVariable Integer studyId
     ) {
         // 성공 시 200 OK 상태 코드와 함께 응답
-        return new ResponseEntity<>(studyService.getStudyInfo(new StudyInfoRequest(studyId)),HttpStatus.OK);
-    }
-
-    @RequireJWT
-    @GetMapping("/users")
-    public ResponseEntity<StudyUserResponse> getStudyOfUser(
-            @RequestHeader("Authorization") String token
-    ){
-        User user = userService.validateUserExist(token);
-
-        return new ResponseEntity<>(studyService.getStudyOfUser(user), HttpStatus.OK);
+        return new ResponseEntity<>(studyService.getStudyInfo(studyId),HttpStatus.OK);
     }
 
     @RequireJWT
