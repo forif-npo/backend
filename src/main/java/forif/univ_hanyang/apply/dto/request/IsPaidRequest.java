@@ -7,5 +7,5 @@ import java.util.Set;
 @Data
 public class IsPaidRequest {
     private Set<Integer> applierIds;
-    private Boolean isPaid;
+    private String payYn;
 }

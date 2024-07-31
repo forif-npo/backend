@@ -11,7 +11,6 @@ import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.service.ApplyService;
 import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.user.entity.User;
-import forif.univ_hanyang.user.entity.UserAuthorization;
 import forif.univ_hanyang.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -78,12 +77,11 @@ public class ApplyController {
     @RequireJWT
     @DeleteMapping("/application")
     private ResponseEntity<Void> deleteApplication(
-            @RequestHeader("Authorization") String token,
-            @RequestParam Integer applierId
+            @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
 
-        applyService.deleteApplication(user, applierId);
+        applyService.deleteApplication(user);
 
         // 성공 시 200 OK 상태 코드와 함께 JSON 응답
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -106,7 +104,7 @@ public class ApplyController {
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-        if (user.getUserAuthorization().equals(UserAuthorization.회원))
+        if (user.getAuthLv() == 1)
             throw new IllegalArgumentException("권한이 없습니다.");
 
         return new ResponseEntity<>(applyService.getUnpaidUsers(), HttpStatus.OK);
