@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -22,6 +23,19 @@ public class MentorStudy {
     public static class MentorStudyId implements Serializable {
         private Integer mentorId;
         private Integer studyId;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MentorStudyId that = (MentorStudyId) o;
+            return Objects.equals(mentorId, that.mentorId) && Objects.equals(studyId, that.studyId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mentorId, studyId);
+        }
     }
 
     @EmbeddedId
