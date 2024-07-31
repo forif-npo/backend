@@ -11,5 +11,4 @@ public class AuthUserResponse {
     private Integer id;
     private String phoneNumber;
     private String department;
-    private String image;
 }
