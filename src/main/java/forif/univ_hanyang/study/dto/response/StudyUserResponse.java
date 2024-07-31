@@ -16,5 +16,5 @@ public class StudyUserResponse {
     private Time startTime;
     private Time endTime;
     private String location;
-    private List<String> weeklyPlans;
+    private List<String> studyPlans;
 }

@@ -3,7 +3,6 @@ package forif.univ_hanyang.auth;
 import forif.univ_hanyang.auth.dto.*;
 import forif.univ_hanyang.jwt.JwtUtils;
 import forif.univ_hanyang.user.entity.User;
-import forif.univ_hanyang.user.entity.UserAuthorization;
 import forif.univ_hanyang.user.repository.UserRepository;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -110,7 +109,7 @@ public class AuthService {
         user.setId(id);
         user.setEmail(email);
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setUserAuthorization(UserAuthorization.회원);
+        user.setAuthLv(1);
 
         // 사용자 정보 저장
         userRepository.save(user);

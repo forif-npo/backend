@@ -12,27 +12,23 @@ import lombok.Setter;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user") // 테이블 이름 지정
+@Table(name = "tb_user") // 테이블 이름 지정
 public class User {
     @Id
-    @Column(name = "id")
+    @Column(name = "user_id")
     private Integer id;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "name")
+    @Column(name = "user_name")
     private String name;
 
     @Column(name = "department")
     private String department;
 
-    @Column(name = "image")
-    private String image;
-
+    @Column(name = "phone_num")
     private String phoneNumber;
 
-    @Enumerated(EnumType.STRING)
-    private UserAuthorization userAuthorization;
-
+    private Integer authLv;
 }

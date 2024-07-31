@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Time;
 import java.util.List;
 
 @Builder
@@ -13,16 +12,19 @@ import java.util.List;
 public class StudyInfoResponse {
     private Integer id;
     private String name;
-    private Integer mentorId;
-    private String mentorName;
-    private Time startTime;
-    private Time endTime;
-    private Short level;
+    private String primaryMentorName;
+    private String secondaryMentorName;
+    private String startTime;
+    private String endTime;
+    private Integer difficulty;
     private String explanation;
     private Integer weekDay;
     private String image;
     private String location;
     private String tag;
-    private List<String> weeklyPlans;
+    private List<String> studyPlans;
+    private String oneLiner;
+    private Integer actYear;
+    private Integer actSemester;
 }
 

@@ -10,5 +10,4 @@ public class AllUserInfoResponse {
     private String phoneNumber;
     private String department;
     private Boolean payment;
-    private String image;
 }

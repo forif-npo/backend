@@ -14,7 +14,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "study_user")
+@Table(name = "tb_study_user")
 public class StudyUser {
     @Embeddable
     @Getter
@@ -45,11 +45,11 @@ public class StudyUser {
 
     @ManyToOne
     @MapsId("studyId")
-    @JoinColumn(name = "study_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "study_id", referencedColumnName = "study_id", insertable = false, updatable = false)
     private Study study;
 
     @ManyToOne
     @MapsId("userId")
-    @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     private User user;
 }
