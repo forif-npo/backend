@@ -5,6 +5,7 @@ import forif.univ_hanyang.study.dto.request.StudyRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.StudyNameResponse;
+import forif.univ_hanyang.study.dto.response.StudyPlanResponse;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.entity.StudyPlan;
 import forif.univ_hanyang.study.repository.StudyPlanRepository;
@@ -22,16 +23,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Getter
 @RequiredArgsConstructor
 public class StudyService {
-    
+
     private final StudyRepository studyRepository;
     private final UserRepository userRepository;
     private final StudyUserRepository studyUserRepository;
@@ -49,10 +50,9 @@ public class StudyService {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
 
-        List<String> studyPlans = study.getStudyPlans().stream()
-                .map(StudyPlan::getSection)
-                .toList();
-
+        List<StudyPlanResponse> studyPlanResponses = studyPlanRepository.findAllById_StudyIdOrderById_WeekNum(studyId).stream()
+                .map(StudyPlanResponse::from)
+                .collect(Collectors.toList());
 
         return StudyInfoResponse.builder()
                 .id(study.getId())
@@ -67,7 +67,7 @@ public class StudyService {
                 .image(study.getImage())
                 .location(study.getLocation())
                 .tag(study.getTag())
-                .studyPlans(studyPlans)
+                .studyPlans(studyPlanResponses)
                 .build();
     }
 
@@ -92,45 +92,7 @@ public class StudyService {
         return userList;
     }
 
-    @Transactional
-    public void saveStudy(StudyRequest request, User user) {
-        if (!user.getName().equals(request.getPrimaryMentorName()))
-            throw new IllegalArgumentException("학번 혹은 이름이 잘못되었습니다.");
 
-        Study newStudy = new Study();
-        newStudy.setName(request.getName());
-        newStudy.setPrimaryMentorName(request.getPrimaryMentorName());
-        newStudy.setSecondaryMentorName(request.getSecondaryMentorName());
-        newStudy.setOneLiner(request.getOneLiner());
-        newStudy.setExplanation(request.getExplanation());
-        newStudy.setWeekDay(request.getWeekDay());
-        newStudy.setStartTime(request.getStartTime());
-        newStudy.setEndTime(request.getEndTime());
-        newStudy.setDifficulty(request.getDifficulty());
-        newStudy.setImage(request.getImage());
-        newStudy.setLocation(request.getLocation());
-        newStudy.setTag(request.getTag());
-
-        // actYear와 actSemester를 현재 날짜를 기준으로 설정
-        newStudy.setActYear(LocalDate.now().getYear());
-        newStudy.setActSemester(LocalDate.now().getMonthValue() / 7 + 1);
-
-        List<String> sections = request.getSections();
-        List<String> contents = request.getContents();
-        List<StudyPlan> studyPlans = new ArrayList<>();
-
-        for (int i = 0; i < 15; i++) {
-            StudyPlan studyPlan = new StudyPlan();
-            studyPlan.getId().setStudyId(newStudy.getId());
-            studyPlan.getId().setWeekNum(i + 1);
-            studyPlan.setSection(sections.get(i));
-            studyPlan.setContent(contents.get(i));
-            studyPlan.setStudy(newStudy);
-        }
-        newStudy.setStudyPlans(studyPlans);
-
-        studyRepository.save(newStudy);
-    }
 
 
     @Transactional
