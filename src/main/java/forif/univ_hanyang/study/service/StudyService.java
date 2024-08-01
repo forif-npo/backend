@@ -93,8 +93,6 @@ public class StudyService {
     }
 
 
-
-
     @Transactional
     public void updateStudy(User user, Integer studyId, StudyRequest request) {
         // 기존 스터디를 찾아옴
