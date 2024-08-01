@@ -111,7 +111,7 @@ public class ApplyService {
         // request 객체에서 apply 객체로 null이 아닌 필드만 복사
         BeanUtils.copyProperties(apply, request);
         apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
-        
+
         applyRepository.save(apply);
 
         return apply;
