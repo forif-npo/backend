@@ -5,6 +5,9 @@ spring:
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
 
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
   jpa:
     show-sql: true
     generate-ddl: true
