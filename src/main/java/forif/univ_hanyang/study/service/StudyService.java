@@ -67,6 +67,9 @@ public class StudyService {
                 .image(study.getImage())
                 .location(study.getLocation())
                 .tag(study.getTag())
+                .oneLiner(study.getOneLiner())
+                .actYear(study.getActYear())
+                .actSemester(study.getActSemester())
                 .studyPlans(studyPlanResponses)
                 .build();
     }
