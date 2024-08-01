@@ -68,20 +68,6 @@ public class StudyController {
     }
 
     @RequireJWT
-    @PostMapping
-    public ResponseEntity<Void> saveStudy(
-            @RequestBody StudyRequest request,
-            @RequestHeader("Authorization") String token) {
-        // 유저 검증
-        User user = userService.validateUserExist(token);
-
-        studyService.saveStudy(request, user);
-
-        // 저장 성공 시 201 Created 상태 코드로 응답
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    @RequireJWT
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateStudy(
             @RequestHeader("Authorization") String token,
