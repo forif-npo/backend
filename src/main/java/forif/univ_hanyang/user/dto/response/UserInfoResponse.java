@@ -11,7 +11,7 @@ import java.util.Set;
 @Builder
 public class UserInfoResponse {
     private String email;
-    private String userName;
+    private String name;
     private String department;
     private Integer id;
     private String phoneNumber;
