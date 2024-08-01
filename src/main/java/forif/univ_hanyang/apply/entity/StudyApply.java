@@ -1,4 +1,4 @@
-package forif.univ_hanyang.study.entity;
+package forif.univ_hanyang.apply.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,15 +14,17 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tb_study")
-public class Study {
+@Table(name = "tb_study_apply")
+public class StudyApply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "study_id")
+    @Column(name = "apply_id")
     private Integer id;
     @Column(name = "study_name")
     private String name;
+    private Integer primaryMentorId;
     private String primaryMentorName;
+    private Integer secondaryMentorId;
     private String secondaryMentorName;
     private String oneLiner;
     private String explanation;
@@ -30,14 +32,9 @@ public class Study {
     private String startTime;
     private String endTime;
     private Integer difficulty;
-    @Column(name = "img_url")
-    private String image;
-    private String webUrl;
     private String location;
     private String tag;
-    private Integer actYear;
-    private Integer actSemester;
 
-    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<StudyPlan> studyPlans = new ArrayList<>();
+    @OneToMany(mappedBy = "studyApply", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<StudyApplyPlan> studyApplyPlans = new ArrayList<>();
 }

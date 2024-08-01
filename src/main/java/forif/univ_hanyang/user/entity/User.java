@@ -31,4 +31,5 @@ public class User {
     private String phoneNumber;
 
     private Integer authLv;
+    private String imgUrl;
 }

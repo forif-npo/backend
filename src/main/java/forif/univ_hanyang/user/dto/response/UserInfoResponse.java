@@ -15,6 +15,7 @@ public class UserInfoResponse {
     private String department;
     private Integer id;
     private String phoneNumber;
+    private String imgUrl;
     private Integer currentStudyId;
     private Set<Integer> passedStudyId;
 }

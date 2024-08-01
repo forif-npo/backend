@@ -22,7 +22,7 @@ public class StudyInfoResponse {
     private String image;
     private String location;
     private String tag;
-    private List<String> studyPlans;
+    private List<StudyPlanResponse> studyPlans;
     private String oneLiner;
     private Integer actYear;
     private Integer actSemester;

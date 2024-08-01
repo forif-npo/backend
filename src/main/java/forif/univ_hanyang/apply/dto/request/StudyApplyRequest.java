@@ -1,27 +1,25 @@
-package forif.univ_hanyang.study.dto.request;
+package forif.univ_hanyang.apply.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Time;
 import java.util.List;
 
 @Getter
 @Setter
-public class StudyRequest {
+public class StudyApplyRequest {
     private String name;
+    private Integer primaryMentorId;
     private String primaryMentorName;
-    private String SecondaryMentorName;
+    private Integer secondaryMentorId;
+    private String secondaryMentorName;
     private String oneLiner;
+    private String explanation;
+    private Integer weekDay;
     private String startTime;
     private String endTime;
-    private Integer weekDay;
     private Integer difficulty;
-    private String explanation;
     private String location;
     private String tag;
-    private List<String> sections;
-    private List<String> contents;
+    private List<StudyApplyPlanRequest> studyPlans;
 }
-
-

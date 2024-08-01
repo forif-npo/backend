@@ -1,4 +1,4 @@
-package forif.univ_hanyang.study.entity;
+package forif.univ_hanyang.apply.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,36 +14,36 @@ import java.util.Objects;
 @Entity
 @Getter
 @Setter
-@Table(name = "tb_study_plan")
-public class StudyPlan {
+@Table(name = "tb_study_apply_plan")
+public class StudyApplyPlan {
     @Embeddable
     @Getter
     @Setter
-    public static class StudyPlanId implements Serializable {
-        private Integer studyId;
+    public static class StudyApplyPlanId implements Serializable {
+        private Integer applyId;
         private Integer weekNum;
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            StudyPlanId that = (StudyPlanId) o;
-            return Objects.equals(studyId, that.studyId) && Objects.equals(weekNum, that.weekNum);
+            StudyApplyPlanId that = (StudyApplyPlanId) o;
+            return Objects.equals(applyId, that.applyId) && Objects.equals(weekNum, that.weekNum);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(studyId, weekNum);
+            return Objects.hash(applyId, weekNum);
         }
     }
 
     @EmbeddedId
-    private StudyPlanId id;
+    private StudyApplyPlanId id;
     private String section;
     private String content;
 
     @ManyToOne
-    @MapsId("studyId") // 이 필드를 복합 키의 일부로 매핑
-    @JoinColumn(name = "study_id", referencedColumnName = "study_id", insertable = false, updatable = false)
-    private Study study;
+    @MapsId("applyId") // 이 필드를 복합 키의 일부로 매핑
+    @JoinColumn(name = "apply_id", referencedColumnName = "apply_id", insertable = false, updatable = false)
+    private StudyApply studyApply;
 }
