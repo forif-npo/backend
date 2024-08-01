@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -73,35 +74,41 @@ public class UserService {
     }
 
 
-    // controller 에서 validate 과정 거친 후 유저 인포 불러오는 메소드
     public UserInfoResponse getUserInfo(User user) {
-        StudyUser studyUser = studyUserRepository.findRecentStudyUserById_UserId(user.getId()).orElse(null);
+        // 유저와 연관된 스터디 모두 찾기
+        List<StudyUser> userStudies = studyUserRepository.findAllById_UserId(user.getId());
 
-        // 스터디 경험이 있을 시
-        if (studyUser != null) {
-            Set<Integer> studyIds = new HashSet<>();
-            // 유저와 연관된 스터디 모두 찾기
-            List<StudyUser> userStudies = studyUserRepository.findAllById_UserId(user.getId());
-            Study recentStudy = studyRepository.findById(studyUser.getId().getStudyId())
+        if (!userStudies.isEmpty()) {
+            // 가장 최근 스터디 유저 찾기
+            StudyUser recentStudyUser = userStudies.stream()
+                    .max(Comparator.comparingInt(studyUser -> studyUser.getId().getStudyId()))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 존재하지 않습니다."));
+
+            Study recentStudy = studyRepository.findById(recentStudyUser.getId().getStudyId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 존재하지 않습니다."));
+
+            // 현재 진행 중인 스터디를 최근 스터디로 설정하고 나머지 스터디는 passedStudyId에 추가
+            Set<Integer> studyIds = userStudies.stream()
+                    .filter(studyUser -> !studyUser.equals(recentStudyUser))
+                    .map(studyUser -> studyUser.getId().getStudyId())
+                    .collect(Collectors.toSet());
+
+            // 현재 스터디가 학기 및 연도가 같은 경우만 제거
             if (recentStudy.getActSemester() == LocalDate.now().getMonthValue() / 7 + 1 &&
                     recentStudy.getActYear() == LocalDate.now().getYear()) {
-                userStudies.remove(studyUser);
+                return UserInfoResponse.builder()
+                        .id(user.getId())
+                        .email(user.getEmail())
+                        .userName(user.getName())
+                        .department(user.getDepartment())
+                        .currentStudyId(recentStudy.getId())
+                        .phoneNumber(user.getPhoneNumber())
+                        .passedStudyId(studyIds)
+                        .build();
             }
-            for (StudyUser studyUser1 : userStudies) {
-                studyIds.add(studyUser1.getId().getStudyId());
-            }
-
-            return UserInfoResponse.builder()
-                    .id(user.getId())
-                    .email(user.getEmail())
-                    .userName(user.getName())
-                    .department(user.getDepartment())
-                    .currentStudyId(studyUser.getId().getStudyId())
-                    .phoneNumber(user.getPhoneNumber())
-                    .passedStudyId(studyIds)
-                    .build();
         }
+
+        // 스터디 경험이 없을 시
         return UserInfoResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
@@ -111,8 +118,8 @@ public class UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .passedStudyId(null)
                 .build();
-
     }
+
 
 
     public List<AllUserInfoResponse> getAllUsersInfo(User admin) {

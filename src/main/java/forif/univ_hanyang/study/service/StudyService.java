@@ -229,7 +229,7 @@ public class StudyService {
 
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("유저가 없습니다."));
-        Optional<StudyUser> StudyUser = studyUserRepository.findRecentStudyUserById_UserId(userId);
+        Optional<StudyUser> StudyUser = studyUserRepository.findFirstById_UserIdOrderById_StudyIdDesc(userId);
 
         if (StudyUser.isPresent()) {
             Study study = studyRepository.findById(StudyUser.get().getId().getStudyId())
