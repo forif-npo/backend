@@ -50,9 +50,10 @@ public class StudyService {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
 
-        List<StudyPlanResponse> studyPlanResponses = studyPlanRepository.findAllById_StudyIdOrderById_WeekNum(studyId).stream()
-                .map(StudyPlanResponse::from)
-                .collect(Collectors.toList());
+        List<StudyPlanResponse> studyPlanResponses = studyPlanRepository.findAllById_StudyIdOrderById_WeekNum(studyId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디의 주간 계획을 찾을 수 없습니다."))
+                .stream().map(StudyPlanResponse::from).collect(Collectors.toList());
+
 
         return StudyInfoResponse.builder()
                 .id(study.getId())
@@ -169,7 +170,8 @@ public class StudyService {
         }
 
         // studyPlans 와 같은 복잡한 속성은 수동으로 처리
-        List<StudyPlan> studyPlans = studyPlanRepository.findAllById_StudyIdOrderById_WeekNum(study.getId());
+        List<StudyPlan> studyPlans = studyPlanRepository.findAllById_StudyIdOrderById_WeekNum(study.getId())
+                .orElseThrow(()-> new EntityNotFoundException("해당하는 스터디의 주간 계획을 찾을 수 없습니다."));
         List<String> sections = request.getSections();
         List<String> contents = request.getContents();
 
