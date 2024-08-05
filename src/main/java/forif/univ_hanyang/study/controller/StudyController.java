@@ -55,18 +55,6 @@ public class StudyController {
         return new ResponseEntity<>(studyMemberList,HttpStatus.OK);
     }
 
-    /**
-     * 관리자용 기능, 추후 옮기기
-     * @param id 유저 학번
-     * @return userName, studyName
-     */
-    @GetMapping("/names/{id}")
-    public ResponseEntity<StudyNameResponse> getStudyNameOfUser(
-            @PathVariable Integer id
-    ){
-        return new ResponseEntity<>(studyService.getStudyNameOfUser(id), HttpStatus.OK);
-    }
-
     @RequireJWT
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateStudy(
