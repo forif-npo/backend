@@ -91,10 +91,12 @@ public class ApplyService {
         primaryStudy.setId(apply.getPrimaryStudy());
         primaryStudy.setName(studyRepository.findById(apply.getPrimaryStudy()).orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다.")).getName());
         primaryStudy.setIntroduction(apply.getPrimaryIntro());
+        primaryStudy.setStatus(apply.getPrimaryStatus().toString());
 
         secondaryStudy.setId(apply.getSecondaryStudy());
         secondaryStudy.setName(studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다.")).getName());
         secondaryStudy.setIntroduction(apply.getSecondaryIntro());
+        secondaryStudy.setStatus(apply.getSecondaryStatus().toString());
 
         response.setPrimaryStudy(primaryStudy);
         response.setSecondaryStudy(secondaryStudy);

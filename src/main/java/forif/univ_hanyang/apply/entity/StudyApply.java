@@ -1,5 +1,6 @@
 package forif.univ_hanyang.apply.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +36,7 @@ public class StudyApply {
     private String location;
     private String tag;
 
-    @OneToMany(mappedBy = "studyApply", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @OneToMany(mappedBy = "studyApply", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<StudyApplyPlan> studyApplyPlans = new ArrayList<>();
 }

@@ -7,4 +7,5 @@ public class AppliedStudyResponse{
     private Integer id;
     private String name;
     private String introduction;
+    private String status;
 }
