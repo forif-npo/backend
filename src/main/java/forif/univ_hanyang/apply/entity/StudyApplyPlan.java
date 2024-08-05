@@ -1,5 +1,6 @@
 package forif.univ_hanyang.apply.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,6 +43,7 @@ public class StudyApplyPlan {
     private String section;
     private String content;
 
+    @JsonBackReference
     @ManyToOne
     @MapsId("applyId") // 이 필드를 복합 키의 일부로 매핑
     @JoinColumn(name = "apply_id", referencedColumnName = "apply_id", insertable = false, updatable = false)

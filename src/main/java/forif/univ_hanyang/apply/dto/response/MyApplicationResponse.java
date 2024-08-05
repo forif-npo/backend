@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class MyApplicationResponse {
-    String timestamp;
-    AppliedStudyResponse primaryStudy;
-    AppliedStudyResponse secondaryStudy;
-    String applyPath;
+    private String timestamp;
+    private AppliedStudyResponse primaryStudy;
+    private AppliedStudyResponse secondaryStudy;
+    private String applyPath;
 }

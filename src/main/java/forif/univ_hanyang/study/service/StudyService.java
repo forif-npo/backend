@@ -187,25 +187,4 @@ public class StudyService {
 
         return study;
     }
-
-    @Transactional
-    public StudyNameResponse getStudyNameOfUser(Integer userId) {
-        StudyNameResponse studyNameResponse = new StudyNameResponse();
-
-        userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("유저가 없습니다."));
-        Optional<StudyUser> StudyUser = studyUserRepository.findFirstById_UserIdOrderById_StudyIdDesc(userId);
-
-        if (StudyUser.isPresent()) {
-            Study study = studyRepository.findById(StudyUser.get().getId().getStudyId())
-                    .orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다."));
-            studyNameResponse.setName(study.getName());
-        } else {
-            studyNameResponse.setName("스터디 없음");
-        }
-
-        return studyNameResponse;
-    }
-
-
 }
