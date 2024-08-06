@@ -27,23 +27,22 @@ public class StudyApplyController {
     @RequireJWT
     @PostMapping
     public ResponseEntity<Void> applyStudy(
-            @RequestHeader("Authorization") String token,
             @RequestBody StudyApplyRequest request
     ) {
-        userService.validateUserExist(token);
         studyApplyService.applyStudy(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @RequireJWT
     @GetMapping
-    public ResponseEntity<List<StudyApply>> getAllAppliedStudy(
+    public ResponseEntity<List<StudyApply>> getAllAppliedStudies(
             @RequestHeader("Authorization") String token
     ) {
         User admin = userService.validateUserExist(token);
         return new ResponseEntity<>(studyApplyService.getAllAppliedStudy(admin), HttpStatus.OK);
     }
 
-    @PostMapping("/move-to-study")
+    @PostMapping("/move")
     public ResponseEntity<String> moveToStudy(
             @RequestHeader("Authorization") String token,
             @RequestBody MoveToStudyRequest request
