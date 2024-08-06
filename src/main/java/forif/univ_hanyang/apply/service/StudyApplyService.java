@@ -11,6 +11,7 @@ import forif.univ_hanyang.study.entity.StudyPlan;
 import forif.univ_hanyang.study.repository.MentorStudyRepository;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.entity.User;
+import forif.univ_hanyang.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class StudyApplyService {
     private final StudyApplyRepository studyApplyRepository;
     private final StudyRepository studyRepository;
     private final MentorStudyRepository mentorStudyRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void applyStudy(StudyApplyRequest request) {
@@ -65,7 +67,7 @@ public class StudyApplyService {
     }
 
     public List<StudyApply> getAllAppliedStudy(User admin) {
-        if(admin.getAuthLv() < 3)
+        if (admin.getAuthLv() < 3)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         return studyApplyRepository.findAll();
     }
@@ -97,7 +99,7 @@ public class StudyApplyService {
             study.setOneLiner(studyApply.getOneLiner());
             study.setLocation(studyApply.getLocation());
             study.setActYear(LocalDateTime.now().getYear());
-            study.setActSemester(LocalDateTime.now().getMonthValue()/ 7  + 1);
+            study.setActSemester(LocalDateTime.now().getMonthValue() / 7 + 1);
 
             List<StudyPlan> studyPlans = studyApply.getStudyApplyPlans().stream()
                     .map(plan -> {
@@ -117,22 +119,28 @@ public class StudyApplyService {
 
             studyRepository.save(study);
 
-            MentorStudy mentorStudy = new MentorStudy();
-            MentorStudy.MentorStudyId primaryMentorStudyId = new MentorStudy.MentorStudyId();
-            primaryMentorStudyId.setMentorId(studyApply.getPrimaryMentorId());
-            primaryMentorStudyId.setStudyId(study.getId());
-            mentorStudy.setId(primaryMentorStudyId);
-            mentorStudy.setMentorNum(1);
-            mentorStudyRepository.save(mentorStudy);
-            if(study.getSecondaryMentorName() != null){
-                MentorStudy mentorStudy2 = new MentorStudy();
-                MentorStudy.MentorStudyId secondaryMentorStudyId = new MentorStudy.MentorStudyId();
-                secondaryMentorStudyId.setMentorId(studyApply.getSecondaryMentorId());
-                secondaryMentorStudyId.setStudyId(study.getId());
-                mentorStudy2.setId(secondaryMentorStudyId);
-                mentorStudy2.setMentorNum(2);
-                mentorStudyRepository.save(mentorStudy2);
+            if (study.getSecondaryMentorName() != null) {
+                setMentor(study, studyApply.getPrimaryMentorId(), 2);
+                setMentor(study, studyApply.getSecondaryMentorId(), 2);
+                return;
             }
+            setMentor(study, studyApply.getPrimaryMentorId(), 1);
         }
     }
+
+    public void setMentor(Study study, Integer mentorId, Integer mentorNum) {
+        MentorStudy mentorStudy = new MentorStudy();
+        User mentor = userRepository.findById(mentorId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
+        MentorStudy.MentorStudyId mentorStudyId = new MentorStudy.MentorStudyId();
+        mentorStudyId.setMentorId(mentorId);
+        mentorStudyId.setStudyId(study.getId());
+        mentorStudy.setId(mentorStudyId);
+        mentorStudy.setMentorNum(mentorNum);
+        mentorStudy.setStudy(study);
+        mentorStudy.setUser(mentor);
+
+        mentorStudy.changeUserAuthLv(mentor);
+        mentorStudyRepository.save(mentorStudy);
+    }
+
 }

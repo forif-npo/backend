@@ -43,6 +43,11 @@ public class MentorStudy {
 
     private Integer mentorNum;
 
+    public void changeUserAuthLv(User user) {
+        if (user.getAuthLv() == 1)
+            user.setAuthLv(2);
+    }
+
     @ManyToOne
     @MapsId("mentorId")
     @JoinColumn(name = "mentor_id", referencedColumnName = "user_id", insertable = false, updatable = false)
