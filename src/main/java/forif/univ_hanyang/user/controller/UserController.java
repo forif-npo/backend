@@ -4,7 +4,6 @@ import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.user.dto.request.UserPatchRequest;
 import forif.univ_hanyang.user.dto.response.AllUserInfoResponse;
 import forif.univ_hanyang.user.dto.response.UserInfoResponse;
-import forif.univ_hanyang.user.dto.response.UserNumberResponse;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +23,24 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
+    @Operation(
+            summary = "프로필 조회",
+            description = "해당 토큰의 유저 정보를 조회함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
     @RequireJWT
     @GetMapping("/auth/profile")
     public ResponseEntity<UserInfoResponse> getUser(
@@ -33,28 +50,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserInfo(user));
     }
 
-    @RequireJWT
-    @GetMapping("/users")
-    public ResponseEntity<List<AllUserInfoResponse>> getAllUsers(
-            @RequestHeader("Authorization") String token
-    ){
-        User admin = userService.validateUserExist(token);
-        List<AllUserInfoResponse> allUserInfoResponses = userService.getAllUsersInfo(admin);
-
-        return new ResponseEntity<>(allUserInfoResponses, HttpStatus.OK);
-    }
-
-    @RequireJWT
-    @GetMapping
-    public UserNumberResponse getUserNumber(
-            @RequestHeader("Authorization") String token
-    ){
-        User admin = userService.validateUserExist(token);
-        return userService.getUserNumber(admin);
-    }
-
-
-
     @Operation(
             summary = "프로필 수정",
             description = "프로필의 이름, 학번, 학과, 전화번호, 사진을 수정함",
@@ -62,6 +57,10 @@ public class UserController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized"
                     ),
                     @ApiResponse(
                             responseCode = "404",
@@ -80,7 +79,6 @@ public class UserController {
         return new ResponseEntity<>(userService.patchUser(request, user), HttpStatus.OK);
     }
 
-
     @Operation(
             summary = "프로필 삭제",
             description = "프로필을 삭제함",
@@ -88,6 +86,10 @@ public class UserController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized"
                     ),
                     @ApiResponse(
                             responseCode = "404",
@@ -104,6 +106,40 @@ public class UserController {
         userService.deleteUser(user);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @Operation(
+            summary = "전체 유저 조회",
+            description = "전체 유저의 정보를 조회함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "FORBIDDEN"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
+    @RequireJWT
+    @GetMapping("/users")
+    public ResponseEntity<List<AllUserInfoResponse>> getAllUsers(
+            @RequestHeader("Authorization") String token
+    ){
+        User admin = userService.validateUserExist(token);
+        List<AllUserInfoResponse> allUserInfoResponses = userService.getAllUsersInfo(admin);
+
+        return new ResponseEntity<>(allUserInfoResponses, HttpStatus.OK);
     }
 
 }

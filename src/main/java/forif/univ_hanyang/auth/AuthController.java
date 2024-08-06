@@ -14,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @Tag(name = "인증", description = "인증 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -50,6 +48,10 @@ public class AuthController {
                             description = "OK"
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "BAD REQUEST"
+                    ),
+                    @ApiResponse(
                             responseCode = "404",
                             description = "NOT FOUND"
                     )
@@ -66,6 +68,24 @@ public class AuthController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "토큰 발급",
+            description = "리프레시 토큰을 이용해서 액세스 토큰을 발급함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "UNAUTHORIZED"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
     @PostMapping("/auth/token")
     public ResponseEntity<AccessTokenResponse> getAccessToken(@RequestBody TokenRequest request) {
         String refreshToken = request.getRefresh_token().trim(); // JSON 객체에서 값 추출 및 공백 제거

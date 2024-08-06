@@ -7,7 +7,6 @@ import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.dto.request.UserPatchRequest;
 import forif.univ_hanyang.user.dto.response.AllUserInfoResponse;
 import forif.univ_hanyang.user.dto.response.UserInfoResponse;
-import forif.univ_hanyang.user.dto.response.UserNumberResponse;
 import forif.univ_hanyang.user.entity.StudyUser;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
@@ -20,7 +19,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -109,7 +111,7 @@ public class UserService {
 
         // JWT 토큰 검증
         if (!jwtValidator.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유효하지 않은 토큰입니다.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
         }
 
         // JWT 토큰을 통해 사용자 ID 획득
@@ -123,7 +125,7 @@ public class UserService {
 
     public List<AllUserInfoResponse> getAllUsersInfo(User admin) {
         if (admin.getAuthLv() != 4)
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
         List<User> users = userRepository.findAll();
         List<AllUserInfoResponse> allUserInfoResponses = new ArrayList<>();
@@ -140,15 +142,5 @@ public class UserService {
             allUserInfoResponses.add(allUserInfoResponse);
         }
         return allUserInfoResponses;
-    }
-
-    public UserNumberResponse getUserNumber(User admin) {
-        if (admin.getAuthLv() != 4)
-            throw new IllegalArgumentException("권한이 없습니다.");
-
-        UserNumberResponse userNumberResponse = new UserNumberResponse();
-        userNumberResponse.setUserNumber(userRepository.findAll().size());
-
-        return userNumberResponse;
     }
 }
