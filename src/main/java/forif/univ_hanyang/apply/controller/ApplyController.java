@@ -40,7 +40,6 @@ public class ApplyController {
         User user = userService.validateUserExist(token);
         applyService.applyStudy(request, user);
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

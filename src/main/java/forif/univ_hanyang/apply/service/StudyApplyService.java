@@ -5,8 +5,10 @@ import forif.univ_hanyang.apply.dto.request.StudyApplyRequest;
 import forif.univ_hanyang.apply.entity.StudyApply;
 import forif.univ_hanyang.apply.entity.StudyApplyPlan;
 import forif.univ_hanyang.apply.repository.StudyApplyRepository;
+import forif.univ_hanyang.study.entity.MentorStudy;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.entity.StudyPlan;
+import forif.univ_hanyang.study.repository.MentorStudyRepository;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class StudyApplyService {
     private final StudyApplyRepository studyApplyRepository;
     private final StudyRepository studyRepository;
+    private final MentorStudyRepository mentorStudyRepository;
 
     @Transactional
     public void applyStudy(StudyApplyRequest request) {
@@ -113,6 +116,23 @@ public class StudyApplyService {
             study.setStudyPlans(studyPlans);
 
             studyRepository.save(study);
+
+            MentorStudy mentorStudy = new MentorStudy();
+            MentorStudy.MentorStudyId primaryMentorStudyId = new MentorStudy.MentorStudyId();
+            primaryMentorStudyId.setMentorId(studyApply.getPrimaryMentorId());
+            primaryMentorStudyId.setStudyId(study.getId());
+            mentorStudy.setId(primaryMentorStudyId);
+            mentorStudy.setMentorNum(1);
+            mentorStudyRepository.save(mentorStudy);
+            if(study.getSecondaryMentorName() != null){
+                MentorStudy mentorStudy2 = new MentorStudy();
+                MentorStudy.MentorStudyId secondaryMentorStudyId = new MentorStudy.MentorStudyId();
+                secondaryMentorStudyId.setMentorId(studyApply.getSecondaryMentorId());
+                secondaryMentorStudyId.setStudyId(study.getId());
+                mentorStudy2.setId(secondaryMentorStudyId);
+                mentorStudy2.setMentorNum(2);
+                mentorStudyRepository.save(mentorStudy2);
+            }
         }
     }
 }
