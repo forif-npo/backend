@@ -126,8 +126,10 @@ public class ApplyService {
 
 
     @Transactional
-    public void acceptApplication(AcceptRequest request) {
+    public void acceptApplication(User mentor, AcceptRequest request) {
         Study study = studyRepository.findById(request.getStudyId()).orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다."));
+        if (!mentor.getName().equals(study.getPrimaryMentorName()) && !mentor.getName().equals(study.getSecondaryMentorName()))
+            throw new IllegalArgumentException("멘토가 아닙니다.");
 
         Set<Integer> ApplierIds = request.getApplierIds();
         for (Integer applierId : ApplierIds) {

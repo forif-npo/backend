@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.Map;
 @Tag(name = "지원서", description = "지원서 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/applies")
+@RequestMapping("/applications")
 public class ApplyController {
     private final UserService userService;
     private final ApplyService applyService;
@@ -48,7 +49,7 @@ public class ApplyController {
      * @return <?> 형식으로 해서 null 일 때와 지원서가 있을 때 다른 객체를 반환하도록 함
      */
     @RequireJWT
-    @GetMapping("/application")
+    @GetMapping("/my")
     public ResponseEntity<?> getUserApplication(
             @RequestHeader("Authorization") String token
     ) {
@@ -56,26 +57,25 @@ public class ApplyController {
         MyApplicationResponse application = applyService.getUserApplication(user);
 
         if (application == null) {
-            ApplyResponse responseObj = new ApplyResponse(500, "지원서가 없습니다.");
-            return new ResponseEntity<>(responseObj, HttpStatus.BAD_GATEWAY);
+            ApplyResponse responseObj = new ApplyResponse(404, "지원서가 없습니다.");
+            return new ResponseEntity<>(responseObj, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(application, HttpStatus.OK);
     }
 
     @RequireJWT
-    @PatchMapping("/application")
+    @PatchMapping("/my")
     private ResponseEntity<Apply> patchApplication(
             @RequestHeader("Authorization") String token,
             @RequestBody ApplyRequest request
     ) throws InvocationTargetException, IllegalAccessException {
         User user = userService.validateUserExist(token);
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
         return new ResponseEntity<>(applyService.patchApplication(user, request), HttpStatus.OK);
     }
 
     @RequireJWT
-    @DeleteMapping("/application")
+    @DeleteMapping("/my")
     private ResponseEntity<Void> deleteApplication(
             @RequestHeader("Authorization") String token
     ) {
@@ -83,7 +83,6 @@ public class ApplyController {
 
         applyService.deleteApplication(user);
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -91,27 +90,28 @@ public class ApplyController {
     @RequireJWT
     @PostMapping("/accept")
     public ResponseEntity<Void> acceptApplication(
-            @RequestBody AcceptRequest request) {
-        applyService.acceptApplication(request);
+            @RequestBody AcceptRequest request,
+            @RequestHeader("Authorization") String token){
+        User mentor = userService.validateUserExist(token);
+        applyService.acceptApplication(mentor, request);
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequireJWT
-    @GetMapping("/payment")
+    @GetMapping("/unpaid-users")
     public ResponseEntity<List<UnpaidUserResponse>> getUnpaidUsers(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
         if (user.getAuthLv() == 1)
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
 
         return new ResponseEntity<>(applyService.getUnpaidUsers(), HttpStatus.OK);
     }
 
     @RequireJWT
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<?> getAllApplicationsOfStudy(
             @RequestParam Integer studyId,
             @RequestHeader("Authorization") String token
@@ -125,22 +125,22 @@ public class ApplyController {
     }
 
     @RequireJWT
-    @GetMapping("/mentor/all")
+    @GetMapping("/mentor")
     public ResponseEntity<?> getAllApplicationsOfStudyForMentor(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
         Map<String, List<RankedStudyResponse>> applications = applyService.getAllApplicationsOfStudyForMentor(user);
         if (applications.isEmpty()) {
-            ApplyResponse responseObj = new ApplyResponse(500, "지원서가 없습니다.");
-            return new ResponseEntity<>(responseObj, HttpStatus.BAD_GATEWAY);
+            ApplyResponse responseObj = new ApplyResponse(404, "지원서가 없습니다.");
+            return new ResponseEntity<>(responseObj, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(applications, HttpStatus.OK);
     }
 
 
     @RequireJWT
-    @PatchMapping("/paid")
+    @PatchMapping("/payment-status")
     public ResponseEntity<Void> patchIsPaid(
             @RequestHeader("Authorization") String token,
             @RequestBody IsPaidRequest request
@@ -149,13 +149,12 @@ public class ApplyController {
 
         applyService.patchIsPaid(user, request);
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
     @RequireJWT
-    @DeleteMapping("/allApplications")
+    @DeleteMapping
     public ResponseEntity<Void> deleteAllApplications(
             @RequestHeader("Authorization") String token
     ) {
@@ -163,7 +162,6 @@ public class ApplyController {
 
         applyService.deleteAllApplications(user);
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
