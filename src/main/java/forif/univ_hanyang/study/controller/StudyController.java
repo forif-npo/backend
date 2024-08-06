@@ -4,6 +4,7 @@ import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.study.dto.request.StudyRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
+import forif.univ_hanyang.study.dto.response.StudyNameResponse;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.service.StudyService;
 import forif.univ_hanyang.user.dto.response.StudyMemberResponse;
@@ -177,6 +178,10 @@ public class StudyController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "UNAUTHORIZED"
                     ),
                     @ApiResponse(
                             responseCode = "404",
