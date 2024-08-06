@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "Example API Docs",
-                description = "Description",
-                version = "v1"
+                title = "FORIF API list",
+                description = "API에 대한 설명",
+                version = "v2"
         )
 )
 @Configuration

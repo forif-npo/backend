@@ -43,20 +43,20 @@ public class ApplyService {
 
     @Transactional
     public void applyStudy(ApplyRequest request, User user) {
-        Study study1 = studyRepository.findById(request.getPrimaryStudy()).orElseThrow(() -> new EntityNotFoundException("스터디가 존재하지 않습니다. ID: " + request.getPrimaryStudy()));
+        Study study1 = studyRepository.findById(request.getPrimaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 존재하지 않습니다. ID: " + request.getPrimaryStudy()));
 
         if (study1.getPrimaryMentorName().equals(user.getName()) || (study1.getSecondaryMentorName() != null && study1.getSecondaryMentorName().equals(user.getName())))
             throw new IllegalArgumentException("자신의 스터디 입니다.");
 
         // 2순위 스터디 미참여가 아닐 시에만 예외 검사
         if (request.getSecondaryStudy() != null) {
-            Study study2 = studyRepository.findById(request.getSecondaryStudy()).orElseThrow(() -> new EntityNotFoundException("스터디가 존재하지 않습니다. ID: " + request.getSecondaryStudy()));
+            Study study2 = studyRepository.findById(request.getSecondaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 존재하지 않습니다. ID: " + request.getSecondaryStudy()));
             if (study2.getPrimaryMentorName().equals(user.getName()) || (study1.getSecondaryMentorName() != null && study1.getSecondaryMentorName().equals(user.getName())))
                 throw new IllegalArgumentException("자신의 스터디 입니다.");
         }
 
         if (applyRepository.findByApplierId(user.getId()).isPresent())
-            throw new IllegalStateException("이미 지원서를 접수한 유저입니다. 학번: " + user.getId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 지원서를 접수한 유저입니다. 학번: " + user.getId());
 
         Apply apply = new Apply();
         apply.setApplierId(user.getId());
@@ -93,6 +93,13 @@ public class ApplyService {
         primaryStudy.setIntroduction(apply.getPrimaryIntro());
         primaryStudy.setStatus(apply.getPrimaryStatus().toString());
 
+        if(apply.getSecondaryStudy() == null) {
+            response.setPrimaryStudy(primaryStudy);
+            response.setSecondaryStudy(null);
+            response.setApplyPath(apply.getApplyPath());
+            response.setTimestamp(apply.getApplyDate());
+            return response;
+        }
         secondaryStudy.setId(apply.getSecondaryStudy());
         secondaryStudy.setName(studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new EntityNotFoundException("스터디가 없습니다.")).getName());
         secondaryStudy.setIntroduction(apply.getSecondaryIntro());
