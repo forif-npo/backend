@@ -4,7 +4,6 @@ import forif.univ_hanyang.CustomBeanUtils;
 import forif.univ_hanyang.study.dto.request.StudyRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
-import forif.univ_hanyang.study.dto.response.StudyNameResponse;
 import forif.univ_hanyang.study.dto.response.StudyPlanResponse;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.entity.StudyPlan;
@@ -15,7 +14,6 @@ import forif.univ_hanyang.user.entity.StudyUser;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +23,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,7 +74,7 @@ public class StudyService {
 
     public List<StudyMemberResponse> getStudyMembers(User mentor, Integer studyId) {
         if (mentor.getAuthLv() == 1)
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
         List<StudyUser> userStudies = studyUserRepository.findAllById_StudyId(studyId);
         List<StudyMemberResponse> userList = new ArrayList<>();
@@ -100,10 +97,10 @@ public class StudyService {
     @Transactional
     public void updateStudy(User user, Integer studyId, StudyRequest request) {
         // 기존 스터디를 찾아옴
-        Study study = studyRepository.findById(studyId).orElseThrow(() -> new EntityNotFoundException("해당하는 스터디를 찾을 수 없습니다."));
+        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
 
         if (user.getAuthLv() == 1)
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
         studyRepository.save(setStudy(study, request));
     }
@@ -111,10 +108,10 @@ public class StudyService {
     @Transactional
     public void deleteStudy(User user, Integer studyId) {
         if (user.getAuthLv() == 1)
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
         // studyId로 스터디를 찾음
-        Study study = studyRepository.findById(studyId).orElseThrow(() -> new EntityNotFoundException("해당하는 스터디를 찾을 수 없습니다."));
+        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
         // 해당 스터디 신청 혹은 수강 중인 유저 모두 삭제
         studyUserRepository.deleteAllById_StudyId(studyId);
         // 주간 계획 모두 삭제
@@ -127,9 +124,9 @@ public class StudyService {
     public void deleteUserFromStudy(Integer studyId, Integer userId) {
         // studyId로 스터디가 존재하는지 검증
         studyRepository.findById(studyId)
-                .orElseThrow(() -> new EntityNotFoundException("스터디가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
         userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
 
         StudyUser StudyUser = studyUserRepository.findById_StudyIdAndId_UserId(studyId, userId);
         //유저 삭제
@@ -171,7 +168,7 @@ public class StudyService {
 
         // studyPlans 와 같은 복잡한 속성은 수동으로 처리
         List<StudyPlan> studyPlans = studyPlanRepository.findAllById_StudyIdOrderById_WeekNum(study.getId())
-                .orElseThrow(()-> new EntityNotFoundException("해당하는 스터디의 주간 계획을 찾을 수 없습니다."));
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디의 주간 계획을 찾을 수 없습니다."));
         List<String> sections = request.getSections();
         List<String> contents = request.getContents();
 

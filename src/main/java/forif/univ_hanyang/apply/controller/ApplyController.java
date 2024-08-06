@@ -49,7 +49,7 @@ public class ApplyController {
      * @return <?> 형식으로 해서 null 일 때와 지원서가 있을 때 다른 객체를 반환하도록 함
      */
     @RequireJWT
-    @GetMapping("/my")
+    @GetMapping("/me")
     public ResponseEntity<?> getUserApplication(
             @RequestHeader("Authorization") String token
     ) {
@@ -64,7 +64,7 @@ public class ApplyController {
     }
 
     @RequireJWT
-    @PatchMapping("/my")
+    @PatchMapping("/me")
     private ResponseEntity<Apply> patchApplication(
             @RequestHeader("Authorization") String token,
             @RequestBody ApplyRequest request
@@ -75,7 +75,7 @@ public class ApplyController {
     }
 
     @RequireJWT
-    @DeleteMapping("/my")
+    @DeleteMapping("/me")
     private ResponseEntity<Void> deleteApplication(
             @RequestHeader("Authorization") String token
     ) {
