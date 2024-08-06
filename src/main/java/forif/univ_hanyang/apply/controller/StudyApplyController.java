@@ -42,7 +42,7 @@ public class StudyApplyController {
     )
     @RequireJWT
     @PostMapping
-    public ResponseEntity<Void> applyStudy(
+    public ResponseEntity<Void> createStudyApplication(
             @RequestBody StudyApplyRequest request
     ) {
         studyApplyService.applyStudy(request);
