@@ -16,8 +16,6 @@ public interface StudyUserRepository extends JpaRepository<StudyUser, Integer> {
 
     List<StudyUser> findAllById_UserId(Integer userId);
 
-    Optional<StudyUser> findFirstById_UserIdOrderById_StudyIdDesc(Integer userId);
-
     StudyUser findById_StudyIdAndId_UserId(Integer studyId, Integer userId);
 
 }

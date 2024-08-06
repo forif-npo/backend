@@ -4,11 +4,9 @@ import forif.univ_hanyang.apply.dto.request.MoveToStudyRequest;
 import forif.univ_hanyang.apply.dto.request.StudyApplyRequest;
 import forif.univ_hanyang.apply.entity.StudyApply;
 import forif.univ_hanyang.apply.entity.StudyApplyPlan;
-import forif.univ_hanyang.apply.repository.StudyApplyPlanRepository;
 import forif.univ_hanyang.apply.repository.StudyApplyRepository;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.entity.StudyPlan;
-import forif.univ_hanyang.study.repository.StudyPlanRepository;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +17,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class StudyApplyService {
     private final StudyApplyRepository studyApplyRepository;
-    private final StudyPlanRepository studyPlanRepository;
     private final StudyRepository studyRepository;
 
     @Transactional
@@ -67,14 +63,14 @@ public class StudyApplyService {
 
     public List<StudyApply> getAllAppliedStudy(User admin) {
         if(admin.getAuthLv() < 3)
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         return studyApplyRepository.findAll();
     }
 
     @Transactional
     public void moveToStudy(User admin, MoveToStudyRequest request) {
         if (admin.getAuthLv() < 3)
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
         List<Integer> idList = request.getIdList();
 
