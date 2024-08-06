@@ -4,12 +4,13 @@ import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.study.dto.request.StudyRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
-import forif.univ_hanyang.study.dto.response.StudyNameResponse;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.service.StudyService;
 import forif.univ_hanyang.user.dto.response.StudyMemberResponse;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,23 +27,72 @@ public class StudyController {
     private final StudyService studyService;
     private final UserService userService;
 
+    @Operation(
+            summary = "전체 스터디 조회",
+            description = "해당 년도와 학기에 해당하는 전체 스터디를 조회함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
     @GetMapping
-    public List<AllStudyInfoResponse> getAllStudiesInfo(
+    public ResponseEntity<List<AllStudyInfoResponse>> getAllStudiesInfo(
             @RequestParam(value = "year") Integer year,
             @RequestParam(value = "semester") Integer semester
     ) {
         List<Study> studies = studyService.getAllStudiesInfo(year, semester);
-        return studyService.convertToStudyInfoResponse(studies, year, semester);
+        return new ResponseEntity<>(studyService.convertToStudyInfoResponse(studies, year, semester), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "스터디 조회",
+            description = "해당 스터디의 정보를 조회함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
     @GetMapping("/{studyId}")
     public ResponseEntity<StudyInfoResponse> getStudyInfo(
             @PathVariable Integer studyId
     ) {
-        // 성공 시 200 OK 상태 코드와 함께 응답
         return new ResponseEntity<>(studyService.getStudyInfo(studyId),HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "해당 스터디 부원 전체 조회",
+            description = "해당 스터디의 부원들을 조회함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "UNAUTHORIZED"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "FORBIDDEN"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
     @RequireJWT
     @GetMapping("/{studyId}/users")
     public ResponseEntity<List<StudyMemberResponse>> getStudyMembers(
@@ -55,6 +105,24 @@ public class StudyController {
         return new ResponseEntity<>(studyMemberList,HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "스터디 변경",
+            description = "해당 스터디의 정보를 변경함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "NO CONTENT"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "UNAUTHORIZED"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
     @RequireJWT
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateStudy(
@@ -68,6 +136,28 @@ public class StudyController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @Operation(
+            summary = "스터디 삭제",
+            description = "해당 스터디를 삭제함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "UNAUTHORIZED"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "FORBIDDEN"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
     @RequireJWT
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudy(
@@ -77,10 +167,23 @@ public class StudyController {
 
         studyService.deleteStudy(user, id);
 
-        // 성공 시 200 상태 코드 응답
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "스터디의 멘티 삭제",
+            description = "해당 스터디의 유저를 삭제함",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "NOT FOUND"
+                    )
+            }
+    )
     @RequireJWT
     @DeleteMapping("/{studyId}/users/{userId}")
     public ResponseEntity<Void> deleteUserFromStudy(
@@ -88,7 +191,6 @@ public class StudyController {
             @PathVariable Integer userId) {
         studyService.deleteUserFromStudy(studyId, userId);
 
-        // 성공 시 200 No OK 상태 코드 응답
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
