@@ -1,5 +1,6 @@
 package forif.univ_hanyang.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import forif.univ_hanyang.post.domain.Post;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AnnouncementResponse {
     private Integer id;
     private String type;
