@@ -1,6 +1,6 @@
-package forif.univ_hanyang.user.entity;
+package forif.univ_hanyang.user.domain;
 
-import forif.univ_hanyang.study.entity.Study;
+import forif.univ_hanyang.study.domain.Study;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package forif.univ_hanyang.study.entity;
+package forif.univ_hanyang.study.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter

@@ -2,10 +2,10 @@ package forif.univ_hanyang.apply.controller;
 
 import forif.univ_hanyang.apply.dto.request.MoveToStudyRequest;
 import forif.univ_hanyang.apply.dto.request.StudyApplyRequest;
-import forif.univ_hanyang.apply.entity.StudyApply;
+import forif.univ_hanyang.apply.domain.StudyApply;
 import forif.univ_hanyang.apply.service.StudyApplyService;
 import forif.univ_hanyang.jwt.RequireJWT;
-import forif.univ_hanyang.user.entity.User;
+import forif.univ_hanyang.user.domain.User;
 import forif.univ_hanyang.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

@@ -1,6 +1,6 @@
 package forif.univ_hanyang.study.dto.response;
 
-import forif.univ_hanyang.study.entity.StudyPlan;
+import forif.univ_hanyang.study.domain.StudyPlan;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
