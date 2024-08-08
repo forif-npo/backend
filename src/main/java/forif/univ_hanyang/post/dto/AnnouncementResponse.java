@@ -17,6 +17,18 @@ public class AnnouncementResponse {
     private String title;
     private String content;
 
+    public static AnnouncementResponse from(Post post) {
+        AnnouncementResponse announcementResponse = new AnnouncementResponse();
+        announcementResponse.setId(post.getId());
+        announcementResponse.setType(post.getType());
+        announcementResponse.setCreatedBy(post.getCreatedBy());
+        announcementResponse.setCreatedAt(post.getCreatedAt());
+        announcementResponse.setContent(post.getContent());
+        announcementResponse.setTitle(post.getTitle());
+
+        return announcementResponse;
+    }
+
     public static List<AnnouncementResponse> from(List<Post> postList) {
         List<AnnouncementResponse> announcementResponseList = new ArrayList<>();
 
@@ -27,7 +39,6 @@ public class AnnouncementResponse {
             announcementResponse.setCreatedBy(post.getCreatedBy());
             announcementResponse.setCreatedAt(post.getCreatedAt());
             announcementResponse.setTitle(post.getTitle());
-            announcementResponse.setContent(post.getContent());
 
             announcementResponseList.add(announcementResponse);
         }
