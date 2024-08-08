@@ -22,6 +22,12 @@ public class PostService {
         return AnnouncementResponse.from(postList);
     }
 
+    public AnnouncementResponse getAnnouncement(Integer id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 공지사항이 없습니다."));
+        return AnnouncementResponse.from(post);
+    }
+
     public List<FAQResponse> getFAQs() {
         List<Post> postList = postRepository.findAllByType("FAQ")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FAQ가 없습니다."));
