@@ -17,7 +17,8 @@ public class Post {
     @Id
     @Column(name = "post_id")
     private Integer id;
-    private String postType;
+    @Column(name = "post_type")
+    private String type;
     private String createdBy;
     private String createdAt;
     private String title;

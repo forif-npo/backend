@@ -12,7 +12,7 @@ import java.util.List;
 public class FAQResponse {
     private Integer id;
     private String tag;
-    private String postType;
+    private String type;
     private String createdAt;
     private String title;
     private String content;
@@ -23,7 +23,7 @@ public class FAQResponse {
             FAQResponse faqResponse = new FAQResponse();
             faqResponse.setId(post.getId());
             faqResponse.setTag(post.getPostFAQ().getTag());
-            faqResponse.setPostType(post.getPostType());
+            faqResponse.setType(post.getType());
             faqResponse.setCreatedAt(post.getCreatedAt());
             faqResponse.setTitle(post.getTitle());
             faqResponse.setContent(post.getContent());
