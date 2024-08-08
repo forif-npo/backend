@@ -17,13 +17,13 @@ public class PostService {
     private final PostRepository postRepository;
 
     public List<AnnouncementResponse> getAnnouncements() {
-        List<Post> postList = postRepository.findAllByPostType("공지사항")
+        List<Post> postList = postRepository.findAllByType("공지사항")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공지사항이 없습니다."));
         return AnnouncementResponse.from(postList);
     }
 
     public List<FAQResponse> getFAQs() {
-        List<Post> postList = postRepository.findAllByPostType("FAQ")
+        List<Post> postList = postRepository.findAllByType("FAQ")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FAQ가 없습니다."));
         return FAQResponse.from(postList);
     }
