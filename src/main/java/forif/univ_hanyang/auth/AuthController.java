@@ -5,7 +5,7 @@ import forif.univ_hanyang.auth.dto.AuthResponse;
 import forif.univ_hanyang.auth.dto.SignUpRequest;
 import forif.univ_hanyang.auth.dto.TokenRequest;
 import forif.univ_hanyang.jwt.RequireJWT;
-import forif.univ_hanyang.user.entity.User;
+import forif.univ_hanyang.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

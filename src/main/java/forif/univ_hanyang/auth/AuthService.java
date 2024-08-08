@@ -2,7 +2,7 @@ package forif.univ_hanyang.auth;
 
 import forif.univ_hanyang.auth.dto.*;
 import forif.univ_hanyang.jwt.JwtUtils;
-import forif.univ_hanyang.user.entity.User;
+import forif.univ_hanyang.user.domain.User;
 import forif.univ_hanyang.user.repository.UserRepository;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;

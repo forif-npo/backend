@@ -7,10 +7,10 @@ import forif.univ_hanyang.apply.dto.response.ApplyResponse;
 import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
 import forif.univ_hanyang.apply.dto.response.RankedStudyResponse;
 import forif.univ_hanyang.apply.dto.response.UnpaidUserResponse;
-import forif.univ_hanyang.apply.entity.Apply;
+import forif.univ_hanyang.apply.domain.Apply;
 import forif.univ_hanyang.apply.service.ApplyService;
 import forif.univ_hanyang.jwt.RequireJWT;
-import forif.univ_hanyang.user.entity.User;
+import forif.univ_hanyang.user.domain.User;
 import forif.univ_hanyang.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class ApplyController {
 
     /**
      * @param token 지원자의 토큰
-     * @return <?> 형식으로 해서 null 일 때와 지원서가 있을 때 다른 객체를 반환하도록 함
+     * @return <?> 형식으로 해서 null일 때와 지원서가 있을 때 다른 객체를 반환하도록 함
      */
     @RequireJWT
     @GetMapping("/me")
