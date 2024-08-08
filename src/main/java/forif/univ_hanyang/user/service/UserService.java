@@ -2,13 +2,13 @@ package forif.univ_hanyang.user.service;
 
 import forif.univ_hanyang.apply.repository.ApplyRepository;
 import forif.univ_hanyang.jwt.JwtUtils;
-import forif.univ_hanyang.study.entity.Study;
+import forif.univ_hanyang.study.domain.Study;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.dto.request.UserPatchRequest;
 import forif.univ_hanyang.user.dto.response.AllUserInfoResponse;
 import forif.univ_hanyang.user.dto.response.UserInfoResponse;
-import forif.univ_hanyang.user.entity.StudyUser;
-import forif.univ_hanyang.user.entity.User;
+import forif.univ_hanyang.user.domain.StudyUser;
+import forif.univ_hanyang.user.domain.User;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

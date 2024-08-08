@@ -1,12 +1,10 @@
-package forif.univ_hanyang.apply.entity;
+package forif.univ_hanyang.apply.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

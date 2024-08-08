@@ -1,10 +1,9 @@
 package forif.univ_hanyang.user.repository;
 
-import forif.univ_hanyang.user.entity.StudyUser;
+import forif.univ_hanyang.user.domain.StudyUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface StudyUserRepository extends JpaRepository<StudyUser, Integer> {
     List<StudyUser> findAllById_StudyId(Integer studyId);
