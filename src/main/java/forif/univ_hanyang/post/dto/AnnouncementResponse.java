@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 public class AnnouncementResponse {
     private Integer id;
-    private String postType;
+    private String type;
     private String createdBy;
     private String createdAt;
     private String title;
@@ -23,7 +23,7 @@ public class AnnouncementResponse {
         for (Post post : postList) {
             AnnouncementResponse announcementResponse = new AnnouncementResponse();
             announcementResponse.setId(post.getId());
-            announcementResponse.setPostType(post.getPostType());
+            announcementResponse.setType(post.getType());
             announcementResponse.setCreatedBy(post.getCreatedBy());
             announcementResponse.setCreatedAt(post.getCreatedAt());
             announcementResponse.setTitle(post.getTitle());
