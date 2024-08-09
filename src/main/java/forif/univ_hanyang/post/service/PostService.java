@@ -3,6 +3,7 @@ package forif.univ_hanyang.post.service;
 import forif.univ_hanyang.post.domain.Post;
 import forif.univ_hanyang.post.dto.AnnouncementResponse;
 import forif.univ_hanyang.post.dto.FAQResponse;
+import forif.univ_hanyang.post.dto.HackathonResponse;
 import forif.univ_hanyang.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -18,13 +18,12 @@ public class User {
     @Column(name = "user_id")
     private Integer id;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(name = "user_name")
     private String name;
 
-    @Column(name = "department")
     private String department;
 
     @Column(name = "phone_num")

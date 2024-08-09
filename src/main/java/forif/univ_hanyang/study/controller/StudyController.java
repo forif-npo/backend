@@ -106,8 +106,8 @@ public class StudyController {
     }
 
     @Operation(
-            summary = "스터디 변경",
-            description = "해당 스터디의 정보를 변경함",
+            summary = "스터디 수정",
+            description = "해당 스터디의 정보를 수정함",
             responses = {
                     @ApiResponse(
                             responseCode = "204",
@@ -125,7 +125,7 @@ public class StudyController {
     )
     @RequireJWT
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateStudy(
+    public ResponseEntity<Void> patchStudy(
             @RequestHeader("Authorization") String token,
             @PathVariable Integer id,
             @RequestBody StudyRequest request) {
