@@ -1,11 +1,9 @@
 package forif.univ_hanyang.post.controller;
 
-import forif.univ_hanyang.jwt.RequireJWT;
-import forif.univ_hanyang.post.domain.Post;
 import forif.univ_hanyang.post.dto.AnnouncementResponse;
 import forif.univ_hanyang.post.dto.FAQResponse;
+import forif.univ_hanyang.post.dto.HackathonResponse;
 import forif.univ_hanyang.post.service.PostService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,4 +36,5 @@ public class PostController {
     public ResponseEntity<List<FAQResponse>> getFAQs() {
         return new ResponseEntity<>(postService.getFAQs(), HttpStatus.OK);
     }
+
 }
