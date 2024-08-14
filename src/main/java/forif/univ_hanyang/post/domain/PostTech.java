@@ -17,6 +17,7 @@ public class PostTech {
     @Id
     @Column(name = "post_id")
     private Integer id;
+    private String subtitle;
     private String tag;
     private Integer likeNum;
 
