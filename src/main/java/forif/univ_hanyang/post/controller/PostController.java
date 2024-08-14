@@ -2,6 +2,7 @@ package forif.univ_hanyang.post.controller;
 
 import forif.univ_hanyang.post.dto.AnnouncementResponse;
 import forif.univ_hanyang.post.dto.FAQResponse;
+import forif.univ_hanyang.post.dto.TechResponse;
 import forif.univ_hanyang.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,18 @@ public class PostController {
     @GetMapping("/faqs")
     public ResponseEntity<List<FAQResponse>> getFAQs() {
         return new ResponseEntity<>(postService.getFAQs(), HttpStatus.OK);
+    }
+
+    @GetMapping("/techs")
+    public ResponseEntity<List<TechResponse>> getTechs() {
+        return new ResponseEntity<>(postService.getTechs(), HttpStatus.OK);
+    }
+
+    @GetMapping("/techs/{id}")
+    public ResponseEntity<TechResponse> getTech(
+            @PathVariable Integer id
+    ) {
+        return new ResponseEntity<>(postService.getTech(id), HttpStatus.OK);
     }
 
 }
