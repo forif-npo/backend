@@ -85,9 +85,9 @@ public class AuthService {
 
     public AuthResponse signIn(String accessToken) {
         String email = getEmailFromToken(accessToken);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
-
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null)
+            return null;
         return getAuthResponse(user);
     }
 
