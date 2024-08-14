@@ -36,7 +36,11 @@ public class AuthController {
     )
     @GetMapping("/auth/sign-in")
     public ResponseEntity<AuthResponse> signIn(@RequestParam String access_token) {
-        return new ResponseEntity<>(authService.signIn(access_token), HttpStatus.OK);
+        AuthResponse authResponse = authService.signIn(access_token);
+        if(authResponse == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
     @Operation(
