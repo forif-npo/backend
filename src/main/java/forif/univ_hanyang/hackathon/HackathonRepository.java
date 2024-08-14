@@ -1,6 +1,5 @@
-package forif.univ_hanyang.post.repository;
+package forif.univ_hanyang.hackathon;
 
-import forif.univ_hanyang.post.domain.Hackathon;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
