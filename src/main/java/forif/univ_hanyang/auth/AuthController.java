@@ -61,7 +61,6 @@ public class AuthController {
                     )
             }
     )
-    @RequireJWT
     @PostMapping("/auth/sign-up")
     public ResponseEntity<User> signUp(
             @RequestHeader("Authorization") String accessToken,
