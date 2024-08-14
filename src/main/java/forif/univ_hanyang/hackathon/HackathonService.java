@@ -1,7 +1,5 @@
-package forif.univ_hanyang.post.service;
+package forif.univ_hanyang.hackathon;
 
-import forif.univ_hanyang.post.dto.HackathonResponse;
-import forif.univ_hanyang.post.repository.HackathonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

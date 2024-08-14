@@ -1,6 +1,5 @@
-package forif.univ_hanyang.post.dto;
+package forif.univ_hanyang.hackathon;
 
-import forif.univ_hanyang.post.domain.Hackathon;
 import lombok.Getter;
 import lombok.Setter;
 
