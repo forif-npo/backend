@@ -3,6 +3,7 @@ package forif.univ_hanyang.apply.controller;
 import forif.univ_hanyang.apply.dto.request.MoveToStudyRequest;
 import forif.univ_hanyang.apply.dto.request.StudyApplyRequest;
 import forif.univ_hanyang.apply.domain.StudyApply;
+import forif.univ_hanyang.apply.dto.response.StudyApplyResponse;
 import forif.univ_hanyang.apply.service.StudyApplyService;
 import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.user.domain.User;
@@ -69,7 +70,7 @@ public class StudyApplyController {
     )
     @RequireJWT
     @GetMapping
-    public ResponseEntity<List<StudyApply>> getAllAppliedStudies(
+    public ResponseEntity<List<StudyApplyResponse>> getAllAppliedStudies(
             @RequestHeader("Authorization") String token
     ) {
         User admin = userService.validateUserExist(token);
