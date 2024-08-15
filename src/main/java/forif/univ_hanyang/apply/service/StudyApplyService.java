@@ -1,9 +1,10 @@
 package forif.univ_hanyang.apply.service;
 
-import forif.univ_hanyang.apply.dto.request.MoveToStudyRequest;
-import forif.univ_hanyang.apply.dto.request.StudyApplyRequest;
 import forif.univ_hanyang.apply.domain.StudyApply;
 import forif.univ_hanyang.apply.domain.StudyApplyPlan;
+import forif.univ_hanyang.apply.dto.request.MoveToStudyRequest;
+import forif.univ_hanyang.apply.dto.request.StudyApplyRequest;
+import forif.univ_hanyang.apply.dto.response.StudyApplyResponse;
 import forif.univ_hanyang.apply.repository.StudyApplyRepository;
 import forif.univ_hanyang.study.domain.MentorStudy;
 import forif.univ_hanyang.study.domain.Study;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,10 +67,30 @@ public class StudyApplyService {
         studyApplyRepository.save(newStudy);
     }
 
-    public List<StudyApply> getAllAppliedStudy(User admin) {
+    public List<StudyApplyResponse> getAllAppliedStudy(User admin) {
         if (admin.getAuthLv() < 3)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
-        return studyApplyRepository.findAll();
+        List<StudyApply> studyApplies = studyApplyRepository.findAll();
+
+        List<StudyApplyResponse> studyApplyResponses = new ArrayList<>();
+        for (StudyApply studyApply : studyApplies) {
+            User primaryMentor = userRepository.findById(studyApply.getPrimaryMentorId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
+
+            StudyApplyResponse studyApplyResponse = StudyApplyResponse.from(studyApply);
+            studyApplyResponse.setPrimaryMentorEmail(primaryMentor.getEmail());
+            studyApplyResponse.setPrimaryMentorPhoneNumber(primaryMentor.getPhoneNumber());
+            if(studyApply.getSecondaryMentorId() == null)
+                studyApplyResponses.add(studyApplyResponse);
+            else {
+                User secondaryMentor = userRepository.findById(studyApply.getSecondaryMentorId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
+                studyApplyResponse.setSecondaryMentorEmail(secondaryMentor.getEmail());
+                studyApplyResponse.setSecondaryMentorPhoneNumber(secondaryMentor.getPhoneNumber());
+                studyApplyResponses.add(studyApplyResponse);
+            }
+        }
+        return studyApplyResponses;
     }
 
     @Transactional
