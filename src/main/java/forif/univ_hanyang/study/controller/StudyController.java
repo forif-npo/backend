@@ -1,7 +1,7 @@
 package forif.univ_hanyang.study.controller;
 
 import forif.univ_hanyang.jwt.RequireJWT;
-import forif.univ_hanyang.study.dto.request.StudyRequest;
+import forif.univ_hanyang.study.dto.request.StudyPatchRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
 import forif.univ_hanyang.study.domain.Study;
@@ -128,7 +128,7 @@ public class StudyController {
     public ResponseEntity<Void> patchStudy(
             @RequestHeader("Authorization") String token,
             @PathVariable Integer id,
-            @RequestBody StudyRequest request) {
+            @RequestBody StudyPatchRequest request) {
         User user = userService.validateUserExist(token);
 
         studyService.updateStudy(user, id, request);
