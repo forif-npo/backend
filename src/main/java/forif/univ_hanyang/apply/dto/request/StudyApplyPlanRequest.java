@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class StudyApplyPlanRequest {
     private String section;
-    private String contents;
+    private String content;
 }

@@ -168,7 +168,7 @@ public class StudyApplyService {
                     planId.setWeekNum(request.getStudyApplyPlans().indexOf(planRequest) + 1);
                     plan.setId(planId);
                     plan.setSection(planRequest.getSection());
-                    plan.setContent(planRequest.getContents());
+                    plan.setContent(planRequest.getContent());
                     plan.setStudyApply(newStudy); // 연관 관계 설정
                     return plan;
                 })
