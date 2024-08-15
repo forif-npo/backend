@@ -92,13 +92,14 @@ public class StudyApplyController {
             }
     )
     @RequireJWT
-    @PatchMapping
+    @PatchMapping("/{applyId}")
     public ResponseEntity<Void> updateStudyApplication(
             @RequestBody StudyApplyRequest request,
+            @PathVariable Integer applyId,
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-        studyApplyService.updateStudy(request, user);
+        studyApplyService.updateStudy(request, user, applyId);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

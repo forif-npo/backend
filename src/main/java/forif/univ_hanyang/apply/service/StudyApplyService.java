@@ -65,10 +65,12 @@ public class StudyApplyService {
     }
 
     @Transactional
-    public void updateStudy(StudyApplyRequest request, User mentor) {
-        StudyApply studyApply = studyApplyRepository.findByMentorId(mentor.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디 신청을 찾을 수 없습니다."));
+    public void updateStudy(StudyApplyRequest request, User admin, Integer applyId) {
+        if(admin.getAuthLv() < 3)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
+        StudyApply studyApply = studyApplyRepository.findByMentorId(applyId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디 신청을 찾을 수 없습니다."));
         setStudyApply(request, studyApply);
     }
 
