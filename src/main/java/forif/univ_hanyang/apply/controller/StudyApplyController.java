@@ -78,6 +78,33 @@ public class StudyApplyController {
     }
 
     @Operation(
+            summary = "신청한 스터디 수정",
+            description = "신청된 스터디의 정보를 수정합니다.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "CREATED"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "UNAUTHORIZED"
+                    )
+            }
+    )
+    @RequireJWT
+    @PatchMapping
+    public ResponseEntity<Void> updateStudyApplication(
+            @RequestBody StudyApplyRequest request,
+            @RequestHeader("Authorization") String token
+    ) {
+        User user = userService.validateUserExist(token);
+        studyApplyService.updateStudy(request, user);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+
+    @Operation(
             summary = "정규 스터디로 이동",
             description = "신청된 스터디를 정규 스터디로 이동합니다.",
             responses = {

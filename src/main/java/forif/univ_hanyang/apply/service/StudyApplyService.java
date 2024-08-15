@@ -13,10 +13,10 @@ import forif.univ_hanyang.study.repository.MentorStudyRepository;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.domain.User;
 import forif.univ_hanyang.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -35,36 +35,7 @@ public class StudyApplyService {
     @Transactional
     public void applyStudy(StudyApplyRequest request) {
         StudyApply newStudy = new StudyApply();
-        newStudy.setName(request.getName());
-        newStudy.setPrimaryMentorName(request.getPrimaryMentorName());
-        newStudy.setPrimaryMentorId(request.getPrimaryMentorId());
-        newStudy.setSecondaryMentorId(request.getSecondaryMentorId());
-        newStudy.setSecondaryMentorName(request.getSecondaryMentorName());
-        newStudy.setOneLiner(request.getOneLiner());
-        newStudy.setExplanation(request.getExplanation());
-        newStudy.setWeekDay(request.getWeekDay());
-        newStudy.setStartTime(request.getStartTime());
-        newStudy.setEndTime(request.getEndTime());
-        newStudy.setDifficulty(request.getDifficulty());
-        newStudy.setLocation(request.getLocation());
-        newStudy.setTag(request.getTag());
-
-        List<StudyApplyPlan> studyPlans = request.getStudyPlans().stream()
-                .map(planRequest -> {
-                    StudyApplyPlan plan = new StudyApplyPlan();
-                    StudyApplyPlan.StudyApplyPlanId planId = new StudyApplyPlan.StudyApplyPlanId();
-                    planId.setApplyId(newStudy.getId());
-                    planId.setWeekNum(request.getStudyPlans().indexOf(planRequest) + 1);
-                    plan.setId(planId);
-                    plan.setSection(planRequest.getSection());
-                    plan.setContent(planRequest.getContents());
-                    plan.setStudyApply(newStudy); // 연관 관계 설정
-                    return plan;
-                })
-                .collect(Collectors.toList());
-
-        newStudy.setStudyApplyPlans(studyPlans);
-        studyApplyRepository.save(newStudy);
+        setStudyApply(request, newStudy);
     }
 
     public List<StudyApplyResponse> getAllAppliedStudy(User admin) {
@@ -91,6 +62,14 @@ public class StudyApplyService {
             }
         }
         return studyApplyResponses;
+    }
+
+    @Transactional
+    public void updateStudy(StudyApplyRequest request, User mentor) {
+        StudyApply studyApply = studyApplyRepository.findByMentorId(mentor.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디 신청을 찾을 수 없습니다."));
+
+        setStudyApply(request, studyApply);
     }
 
     @Transactional
@@ -162,6 +141,39 @@ public class StudyApplyService {
 
         mentorStudy.changeUserAuthLv(mentor);
         mentorStudyRepository.save(mentorStudy);
+    }
+
+    private void setStudyApply(StudyApplyRequest request, StudyApply newStudy) {
+        newStudy.setName(request.getName());
+        newStudy.setPrimaryMentorName(request.getPrimaryMentorName());
+        newStudy.setPrimaryMentorId(request.getPrimaryMentorId());
+        newStudy.setSecondaryMentorId(request.getSecondaryMentorId());
+        newStudy.setSecondaryMentorName(request.getSecondaryMentorName());
+        newStudy.setOneLiner(request.getOneLiner());
+        newStudy.setExplanation(request.getExplanation());
+        newStudy.setWeekDay(request.getWeekDay());
+        newStudy.setStartTime(request.getStartTime());
+        newStudy.setEndTime(request.getEndTime());
+        newStudy.setDifficulty(request.getDifficulty());
+        newStudy.setLocation(request.getLocation());
+        newStudy.setTag(request.getTag());
+
+        List<StudyApplyPlan> studyPlans = request.getStudyPlans().stream()
+                .map(planRequest -> {
+                    StudyApplyPlan plan = new StudyApplyPlan();
+                    StudyApplyPlan.StudyApplyPlanId planId = new StudyApplyPlan.StudyApplyPlanId();
+                    planId.setApplyId(newStudy.getId());
+                    planId.setWeekNum(request.getStudyPlans().indexOf(planRequest) + 1);
+                    plan.setId(planId);
+                    plan.setSection(planRequest.getSection());
+                    plan.setContent(planRequest.getContents());
+                    plan.setStudyApply(newStudy); // 연관 관계 설정
+                    return plan;
+                })
+                .collect(Collectors.toList());
+
+        newStudy.setStudyApplyPlans(studyPlans);
+        studyApplyRepository.save(newStudy);
     }
 
 }
