@@ -3,12 +3,11 @@ package forif.univ_hanyang.study.dto.request;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Time;
 import java.util.List;
 
 @Getter
 @Setter
-public class StudyRequest {
+public class StudyPatchRequest {
     private String name;
     private String primaryMentorName;
     private String SecondaryMentorName;
@@ -20,8 +19,7 @@ public class StudyRequest {
     private String explanation;
     private String location;
     private String tag;
-    private List<String> sections;
-    private List<String> contents;
+    private List<StudyPlanRequest> studyPlans;
 }
 
 
