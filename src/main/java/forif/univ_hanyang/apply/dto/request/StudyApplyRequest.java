@@ -21,5 +21,5 @@ public class StudyApplyRequest {
     private Integer difficulty;
     private String location;
     private String tag;
-    private List<StudyApplyPlanRequest> studyPlans;
+    private List<StudyApplyPlanRequest> studyApplyPlans;
 }

@@ -160,12 +160,12 @@ public class StudyApplyService {
         newStudy.setLocation(request.getLocation());
         newStudy.setTag(request.getTag());
 
-        List<StudyApplyPlan> studyPlans = request.getStudyPlans().stream()
+        List<StudyApplyPlan> studyPlans = request.getStudyApplyPlans().stream()
                 .map(planRequest -> {
                     StudyApplyPlan plan = new StudyApplyPlan();
                     StudyApplyPlan.StudyApplyPlanId planId = new StudyApplyPlan.StudyApplyPlanId();
                     planId.setApplyId(newStudy.getId());
-                    planId.setWeekNum(request.getStudyPlans().indexOf(planRequest) + 1);
+                    planId.setWeekNum(request.getStudyApplyPlans().indexOf(planRequest) + 1);
                     plan.setId(planId);
                     plan.setSection(planRequest.getSection());
                     plan.setContent(planRequest.getContents());
