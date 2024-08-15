@@ -1,7 +1,7 @@
 package forif.univ_hanyang.study.service;
 
 import forif.univ_hanyang.CustomBeanUtils;
-import forif.univ_hanyang.study.dto.request.StudyRequest;
+import forif.univ_hanyang.study.dto.request.StudyPatchRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.StudyPlanResponse;
@@ -95,7 +95,7 @@ public class StudyService {
 
 
     @Transactional
-    public void updateStudy(User user, Integer studyId, StudyRequest request) {
+    public void updateStudy(User user, Integer studyId, StudyPatchRequest request) {
         // 기존 스터디를 찾아옴
         Study study = studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
 
@@ -158,7 +158,7 @@ public class StudyService {
     }
 
     @Transactional
-    public Study setStudy(Study study, StudyRequest request) {
+    public Study setStudy(Study study, StudyPatchRequest request) {
         try {
             // CustomBeanUtils 을 사용하여 null 이 아닌 속성만 복사
             CustomBeanUtils.copyNonNullProperties(study, request);
@@ -169,15 +169,14 @@ public class StudyService {
         // studyPlans 와 같은 복잡한 속성은 수동으로 처리
         List<StudyPlan> studyPlans = studyPlanRepository.findAllById_StudyIdOrderById_WeekNum(study.getId())
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디의 주간 계획을 찾을 수 없습니다."));
-        List<String> sections = request.getSections();
-        List<String> contents = request.getContents();
+
 
         for (int i = 0; i < 15; i++) {
             StudyPlan studyPlan = studyPlans.get(i);
             studyPlan.getId().setStudyId(study.getId());
             studyPlan.getId().setWeekNum(i + 1);
-            studyPlan.setSection(sections.get(i));
-            studyPlan.setContent(contents.get(i));
+            studyPlan.setSection(request.getStudyPlans().get(i).getSection());
+            studyPlan.setContent(request.getStudyPlans().get(i).getContent());
             studyPlan.setStudy(study);
         }
         study.setStudyPlans(studyPlans);
