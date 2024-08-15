@@ -2,7 +2,6 @@ package forif.univ_hanyang.apply.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import forif.univ_hanyang.apply.domain.StudyApply;
-import forif.univ_hanyang.apply.domain.StudyApplyPlan;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,7 +29,7 @@ public class StudyApplyResponse {
     private Integer difficulty;
     private String location;
     private String tag;
-    private List<StudyApplyPlan> studyApplyPlans;
+    private List<StudyApplyPlanResponse> studyApplyPlans;
 
     public static StudyApplyResponse from(StudyApply studyApply) {
         StudyApplyResponse studyApplyResponse = new StudyApplyResponse();
@@ -48,7 +47,7 @@ public class StudyApplyResponse {
         studyApplyResponse.setDifficulty(studyApply.getDifficulty());
         studyApplyResponse.setLocation(studyApply.getLocation());
         studyApplyResponse.setTag(studyApply.getTag());
-        studyApplyResponse.setStudyApplyPlans(studyApply.getStudyApplyPlans());
+        studyApplyResponse.setStudyApplyPlans(StudyApplyPlanResponse.from(studyApply.getStudyApplyPlans()));
         return studyApplyResponse;
     }
 }
