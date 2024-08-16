@@ -1,4 +1,4 @@
-package forif.univ_hanyang.study.domain;
+package forif.univ_hanyang.study.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

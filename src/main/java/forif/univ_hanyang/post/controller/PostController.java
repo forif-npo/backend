@@ -1,16 +1,15 @@
 package forif.univ_hanyang.post.controller;
 
-import forif.univ_hanyang.post.dto.AnnouncementResponse;
-import forif.univ_hanyang.post.dto.FAQResponse;
-import forif.univ_hanyang.post.dto.TechResponse;
+import forif.univ_hanyang.jwt.RequireJWT;
+import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
+import forif.univ_hanyang.post.dto.response.AnnouncementResponse;
+import forif.univ_hanyang.post.dto.response.FAQResponse;
+import forif.univ_hanyang.post.dto.response.TechResponse;
 import forif.univ_hanyang.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,6 +29,15 @@ public class PostController {
             @PathVariable Integer id
     ) {
         return new ResponseEntity<>(postService.getAnnouncement(id), HttpStatus.OK);
+    }
+
+    @RequireJWT
+    @PostMapping("/announcements")
+    public ResponseEntity<Void> createAnnouncement(
+            @RequestBody AnnouncementRequest announcementRequest
+    ) {
+        postService.createAnnouncement(announcementRequest);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/faqs")

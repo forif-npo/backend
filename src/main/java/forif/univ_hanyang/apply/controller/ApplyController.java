@@ -7,7 +7,7 @@ import forif.univ_hanyang.apply.dto.response.ApplyResponse;
 import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
 import forif.univ_hanyang.apply.dto.response.RankedStudyResponse;
 import forif.univ_hanyang.apply.dto.response.UnpaidUserResponse;
-import forif.univ_hanyang.apply.domain.Apply;
+import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.service.ApplyService;
 import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.user.domain.User;

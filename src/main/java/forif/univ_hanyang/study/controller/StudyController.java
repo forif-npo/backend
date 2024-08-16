@@ -3,8 +3,9 @@ package forif.univ_hanyang.study.controller;
 import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.study.dto.request.StudyPatchRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
+import forif.univ_hanyang.study.dto.response.MyCreatedStudiesResponse;
 import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
-import forif.univ_hanyang.study.domain.Study;
+import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.service.StudyService;
 import forif.univ_hanyang.user.dto.response.StudyMemberResponse;
 import forif.univ_hanyang.user.domain.User;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @Tag(name = "스터디", description = "스터디 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -68,7 +70,7 @@ public class StudyController {
     public ResponseEntity<StudyInfoResponse> getStudyInfo(
             @PathVariable Integer studyId
     ) {
-        return new ResponseEntity<>(studyService.getStudyInfo(studyId),HttpStatus.OK);
+        return new ResponseEntity<>(studyService.getStudyInfo(studyId), HttpStatus.OK);
     }
 
     @Operation(
@@ -102,7 +104,7 @@ public class StudyController {
         User mentor = userService.validateUserExist(token);
         List<StudyMemberResponse> studyMemberList = studyService.getStudyMembers(mentor, studyId);
 
-        return new ResponseEntity<>(studyMemberList,HttpStatus.OK);
+        return new ResponseEntity<>(studyMemberList, HttpStatus.OK);
     }
 
     @Operation(
@@ -110,8 +112,8 @@ public class StudyController {
             description = "해당 스터디의 정보를 수정함",
             responses = {
                     @ApiResponse(
-                            responseCode = "204",
-                            description = "NO CONTENT"
+                            responseCode = "200",
+                            description = "OK"
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -133,7 +135,7 @@ public class StudyController {
 
         studyService.updateStudy(user, id, request);
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(
@@ -196,6 +198,16 @@ public class StudyController {
         studyService.deleteUserFromStudy(studyId, userId);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequireJWT
+    @GetMapping("/my-created")
+    public ResponseEntity<List<MyCreatedStudiesResponse>> getMyCreatedStudies(
+            @RequestHeader("Authorization") String token
+    ) {
+        User user = userService.validateUserExist(token);
+
+        return new ResponseEntity<>(studyService.getMyCreatedStudies(user), HttpStatus.OK);
     }
 
 }

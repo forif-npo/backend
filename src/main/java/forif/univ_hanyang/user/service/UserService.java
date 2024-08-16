@@ -2,7 +2,7 @@ package forif.univ_hanyang.user.service;
 
 import forif.univ_hanyang.apply.repository.ApplyRepository;
 import forif.univ_hanyang.jwt.JwtUtils;
-import forif.univ_hanyang.study.domain.Study;
+import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.dto.request.UserPatchRequest;
 import forif.univ_hanyang.user.dto.response.AllUserInfoResponse;

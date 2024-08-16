@@ -3,10 +3,13 @@ package forif.univ_hanyang.study.service;
 import forif.univ_hanyang.CustomBeanUtils;
 import forif.univ_hanyang.study.dto.request.StudyPatchRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
+import forif.univ_hanyang.study.dto.response.MyCreatedStudiesResponse;
 import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.StudyPlanResponse;
-import forif.univ_hanyang.study.domain.Study;
-import forif.univ_hanyang.study.domain.StudyPlan;
+import forif.univ_hanyang.study.entity.MentorStudy;
+import forif.univ_hanyang.study.entity.Study;
+import forif.univ_hanyang.study.entity.StudyPlan;
+import forif.univ_hanyang.study.repository.MentorStudyRepository;
 import forif.univ_hanyang.study.repository.StudyPlanRepository;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.dto.response.StudyMemberResponse;
@@ -34,6 +37,7 @@ public class StudyService {
     private final UserRepository userRepository;
     private final StudyUserRepository studyUserRepository;
     private final StudyPlanRepository studyPlanRepository;
+    private final MentorStudyRepository mentorStudyRepository;
 
     @Transactional(readOnly = true)
     public List<Study> getAllStudiesInfo(Integer year, Integer semester) {
@@ -96,11 +100,11 @@ public class StudyService {
 
     @Transactional
     public void updateStudy(User user, Integer studyId, StudyPatchRequest request) {
-        // 기존 스터디를 찾아옴
-        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
-
         if (user.getAuthLv() == 1)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+
+        // 기존 스터디를 찾아옴
+        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
 
         studyRepository.save(setStudy(study, request));
     }
@@ -182,5 +186,25 @@ public class StudyService {
         study.setStudyPlans(studyPlans);
 
         return study;
+    }
+
+    public List<MyCreatedStudiesResponse> getMyCreatedStudies(User user) {
+        if (user.getAuthLv() == 1)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+
+        List<MentorStudy> mentorStudies = mentorStudyRepository.findAllById_MentorId(user.getId());
+        List<MyCreatedStudiesResponse> result = new ArrayList<>();
+
+        List<Study> studies = mentorStudies.stream().map(MentorStudy::getStudy).toList();
+
+        for (Study study : studies) {
+            MyCreatedStudiesResponse myCreatedStudiesResponse = new MyCreatedStudiesResponse();
+            myCreatedStudiesResponse.setId(study.getId());
+            myCreatedStudiesResponse.setActYear(study.getActYear());
+            myCreatedStudiesResponse.setActSemester(study.getActSemester());
+            result.add(myCreatedStudiesResponse);
+        }
+
+        return result;
     }
 }

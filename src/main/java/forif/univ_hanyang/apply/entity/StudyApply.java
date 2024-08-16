@@ -1,4 +1,4 @@
-package forif.univ_hanyang.apply.domain;
+package forif.univ_hanyang.apply.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;

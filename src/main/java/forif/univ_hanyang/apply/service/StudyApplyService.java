@@ -1,14 +1,14 @@
 package forif.univ_hanyang.apply.service;
 
-import forif.univ_hanyang.apply.domain.StudyApply;
-import forif.univ_hanyang.apply.domain.StudyApplyPlan;
+import forif.univ_hanyang.apply.entity.StudyApply;
+import forif.univ_hanyang.apply.entity.StudyApplyPlan;
 import forif.univ_hanyang.apply.dto.request.MoveToStudyRequest;
 import forif.univ_hanyang.apply.dto.request.StudyApplyRequest;
 import forif.univ_hanyang.apply.dto.response.StudyApplyResponse;
 import forif.univ_hanyang.apply.repository.StudyApplyRepository;
-import forif.univ_hanyang.study.domain.MentorStudy;
-import forif.univ_hanyang.study.domain.Study;
-import forif.univ_hanyang.study.domain.StudyPlan;
+import forif.univ_hanyang.study.entity.MentorStudy;
+import forif.univ_hanyang.study.entity.Study;
+import forif.univ_hanyang.study.entity.StudyPlan;
 import forif.univ_hanyang.study.repository.MentorStudyRepository;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.domain.User;
@@ -130,6 +130,7 @@ public class StudyApplyService {
         }
     }
 
+    @Transactional
     public void setMentor(Study study, Integer mentorId, Integer mentorNum) {
         MentorStudy mentorStudy = new MentorStudy();
         User mentor = userRepository.findById(mentorId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
@@ -145,7 +146,8 @@ public class StudyApplyService {
         mentorStudyRepository.save(mentorStudy);
     }
 
-    private void setStudyApply(StudyApplyRequest request, StudyApply newStudy) {
+    @Transactional
+    public void setStudyApply(StudyApplyRequest request, StudyApply newStudy) {
         newStudy.setName(request.getName());
         newStudy.setPrimaryMentorName(request.getPrimaryMentorName());
         newStudy.setPrimaryMentorId(request.getPrimaryMentorId());
