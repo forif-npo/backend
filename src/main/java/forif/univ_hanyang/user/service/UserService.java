@@ -88,7 +88,7 @@ public class UserService {
     @Transactional
     public User patchUser(UserPatchRequest request, User user){
         // request 객체에서 user 객체로 null이 아닌 필드만 복사
-        CustomBeanUtils.copyNonNullProperties(request, user);
+        CustomBeanUtils.copyNonNullProperties(user, request);
 
         userRepository.save(user);
         return user;
