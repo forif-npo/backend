@@ -35,6 +35,7 @@ public class StudyApply {
     private Integer difficulty;
     private String location;
     private String tag;
+    private Integer status;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "studyApply", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
