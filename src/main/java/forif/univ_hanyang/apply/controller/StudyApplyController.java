@@ -2,7 +2,6 @@ package forif.univ_hanyang.apply.controller;
 
 import forif.univ_hanyang.apply.dto.request.MoveToStudyRequest;
 import forif.univ_hanyang.apply.dto.request.StudyApplyRequest;
-import forif.univ_hanyang.apply.domain.StudyApply;
 import forif.univ_hanyang.apply.dto.response.StudyApplyResponse;
 import forif.univ_hanyang.apply.service.StudyApplyService;
 import forif.univ_hanyang.jwt.RequireJWT;

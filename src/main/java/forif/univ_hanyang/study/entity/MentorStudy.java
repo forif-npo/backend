@@ -1,11 +1,10 @@
-package forif.univ_hanyang.study.domain;
+package forif.univ_hanyang.study.entity;
 
 import forif.univ_hanyang.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 @Getter
 @Setter

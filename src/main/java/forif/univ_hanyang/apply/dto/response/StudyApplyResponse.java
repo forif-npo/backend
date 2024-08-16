@@ -1,7 +1,7 @@
 package forif.univ_hanyang.apply.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import forif.univ_hanyang.apply.domain.StudyApply;
+import forif.univ_hanyang.apply.entity.StudyApply;
 import lombok.Getter;
 import lombok.Setter;
 

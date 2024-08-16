@@ -1,6 +1,6 @@
 package forif.univ_hanyang.study.repository;
 
-import forif.univ_hanyang.study.domain.StudyPlan;
+import forif.univ_hanyang.study.entity.StudyPlan;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
