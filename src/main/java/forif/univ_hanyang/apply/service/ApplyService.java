@@ -253,53 +253,6 @@ public class ApplyService {
         return applications;
     }
 
-    @Transactional(readOnly = true)
-    public Map<String, List<RankedStudyResponse>> getAllApplicationsOfStudyForMentor(User user) {
-        if (user.getAuthLv() == 1) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
-        int currentYear = LocalDateTime.now().getYear();
-        int currentSemester = LocalDateTime.now().getMonthValue() / 7 + 1;
-        List<Study> studies = studyRepository.findAll();
-
-        Study filteredStudy = studies.stream().filter(study -> study.getPrimaryMentorName().equals(user.getName()) || study.getSecondaryMentorName().equals(user.getName())).filter(study -> study.getActYear().equals(currentYear) && study.getActSemester().equals(currentSemester)).findFirst().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 학기에 멘토로 지정된 스터디가 없습니다."));
-
-        List<Apply> primaryStudies = applyRepository.findAllByPrimaryStudy(filteredStudy.getId());
-        List<Apply> secondaryStudies = applyRepository.findAllBySecondaryStudy(filteredStudy.getId());
-
-        Map<String, List<RankedStudyResponse>> applications = new HashMap<>();
-        List<RankedStudyResponse> studyResponses1 = new ArrayList<>();
-
-        for (Apply apply : primaryStudies) {
-            RankedStudyResponse rankedStudyResponse = new RankedStudyResponse();
-            rankedStudyResponse.setName(getUserName(apply));
-            rankedStudyResponse.setIntro(apply.getPrimaryIntro());
-            rankedStudyResponse.setId(apply.getApplierId());
-            rankedStudyResponse.setApplyPath(apply.getApplyPath());
-            rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
-
-            studyResponses1.add(rankedStudyResponse);
-        }
-
-        applications.put("first", studyResponses1);
-
-        List<RankedStudyResponse> studyResponses2 = new ArrayList<>();
-
-        for (Apply apply : secondaryStudies) {
-            RankedStudyResponse rankedStudyResponse = new RankedStudyResponse();
-            rankedStudyResponse.setName(getUserName(apply));
-            rankedStudyResponse.setIntro(apply.getSecondaryIntro());
-            rankedStudyResponse.setId(apply.getApplierId());
-            rankedStudyResponse.setApplyPath(apply.getApplyPath());
-            rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
-
-            studyResponses2.add(rankedStudyResponse);
-        }
-
-        applications.put("second", studyResponses2);
-
-
-        return applications;
-    }
-
     @Transactional
     public void patchIsPaid(User user, IsPaidRequest request) {
         if (user.getAuthLv() == 1) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");

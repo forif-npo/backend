@@ -15,7 +15,4 @@ public interface StudyRepository extends JpaRepository<Study,Integer> {
     @Query(value = "SELECT MAX(study_id) FROM tb_study", nativeQuery = true)
     Optional<Integer> findMaxStudyId();
 
-    @Query("SELECT s FROM Study s WHERE s.primaryMentorName = :mentorName OR s.secondaryMentorName = :mentorName")
-    Optional<List<Study>> findAllByMentorName(@Param("mentorName") String mentorName);
-
 }

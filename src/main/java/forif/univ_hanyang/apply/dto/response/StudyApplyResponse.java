@@ -29,6 +29,7 @@ public class StudyApplyResponse {
     private Integer difficulty;
     private String location;
     private String tag;
+    private Integer status;
     private List<StudyApplyPlanResponse> studyApplyPlans;
 
     public static StudyApplyResponse from(StudyApply studyApply) {
@@ -47,6 +48,7 @@ public class StudyApplyResponse {
         studyApplyResponse.setDifficulty(studyApply.getDifficulty());
         studyApplyResponse.setLocation(studyApply.getLocation());
         studyApplyResponse.setTag(studyApply.getTag());
+        studyApplyResponse.setStatus(studyApply.getStatus());
         studyApplyResponse.setStudyApplyPlans(StudyApplyPlanResponse.from(studyApply.getStudyApplyPlans()));
         return studyApplyResponse;
     }

@@ -85,6 +85,8 @@ public class StudyApplyService {
             StudyApply studyApply = studyApplyRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디 신청을 찾을 수 없습니다."));
 
+            // 승인 상태로 변경
+            studyApply.setStatus(1);
             Integer studyId = studyRepository.findMaxStudyId().orElse(0) + 1;
 
             Study study = new Study();

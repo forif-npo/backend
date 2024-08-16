@@ -124,21 +124,6 @@ public class ApplyController {
     }
 
     @RequireJWT
-    @GetMapping("/mentor")
-    public ResponseEntity<?> getAllApplicationsOfStudyForMentor(
-            @RequestHeader("Authorization") String token
-    ) {
-        User user = userService.validateUserExist(token);
-        Map<String, List<RankedStudyResponse>> applications = applyService.getAllApplicationsOfStudyForMentor(user);
-        if (applications.isEmpty()) {
-            ApplyResponse responseObj = new ApplyResponse(404, "지원서가 없습니다.");
-            return new ResponseEntity<>(responseObj, HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(applications, HttpStatus.OK);
-    }
-
-
-    @RequireJWT
     @PatchMapping("/payment-status")
     public ResponseEntity<Void> patchIsPaid(
             @RequestHeader("Authorization") String token,
