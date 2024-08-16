@@ -4,12 +4,14 @@ import forif.univ_hanyang.CustomBeanUtils;
 import forif.univ_hanyang.apply.repository.ApplyRepository;
 import forif.univ_hanyang.jwt.JwtUtils;
 import forif.univ_hanyang.study.entity.Study;
+import forif.univ_hanyang.study.repository.MentorStudyRepository;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.dto.request.UserPatchRequest;
 import forif.univ_hanyang.user.dto.response.AllUserInfoResponse;
 import forif.univ_hanyang.user.dto.response.UserInfoResponse;
 import forif.univ_hanyang.user.domain.StudyUser;
 import forif.univ_hanyang.user.domain.User;
+import forif.univ_hanyang.user.repository.ForifTeamRepository;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -36,6 +38,8 @@ public class UserService {
     private final StudyUserRepository studyUserRepository;
     private final StudyRepository studyRepository;
     private final ApplyRepository applyRepository;
+    private final MentorStudyRepository mentorStudyRepository;
+    private final ForifTeamRepository forifTeamRepository;
 
     public UserInfoResponse getUserInfo(User user) {
         // 유저와 연관된 스터디 모두 찾기
@@ -103,7 +107,8 @@ public class UserService {
 
         // 지원서 제거
         applyRepository.deleteByApplierId(id);
-
+        mentorStudyRepository.deleteAllById_MentorId(id);
+        forifTeamRepository.deleteAllById_UserId(id);
         userRepository.deleteById(id);
     }
 

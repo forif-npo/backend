@@ -1,10 +1,7 @@
 package forif.univ_hanyang.study.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -19,22 +16,10 @@ public class StudyPlan {
     @Embeddable
     @Getter
     @Setter
+    @EqualsAndHashCode
     public static class StudyPlanId implements Serializable {
         private Integer studyId;
         private Integer weekNum;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            StudyPlanId that = (StudyPlanId) o;
-            return Objects.equals(studyId, that.studyId) && Objects.equals(weekNum, that.weekNum);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(studyId, weekNum);
-        }
     }
 
     @EmbeddedId
