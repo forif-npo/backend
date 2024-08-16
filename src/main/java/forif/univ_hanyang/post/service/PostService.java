@@ -1,15 +1,18 @@
 package forif.univ_hanyang.post.service;
 
-import forif.univ_hanyang.post.domain.Post;
-import forif.univ_hanyang.post.dto.AnnouncementResponse;
-import forif.univ_hanyang.post.dto.FAQResponse;
-import forif.univ_hanyang.post.dto.TechResponse;
+import forif.univ_hanyang.post.entity.Post;
+import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
+import forif.univ_hanyang.post.dto.response.AnnouncementResponse;
+import forif.univ_hanyang.post.dto.response.FAQResponse;
+import forif.univ_hanyang.post.dto.response.TechResponse;
 import forif.univ_hanyang.post.repository.PostRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,6 +30,18 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 공지사항이 없습니다."));
         return AnnouncementResponse.from(post);
+    }
+
+    @Transactional
+    public void createAnnouncement(AnnouncementRequest announcementRequest) {
+        Post post = new Post();
+        post.setId(postRepository.findMaxId().orElse(0) + 1);
+        post.setType("공지사항");
+        post.setCreatedBy(announcementRequest.getCreatedBy());
+        post.setCreatedAt(LocalDateTime.now().toString());
+        post.setTitle(announcementRequest.getTitle());
+        post.setContent(announcementRequest.getContent());
+        postRepository.save(post);
     }
 
     public List<FAQResponse> getFAQs() {
