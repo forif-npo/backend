@@ -1,10 +1,13 @@
 package forif.univ_hanyang.post.service;
 
+import forif.univ_hanyang.post.dto.request.FAQRequest;
 import forif.univ_hanyang.post.entity.Post;
 import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
 import forif.univ_hanyang.post.dto.response.AnnouncementResponse;
 import forif.univ_hanyang.post.dto.response.FAQResponse;
 import forif.univ_hanyang.post.dto.response.TechResponse;
+import forif.univ_hanyang.post.entity.PostFAQ;
+import forif.univ_hanyang.post.repository.PostFAQRepository;
 import forif.univ_hanyang.post.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final PostFAQRepository postFAQRepository;
 
     public List<AnnouncementResponse> getAnnouncements() {
         List<Post> postList = postRepository.findAllByType("공지사항")
@@ -48,6 +52,22 @@ public class PostService {
         List<Post> postList = postRepository.findAllByType("FAQ")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FAQ가 없습니다."));
         return FAQResponse.from(postList);
+    }
+
+    public void createFAQ(FAQRequest request) {
+        Post post = new Post();
+        post.setId(postRepository.findMaxId().orElse(0) + 1);
+        post.setType("FAQ");
+        post.setCreatedAt(LocalDateTime.now().toString());
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+
+        PostFAQ postFAQ = new PostFAQ();
+        postFAQ.setTag(request.getTag());
+        postFAQ.setPost(post);
+
+        postRepository.save(post);
+        postFAQRepository.save(postFAQ);
     }
 
     public List<TechResponse> getTechs() {
