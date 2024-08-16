@@ -120,6 +120,8 @@ public class StudyService {
         studyUserRepository.deleteAllById_StudyId(studyId);
         // 주간 계획 모두 삭제
         studyPlanRepository.deleteAllByStudy_Id(studyId);
+        // 멘토 스터디 삭제
+        mentorStudyRepository.deleteAllById_StudyId(studyId);
         // 스터디 삭제
         studyRepository.delete(study);
     }
