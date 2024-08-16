@@ -73,7 +73,7 @@ public class UserController {
     public ResponseEntity<User> patchUser(
             @RequestHeader("Authorization") String token,
             @RequestBody UserPatchRequest request
-    ) throws InvocationTargetException, IllegalAccessException {
+    ) {
         User user = userService.validateUserExist(token);
 
         return new ResponseEntity<>(userService.patchUser(request, user), HttpStatus.OK);
@@ -135,7 +135,7 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<List<AllUserInfoResponse>> getAllUsers(
             @RequestHeader("Authorization") String token
-    ){
+    ) {
         User admin = userService.validateUserExist(token);
         List<AllUserInfoResponse> allUserInfoResponses = userService.getAllUsersInfo(admin);
 

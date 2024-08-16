@@ -87,6 +87,7 @@ public class StudyApplyService {
 
             // 승인 상태로 변경
             studyApply.setStatus(1);
+
             Integer studyId = studyRepository.findMaxStudyId().orElse(0) + 1;
 
             Study study = new Study();

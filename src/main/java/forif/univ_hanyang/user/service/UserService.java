@@ -1,5 +1,6 @@
 package forif.univ_hanyang.user.service;
 
+import forif.univ_hanyang.CustomBeanUtils;
 import forif.univ_hanyang.apply.repository.ApplyRepository;
 import forif.univ_hanyang.jwt.JwtUtils;
 import forif.univ_hanyang.study.entity.Study;
@@ -11,6 +12,7 @@ import forif.univ_hanyang.user.domain.StudyUser;
 import forif.univ_hanyang.user.domain.User;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -83,16 +85,17 @@ public class UserService {
                 .build();
     }
 
-    public User patchUser(UserPatchRequest request, User user) throws IllegalAccessException, InvocationTargetException {
+    @Transactional
+    public User patchUser(UserPatchRequest request, User user){
         // request 객체에서 user 객체로 null이 아닌 필드만 복사
-        BeanUtils.copyProperties(user, request);
+        CustomBeanUtils.copyNonNullProperties(request, user);
 
         userRepository.save(user);
-
         return user;
     }
 
 
+    @Transactional
     public void deleteUser(User user) {
         Integer id = user.getId();
         // 연관된 스터디까지 제거 (수강한 스터디)
