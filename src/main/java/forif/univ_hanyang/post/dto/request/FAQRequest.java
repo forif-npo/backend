@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AnnouncementRequest {
-    private String createdBy;
+public class FAQRequest {
+    private String tag;
     private String title;
     private String content;
 }

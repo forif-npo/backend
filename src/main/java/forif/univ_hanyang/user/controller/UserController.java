@@ -4,7 +4,7 @@ import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.user.dto.request.UserPatchRequest;
 import forif.univ_hanyang.user.dto.response.AllUserInfoResponse;
 import forif.univ_hanyang.user.dto.response.UserInfoResponse;
-import forif.univ_hanyang.user.domain.User;
+import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 @Tag(name = "사용자", description = "사용자 관련 API")

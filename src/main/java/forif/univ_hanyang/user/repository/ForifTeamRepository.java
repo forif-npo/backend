@@ -1,6 +1,6 @@
 package forif.univ_hanyang.user.repository;
 
-import forif.univ_hanyang.user.domain.ForifTeam;
+import forif.univ_hanyang.user.entity.ForifTeam;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

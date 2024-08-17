@@ -2,6 +2,7 @@ package forif.univ_hanyang.post.controller;
 
 import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
+import forif.univ_hanyang.post.dto.request.FAQRequest;
 import forif.univ_hanyang.post.dto.response.AnnouncementResponse;
 import forif.univ_hanyang.post.dto.response.FAQResponse;
 import forif.univ_hanyang.post.dto.response.TechResponse;
@@ -43,6 +44,15 @@ public class PostController {
     @GetMapping("/faqs")
     public ResponseEntity<List<FAQResponse>> getFAQs() {
         return new ResponseEntity<>(postService.getFAQs(), HttpStatus.OK);
+    }
+
+    @RequireJWT
+    @PostMapping("/faqs")
+    public ResponseEntity<Void> createFAQ(
+            @RequestBody FAQRequest request
+            ) {
+        postService.createFAQ(request);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/techs")

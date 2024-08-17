@@ -12,8 +12,8 @@ import forif.univ_hanyang.apply.entity.ApplyStatus;
 import forif.univ_hanyang.apply.repository.ApplyRepository;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.repository.StudyRepository;
-import forif.univ_hanyang.user.domain.StudyUser;
-import forif.univ_hanyang.user.domain.User;
+import forif.univ_hanyang.user.entity.StudyUser;
+import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -68,7 +68,8 @@ public class ApplyService {
         // 모든 지원서 초기엔 N으로 설정 (합격 후 금액 납부 원칙)
         apply.setPayYn("N");
         apply.setPrimaryStatus(ApplyStatus.대기);
-        apply.setSecondaryStatus(ApplyStatus.대기);
+        if (request.getSecondaryStudy() != null)
+            apply.setSecondaryStatus(ApplyStatus.대기);
         apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
 
         applyRepository.save(apply);
@@ -93,7 +94,7 @@ public class ApplyService {
         primaryStudy.setIntroduction(apply.getPrimaryIntro());
         primaryStudy.setStatus(apply.getPrimaryStatus().toString());
 
-        if(apply.getSecondaryStudy() == null) {
+        if (apply.getSecondaryStudy() == null) {
             response.setPrimaryStudy(primaryStudy);
             response.setSecondaryStudy(null);
             response.setApplyPath(apply.getApplyPath());
@@ -134,17 +135,25 @@ public class ApplyService {
 
     @Transactional
     public void acceptApplication(User mentor, AcceptRequest request) {
+        if (mentor.getAuthLv() == 1) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+
         Study study = studyRepository.findById(request.getStudyId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 없습니다."));
-        if (!mentor.getName().equals(study.getPrimaryMentorName()) && !mentor.getName().equals(study.getSecondaryMentorName()))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "멘토가 아닙니다.");
+
+        // 자율 스터디가 아닐 때에만 검사
+        if (request.getStudyId() != 0) {
+            if (!mentor.getName().equals(study.getPrimaryMentorName()) && !(study.getSecondaryMentorName() != null && mentor.getName().equals(study.getSecondaryMentorName()))) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 스터디의 멘토가 아닙니다.");
+            }
+        }
 
         Set<Integer> ApplierIds = request.getApplierIds();
         for (Integer applierId : ApplierIds) {
             Apply apply = applyRepository.findByApplierId(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다. applierId: " + applierId));
 
             User user = userRepository.findById(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다. Id: " + applierId));
-
-            if (request.getApplyStatus().equals("거절")) continue;
+            if (!Objects.equals(apply.getPrimaryStudy(), study.getId()) && !Objects.equals(apply.getSecondaryStudy(), study.getId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 스터디에 지원하지 않은 유저입니다.");
+            }
 
             // 이미 1순위 스터디가 승낙이면, 2순위는 고려안함.
             if (apply.getPrimaryStatus() == ApplyStatus.승낙) continue;
@@ -205,7 +214,7 @@ public class ApplyService {
 
     @Transactional(readOnly = true)
     public Map<String, List<RankedStudyResponse>> getAllApplicationsOfStudy(Integer studyId, User user) {
-        if (user.getAuthLv() < 3) throw new IllegalStateException("잘못된 접근입니다.");
+        if (user.getAuthLv() < 2) throw new IllegalStateException("잘못된 접근입니다.");
 
         studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 없습니다."));
 

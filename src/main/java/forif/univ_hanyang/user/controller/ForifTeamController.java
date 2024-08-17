@@ -1,6 +1,5 @@
 package forif.univ_hanyang.user.controller;
 
-import forif.univ_hanyang.user.domain.ForifTeam;
 import forif.univ_hanyang.user.dto.response.ForifTeamResponse;
 import forif.univ_hanyang.user.service.ForifTeamService;
 import io.swagger.v3.oas.annotations.tags.Tag;
