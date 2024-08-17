@@ -54,17 +54,21 @@ public class PostService {
         return FAQResponse.from(postList);
     }
 
+    @Transactional
     public void createFAQ(FAQRequest request) {
+        Integer newId = postRepository.findMaxId().orElse(0) + 1;
         Post post = new Post();
-        post.setId(postRepository.findMaxId().orElse(0) + 1);
+        post.setId(newId);
         post.setType("FAQ");
         post.setCreatedAt(LocalDateTime.now().toString());
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
 
         PostFAQ postFAQ = new PostFAQ();
-        postFAQ.setTag(request.getTag());
         postFAQ.setPost(post);
+        postFAQ.setTag(request.getTag());
+        postFAQ.setId(newId);
+        post.setPostFAQ(postFAQ);
 
         postRepository.save(post);
         postFAQRepository.save(postFAQ);

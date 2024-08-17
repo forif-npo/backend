@@ -8,7 +8,7 @@ import forif.univ_hanyang.study.dto.response.StudyInfoResponse;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.service.StudyService;
 import forif.univ_hanyang.user.dto.response.StudyMemberResponse;
-import forif.univ_hanyang.user.domain.User;
+import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
