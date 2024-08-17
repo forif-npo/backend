@@ -10,7 +10,7 @@ import forif.univ_hanyang.apply.dto.response.UnpaidUserResponse;
 import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.service.ApplyService;
 import forif.univ_hanyang.jwt.RequireJWT;
-import forif.univ_hanyang.user.domain.User;
+import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

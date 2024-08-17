@@ -1,6 +1,6 @@
 package forif.univ_hanyang.study.entity;
 
-import forif.univ_hanyang.user.domain.User;
+import forif.univ_hanyang.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
