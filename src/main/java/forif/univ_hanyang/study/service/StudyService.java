@@ -173,18 +173,19 @@ public class StudyService {
         }
 
         // studyPlans 와 같은 복잡한 속성은 수동으로 처리
-        List<StudyPlan> studyPlans = studyPlanRepository.findAllById_StudyIdOrderById_WeekNum(study.getId())
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디의 주간 계획을 찾을 수 없습니다."));
-
-
-        for (int i = 0; i < 15; i++) {
-            StudyPlan studyPlan = studyPlans.get(i);
-            studyPlan.getId().setStudyId(study.getId());
-            studyPlan.getId().setWeekNum(i + 1);
-            studyPlan.setSection(request.getStudyPlans().get(i).getSection());
-            studyPlan.setContent(request.getStudyPlans().get(i).getContent());
-            studyPlan.setStudy(study);
-        }
+        List<StudyPlan> studyPlans = request.getStudyPlans().stream()
+                .map(plan -> {
+                    StudyPlan newPlan = new StudyPlan();
+                    StudyPlan.StudyPlanId newId = new StudyPlan.StudyPlanId();
+                    newId.setStudyId(study.getId());
+                    newId.setWeekNum(request.getStudyPlans().indexOf(plan) + 1);
+                    newPlan.setId(newId);
+                    newPlan.setSection(plan.getSection());
+                    newPlan.setContent(plan.getContent());
+                    newPlan.setStudy(study);
+                    return newPlan;
+                })
+                .collect(Collectors.toList());
         study.setStudyPlans(studyPlans);
 
         return study;
