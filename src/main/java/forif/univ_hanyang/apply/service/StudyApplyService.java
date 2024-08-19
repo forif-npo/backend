@@ -85,6 +85,8 @@ public class StudyApplyService {
             StudyApply studyApply = studyApplyRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디 신청을 찾을 수 없습니다."));
 
+            if (studyApply.getStatus() == 1)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 승인된 스터디입니다.");
             // 승인 상태로 변경
             studyApply.setStatus(1);
 
@@ -124,10 +126,10 @@ public class StudyApplyService {
 
             studyRepository.save(study);
 
-            if (study.getSecondaryMentorName() != null) {
+            if (studyApply.getSecondaryMentorId() != null) {
                 setMentor(study, studyApply.getPrimaryMentorId(), 2);
                 setMentor(study, studyApply.getSecondaryMentorId(), 2);
-                return;
+                continue;
             }
             setMentor(study, studyApply.getPrimaryMentorId(), 1);
         }
