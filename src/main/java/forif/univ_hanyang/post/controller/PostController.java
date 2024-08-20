@@ -7,6 +7,7 @@ import forif.univ_hanyang.post.dto.response.AnnouncementResponse;
 import forif.univ_hanyang.post.dto.response.FAQResponse;
 import forif.univ_hanyang.post.dto.response.TechResponse;
 import forif.univ_hanyang.post.service.PostService;
+import forif.univ_hanyang.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequestMapping("/posts")
 public class PostController {
     private final PostService postService;
+    private final UserService userService;
 
     @GetMapping("/announcements")
     public ResponseEntity<List<AnnouncementResponse>> getAnnouncements() {
@@ -35,10 +37,32 @@ public class PostController {
     @RequireJWT
     @PostMapping("/announcements")
     public ResponseEntity<Void> createAnnouncement(
-            @RequestBody AnnouncementRequest announcementRequest
+            @RequestBody AnnouncementRequest announcementRequest,
+            @RequestHeader("Authorization") String token
     ) {
-        postService.createAnnouncement(announcementRequest);
+        postService.createAnnouncement(userService.validateUserExist(token), announcementRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @RequireJWT
+    @PatchMapping("/announcements/{id}")
+    public ResponseEntity<Void> updateAnnouncement(
+            @PathVariable Integer id,
+            @RequestBody AnnouncementRequest announcementRequest,
+            @RequestHeader("Authorization") String token
+    ) {
+        postService.updateAnnouncement(userService.validateUserExist(token), id, announcementRequest);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequireJWT
+    @DeleteMapping("/announcements/{id}")
+    public ResponseEntity<Void> deleteAnnouncement(
+            @PathVariable Integer id,
+            @RequestHeader("Authorization") String token
+    ) {
+        postService.deleteAnnouncement(userService.validateUserExist(token), id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/faqs")
@@ -49,9 +73,10 @@ public class PostController {
     @RequireJWT
     @PostMapping("/faqs")
     public ResponseEntity<Void> createFAQ(
-            @RequestBody FAQRequest request
+            @RequestBody FAQRequest request,
+            @RequestHeader("Authorization") String token
             ) {
-        postService.createFAQ(request);
+        postService.createFAQ(userService.validateUserExist(token), request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -59,18 +84,20 @@ public class PostController {
     @PatchMapping("/faqs/{id}")
     public ResponseEntity<Void> updateFAQ(
             @PathVariable Integer id,
-            @RequestBody FAQRequest request
+            @RequestBody FAQRequest request,
+            @RequestHeader("Authorization") String token
     ) {
-        postService.updateFAQ(id, request);
+        postService.updateFAQ(userService.validateUserExist(token), id, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequireJWT
     @DeleteMapping("/faqs/{id}")
     public ResponseEntity<Void> deleteFAQ(
-            @PathVariable Integer id
+            @PathVariable Integer id,
+            @RequestHeader("Authorization") String token
     ) {
-        postService.deleteFAQ(id);
+        postService.deleteFAQ(userService.validateUserExist(token), id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

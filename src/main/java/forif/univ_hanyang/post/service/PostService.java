@@ -9,6 +9,7 @@ import forif.univ_hanyang.post.dto.response.TechResponse;
 import forif.univ_hanyang.post.entity.PostFAQ;
 import forif.univ_hanyang.post.repository.PostFAQRepository;
 import forif.univ_hanyang.post.repository.PostRepository;
+import forif.univ_hanyang.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,7 +38,10 @@ public class PostService {
     }
 
     @Transactional
-    public void createAnnouncement(AnnouncementRequest announcementRequest) {
+    public void createAnnouncement(User user, AnnouncementRequest announcementRequest) {
+        if(user.getAuthLv()<3){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
         Post post = new Post();
         post.setId(postRepository.findMaxId().orElse(0) + 1);
         post.setType("공지사항");
@@ -48,6 +52,28 @@ public class PostService {
         postRepository.save(post);
     }
 
+    @Transactional
+    public void updateAnnouncement(User user, Integer id, AnnouncementRequest announcementRequest) {
+        if(user.getAuthLv()<3){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 공지사항이 없습니다."));
+        post.setTitle(announcementRequest.getTitle());
+        post.setContent(announcementRequest.getContent());
+        postRepository.save(post);
+    }
+
+    @Transactional
+    public void deleteAnnouncement(User user, Integer id) {
+        if(user.getAuthLv()<3){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 공지사항이 없습니다."));
+        postRepository.delete(post);
+    }
+
     public List<FAQResponse> getFAQs() {
         List<Post> postList = postRepository.findAllByType("FAQ")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FAQ가 없습니다."));
@@ -55,7 +81,10 @@ public class PostService {
     }
 
     @Transactional
-    public void createFAQ(FAQRequest request) {
+    public void createFAQ(User user, FAQRequest request) {
+        if(user.getAuthLv()<3){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
         Integer newId = postRepository.findMaxId().orElse(0) + 1;
         Post post = new Post();
         post.setId(newId);
@@ -75,7 +104,10 @@ public class PostService {
     }
 
     @Transactional
-    public void updateFAQ(Integer id, FAQRequest request) {
+    public void updateFAQ(User user, Integer id, FAQRequest request) {
+        if(user.getAuthLv()<3){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
         PostFAQ postFAQ = postFAQRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 FAQ가 없습니다."));
         postFAQ.setTag(request.getTag());
@@ -86,7 +118,10 @@ public class PostService {
     }
 
     @Transactional
-    public void deleteFAQ(Integer id) {
+    public void deleteFAQ(User user, Integer id) {
+        if(user.getAuthLv()<3){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
         PostFAQ postFAQ = postFAQRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 FAQ가 없습니다."));
         postFAQRepository.delete(postFAQ);
