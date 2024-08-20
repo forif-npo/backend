@@ -55,6 +55,25 @@ public class PostController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @RequireJWT
+    @PatchMapping("/faqs/{id}")
+    public ResponseEntity<Void> updateFAQ(
+            @PathVariable Integer id,
+            @RequestBody FAQRequest request
+    ) {
+        postService.updateFAQ(id, request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequireJWT
+    @DeleteMapping("/faqs/{id}")
+    public ResponseEntity<Void> deleteFAQ(
+            @PathVariable Integer id
+    ) {
+        postService.deleteFAQ(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping("/techs")
     public ResponseEntity<List<TechResponse>> getTechs() {
         return new ResponseEntity<>(postService.getTechs(), HttpStatus.OK);
