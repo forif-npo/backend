@@ -74,6 +74,25 @@ public class PostService {
         postFAQRepository.save(postFAQ);
     }
 
+    @Transactional
+    public void updateFAQ(Integer id, FAQRequest request) {
+        PostFAQ postFAQ = postFAQRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 FAQ가 없습니다."));
+        postFAQ.setTag(request.getTag());
+        postFAQ.getPost().setTitle(request.getTitle());
+        postFAQ.getPost().setContent(request.getContent());
+
+        postFAQRepository.save(postFAQ);
+    }
+
+    @Transactional
+    public void deleteFAQ(Integer id) {
+        PostFAQ postFAQ = postFAQRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 FAQ가 없습니다."));
+        postFAQRepository.delete(postFAQ);
+        postRepository.delete(postFAQ.getPost());
+    }
+
     public List<TechResponse> getTechs() {
         List<Post> postList = postRepository.findAllByType("기술 블로그")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기술 블로그가 없습니다."));
