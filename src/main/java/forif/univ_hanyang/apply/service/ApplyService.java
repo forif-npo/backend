@@ -16,7 +16,6 @@ import forif.univ_hanyang.user.entity.StudyUser;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.beanutils.BeanUtils;
@@ -50,7 +49,7 @@ public class ApplyService {
                         id -> validateStudy(id, user),
                         this::validateNoPrimaryStudySelected
                 );
-        
+
         Optional.ofNullable(request.getSecondaryStudy())
                 .filter(id -> id != 0)
                 .ifPresent(id -> validateStudy(id, user));
@@ -118,89 +117,27 @@ public class ApplyService {
 
 
     @Transactional
-    public void acceptApplication(User mentor, AcceptRequest request) {
-        if (mentor.getAuthLv() == 1) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+    public void acceptApplications(User mentor, AcceptRequest request) {
+        Study study = validateMentorAndStudy(mentor, request);
 
-        Study study = studyRepository.findById(request.getStudyId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 없습니다."));
-
-        // 자율 스터디가 아닐 때에만 검사
-        if (request.getStudyId() != 0) {
-            if (!isUserMentorOfStudy(study, mentor)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 스터디의 멘토가 아닙니다.");
-            }
-        }
-
-        Set<Integer> ApplierIds = request.getApplierIds();
-        for (Integer applierId : ApplierIds) {
-            Apply apply = applyRepository.findByApplierId(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다. applierId: " + applierId));
-
-            User user = userRepository.findById(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다. Id: " + applierId));
-            if (!Objects.equals(apply.getPrimaryStudy(), study.getId()) && !Objects.equals(apply.getSecondaryStudy(), study.getId())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 스터디에 지원하지 않은 유저입니다.");
-            }
-
-            // 이미 1순위 스터디가 승낙이면, 2순위는 고려안함.
-            if (apply.getPrimaryStatus() == ApplyStatus.승낙) continue;
-
-            // 2순위 스터디를 이미 승낙받은 상황에서, 1순위 스터디가 승낙된다면, 2순위 스터디는 제거
-            if (apply.getSecondaryStatus().equals(ApplyStatus.승낙)) {
-                if (apply.getPrimaryStudy().equals(study.getId())) {
-                    Study secondStudy = studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디 없음"));
-                    studyUserRepository.deleteById_StudyIdAndId_UserId(secondStudy.getId(), applierId);
-                }
-            }
-
-            // 1순위 스터디인지 2순위 스터디인지 구분
-            if (apply.getPrimaryStudy().equals(study.getId())) apply.setPrimaryStatus(ApplyStatus.승낙);
-            else apply.setSecondaryStatus(ApplyStatus.승낙);
-
-
-            // UserStudyId 인스턴스 생성
-            StudyUser.StudyUserId StudyUserId = new StudyUser.StudyUserId();
-            StudyUserId.setStudyId(study.getId());
-            StudyUserId.setUserId(user.getId());
-
-            // StudyUser 엔티티를 생성하여 스터디와 유저를 연결
-            StudyUser StudyUser = new StudyUser();
-            StudyUser.setId(StudyUserId);
-            StudyUser.setStudy(study);
-            StudyUser.setUser(user);
-
-            studyUserRepository.save(StudyUser);
+        Set<Integer> applierIds = request.getApplierIds();
+        for (Integer applierId : applierIds) {
+            processApplier(applierId, study);
         }
     }
 
     @Transactional(readOnly = true)
     public List<UserPaymentStatusResponse> getUnpaidUsers() {
         return applyRepository.findAllByPayYn("N").stream()
-                .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
+                .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply.getApplierId()), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<UserPaymentStatusResponse> getPaidUsers() {
         return applyRepository.findAllByPayYn("Y").stream()
-                .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
+                .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply.getApplierId()), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
                 .collect(Collectors.toList());
-    }
-
-
-    /**
-     * @param apply 지원서를 변수로 받음
-     * @return userName 지원서 상의 유저 이름
-     */
-    @Transactional(readOnly = true)
-    public String getUserName(Apply apply) {
-        return userRepository.findById(apply.getApplierId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저가 없습니다.")).getName();
-    }
-
-    /**
-     * @param userId 유저의 학번
-     * @return phoneNumber 유저의 전화번호
-     */
-    @Transactional(readOnly = true)
-    public String getUserPhoneNumber(Integer userId) {
-        return userRepository.findById(userId).map(User::getPhoneNumber).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
     }
 
     @Transactional(readOnly = true)
@@ -224,7 +161,7 @@ public class ApplyService {
 
         for (Apply apply : primaryStudies) {
             RankedStudyResponse rankedStudyResponse = new RankedStudyResponse();
-            rankedStudyResponse.setName(getUserName(apply));
+            rankedStudyResponse.setName(getUserName(apply.getApplierId()));
             rankedStudyResponse.setIntro(apply.getPrimaryIntro());
             rankedStudyResponse.setId(apply.getApplierId());
             rankedStudyResponse.setApplyPath(apply.getApplyPath());
@@ -239,7 +176,7 @@ public class ApplyService {
 
         for (Apply apply : secondaryStudies) {
             RankedStudyResponse rankedStudyResponse = new RankedStudyResponse();
-            rankedStudyResponse.setName(getUserName(apply));
+            rankedStudyResponse.setName(getUserName(apply.getApplierId()));
             rankedStudyResponse.setIntro(apply.getSecondaryIntro());
             rankedStudyResponse.setId(apply.getApplierId());
             rankedStudyResponse.setApplyPath(apply.getApplyPath());
@@ -255,15 +192,14 @@ public class ApplyService {
 
     @Transactional
     public void patchIsPaid(User user, IsPaidRequest request) {
-        if (user.getAuthLv() == 1) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        if (user.getAuthLv() < 3) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
         Set<Integer> applierIds = request.getApplierIds();
         for (Integer applierId : applierIds) {
-            Apply apply = applyRepository.findByApplierId(applierId).orElseThrow(() -> new EntityNotFoundException("잘못된 지원자 아이디입니다. Id: " + applierId));
+            Apply apply = applyRepository.findByApplierId(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서가 없습니다. ID: " + applierId));
             apply.setPayYn(request.getPayYn());
         }
     }
-
 
     @Transactional
     public void deleteAllApplications(User user) {
@@ -271,7 +207,6 @@ public class ApplyService {
 
         applyRepository.deleteAll();
     }
-
 
     private void validateNoPrimaryStudySelected() {
         // 1순위 스터디를 선택하지 않은 경우에 대한 처리
@@ -313,6 +248,83 @@ public class ApplyService {
         }
         apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
         return apply;
+    }
+
+    private Study validateMentorAndStudy(User mentor, AcceptRequest request) {
+        if (mentor.getAuthLv() == 1) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
+
+        Study study = studyRepository.findById(request.getStudyId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디가 없습니다."));
+
+        if (request.getStudyId() != 0 && !isUserMentorOfStudy(study, mentor)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 스터디의 멘토가 아닙니다.");
+        }
+
+        return study;
+    }
+
+    private void processApplier(Integer applierId, Study study) {
+        Apply apply = applyRepository.findByApplierId(applierId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다. ID: " + applierId));
+
+        User user = userRepository.findById(applierId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다. ID: " + applierId));
+
+        validateApplyForStudy(apply, study);
+
+        if (apply.getPrimaryStatus() == ApplyStatus.승낙) {
+            return;  // 이미 1순위 스터디가 승낙이면, 2순위는 고려안함.
+        }
+
+        handleSecondaryStudy(apply, study, applierId);
+        updateApplyStatus(apply, study);
+        createAndSaveStudyUser(study, user);
+    }
+
+    private void validateApplyForStudy(Apply apply, Study study) {
+        if (!Objects.equals(apply.getPrimaryStudy(), study.getId()) && !Objects.equals(apply.getSecondaryStudy(), study.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 스터디에 지원하지 않은 유저입니다.");
+        }
+    }
+
+    private void handleSecondaryStudy(Apply apply, Study study, Integer applierId) {
+        if (apply.getSecondaryStudy() != null &&
+                apply.getSecondaryStatus() == ApplyStatus.승낙 &&
+                Objects.equals(apply.getPrimaryStudy(), study.getId())) {
+            studyUserRepository.deleteById_StudyIdAndId_UserId(apply.getSecondaryStudy(), applierId);
+        }
+    }
+
+    private void updateApplyStatus(Apply apply, Study study) {
+        if (Objects.equals(apply.getPrimaryStudy(), study.getId())) {
+            apply.setPrimaryStatus(ApplyStatus.승낙);
+        } else {
+            apply.setSecondaryStatus(ApplyStatus.승낙);
+        }
+    }
+
+    private void createAndSaveStudyUser(Study study, User user) {
+        StudyUser.StudyUserId studyUserId = new StudyUser.StudyUserId();
+        studyUserId.setStudyId(study.getId());
+        studyUserId.setUserId(user.getId());
+
+        StudyUser studyUser = new StudyUser();
+        studyUser.setId(studyUserId);
+        studyUser.setStudy(study);
+        studyUser.setUser(user);
+
+        studyUserRepository.save(studyUser);
+    }
+
+
+    private String getUserName(Integer userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저가 없습니다.")).getName();
+    }
+
+    private String getUserPhoneNumber(Integer userId) {
+        return userRepository.findById(userId).map(User::getPhoneNumber).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
     }
 
 

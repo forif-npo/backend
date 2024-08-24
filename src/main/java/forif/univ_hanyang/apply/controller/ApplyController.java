@@ -88,11 +88,11 @@ public class ApplyController {
 
     @RequireJWT
     @PostMapping("/accept")
-    public ResponseEntity<Void> acceptApplication(
+    public ResponseEntity<Void> acceptApplications(
             @RequestBody AcceptRequest request,
             @RequestHeader("Authorization") String token){
         User mentor = userService.validateUserExist(token);
-        applyService.acceptApplication(mentor, request);
+        applyService.acceptApplications(mentor, request);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
