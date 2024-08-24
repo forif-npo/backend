@@ -14,5 +14,4 @@ public interface StudyRepository extends JpaRepository<Study,Integer> {
     Optional<List<Study>> findAllByActYearAndActSemester(Integer act_year, Integer act_semester);
     @Query(value = "SELECT MAX(study_id) FROM tb_study", nativeQuery = true)
     Optional<Integer> findMaxStudyId();
-
 }
