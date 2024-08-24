@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UnpaidUserResponse {
+public class UserPaymentStatusResponse {
     private Integer userId;
     private String name;
     private Integer primaryStudyId;
