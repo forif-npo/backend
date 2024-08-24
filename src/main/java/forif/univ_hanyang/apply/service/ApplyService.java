@@ -43,36 +43,19 @@ public class ApplyService {
 
     @Transactional
     public void applyStudy(ApplyRequest request, User user) {
-        Study study1 = studyRepository.findById(request.getPrimaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 존재하지 않습니다. ID: " + request.getPrimaryStudy()));
+        validateUserNotApplied(user);
+        Optional.of(request.getPrimaryStudy())
+                .filter(id -> id != 0)
+                .ifPresentOrElse(
+                        id -> validateStudy(id, user),
+                        this::validateNoPrimaryStudySelected
+                );
+        
+        Optional.ofNullable(request.getSecondaryStudy())
+                .filter(id -> id != 0)
+                .ifPresent(id -> validateStudy(id, user));
 
-        if (study1.getId() != 0) {
-            if (study1.getPrimaryMentorName().equals(user.getName()) || (study1.getSecondaryMentorName() != null && study1.getSecondaryMentorName().equals(user.getName())))
-                throw new IllegalArgumentException("자신의 스터디 입니다.");
-        }
-        // 2순위 스터디 미참여가 아닐 시에만 예외 검사
-        if (request.getSecondaryStudy() != null) {
-            Study study2 = studyRepository.findById(request.getSecondaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 존재하지 않습니다. ID: " + request.getSecondaryStudy()));
-            if (study2.getPrimaryMentorName().equals(user.getName()) || (study2.getSecondaryMentorName() != null && study2.getSecondaryMentorName().equals(user.getName())))
-                throw new IllegalArgumentException("자신의 스터디 입니다.");
-        }
-
-        if (applyRepository.findByApplierId(user.getId()).isPresent())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 지원서를 접수한 유저입니다. 학번: " + user.getId());
-
-        Apply apply = new Apply();
-        apply.setApplierId(user.getId());
-        apply.setPrimaryStudy(request.getPrimaryStudy());
-        apply.setSecondaryStudy(request.getSecondaryStudy());
-        apply.setPrimaryIntro(request.getPrimaryIntro());
-        apply.setSecondaryIntro(request.getSecondaryIntro());
-        apply.setApplyPath(request.getApplyPath());
-        // 모든 지원서 초기엔 N으로 설정 (합격 후 금액 납부 원칙)
-        apply.setPayYn("N");
-        apply.setPrimaryStatus(ApplyStatus.대기);
-        if (request.getSecondaryStudy() != null)
-            apply.setSecondaryStatus(ApplyStatus.대기);
-        apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
-
+        Apply apply = createApply(request, user);
         applyRepository.save(apply);
     }
 
@@ -142,7 +125,7 @@ public class ApplyService {
 
         // 자율 스터디가 아닐 때에만 검사
         if (request.getStudyId() != 0) {
-            if (!mentor.getName().equals(study.getPrimaryMentorName()) && !(study.getSecondaryMentorName() != null && mentor.getName().equals(study.getSecondaryMentorName()))) {
+            if (!isUserMentorOfStudy(study, mentor)) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 스터디의 멘토가 아닙니다.");
             }
         }
@@ -288,5 +271,49 @@ public class ApplyService {
 
         applyRepository.deleteAll();
     }
+
+
+    private void validateNoPrimaryStudySelected() {
+        // 1순위 스터디를 선택하지 않은 경우에 대한 처리
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "1순위 스터디를 무조건 선택해야 합니다.");
+    }
+
+    private void validateUserNotApplied(User user) {
+        if (applyRepository.findByApplierId(user.getId()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 지원서를 접수한 유저입니다. 학번: " + user.getId());
+        }
+    }
+
+    private void validateStudy(Integer studyId, User user) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 존재하지 않습니다. ID: " + studyId));
+
+        if (isUserMentorOfStudy(study, user)) {
+            throw new IllegalArgumentException(study.getName() + "은(는) 자신의 스터디입니다.");
+        }
+    }
+
+    private boolean isUserMentorOfStudy(Study study, User user) {
+        return study.getPrimaryMentorName().equals(user.getName()) ||
+                (study.getSecondaryMentorName() != null && study.getSecondaryMentorName().equals(user.getName()));
+    }
+
+    private Apply createApply(ApplyRequest request, User user) {
+        Apply apply = new Apply();
+        apply.setApplierId(user.getId());
+        apply.setPrimaryStudy(request.getPrimaryStudy());
+        apply.setSecondaryStudy(request.getSecondaryStudy());
+        apply.setPrimaryIntro(request.getPrimaryIntro());
+        apply.setSecondaryIntro(request.getSecondaryIntro());
+        apply.setApplyPath(request.getApplyPath());
+        apply.setPayYn("N");
+        apply.setPrimaryStatus(ApplyStatus.대기);
+        if (request.getSecondaryStudy() != null) {
+            apply.setSecondaryStatus(ApplyStatus.대기);
+        }
+        apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
+        return apply;
+    }
+
 
 }
