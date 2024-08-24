@@ -1,10 +1,13 @@
 package forif.univ_hanyang;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class CustomBeanUtils {
+    private static final Logger logger = LoggerFactory.getLogger(CustomBeanUtils.class);
     public static void copyNonNullProperties(Object dest, Object orig) {
         BeanUtilsBean notNull = new BeanUtilsBean() {
             @Override
@@ -18,7 +21,7 @@ public class CustomBeanUtils {
         try {
             notNull.copyProperties(dest, orig);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error occurred while copying properties", e);
         }
     }
 }
