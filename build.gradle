@@ -2,13 +2,13 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.5'
 	id 'io.spring.dependency-management' version '1.1.4'
+	id 'org.jetbrains.kotlin.jvm' version '2.0.20'
 }
 
 group = 'forif'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
 }
 
 repositories {
@@ -17,6 +17,13 @@ repositories {
 
 dependencies {
 	implementation 'commons-beanutils:commons-beanutils:1.9.4'
+
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	implementation 'net.nurigo:sdk:4.3.0'
+	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1")
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
+	implementation 'software.amazon.awssdk:ssm:2.27.8'
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
@@ -38,10 +45,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'com.google.code.gson:gson'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 configurations {
-	all {
+	configureEach {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
 }
@@ -52,4 +60,7 @@ tasks.named('test') {
 
 jar {
 	enabled = false
+}
+kotlin {
+	jvmToolchain(17)
 }
