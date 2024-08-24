@@ -6,7 +6,7 @@ import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
 import forif.univ_hanyang.apply.dto.response.AppliedStudyResponse;
 import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
 import forif.univ_hanyang.apply.dto.response.RankedStudyResponse;
-import forif.univ_hanyang.apply.dto.response.UnpaidUserResponse;
+import forif.univ_hanyang.apply.dto.response.UserPaymentStatusResponse;
 import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.entity.ApplyStatus;
 import forif.univ_hanyang.apply.repository.ApplyRepository;
@@ -188,9 +188,16 @@ public class ApplyService {
     }
 
     @Transactional(readOnly = true)
-    public List<UnpaidUserResponse> getUnpaidUsers() {
+    public List<UserPaymentStatusResponse> getUnpaidUsers() {
         return applyRepository.findAllByPayYn("N").stream()
-                .map(apply -> new UnpaidUserResponse(apply.getApplierId(), getUserName(apply), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
+                .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserPaymentStatusResponse> getPaidUsers() {
+        return applyRepository.findAllByPayYn("Y").stream()
+                .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
                 .collect(Collectors.toList());
     }
 

@@ -6,7 +6,7 @@ import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
 import forif.univ_hanyang.apply.dto.response.ApplyResponse;
 import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
 import forif.univ_hanyang.apply.dto.response.RankedStudyResponse;
-import forif.univ_hanyang.apply.dto.response.UnpaidUserResponse;
+import forif.univ_hanyang.apply.dto.response.UserPaymentStatusResponse;
 import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.service.ApplyService;
 import forif.univ_hanyang.jwt.RequireJWT;
@@ -99,7 +99,7 @@ public class ApplyController {
 
     @RequireJWT
     @GetMapping("/unpaid-users")
-    public ResponseEntity<List<UnpaidUserResponse>> getUnpaidUsers(
+    public ResponseEntity<List<UserPaymentStatusResponse>> getUnpaidUsers(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
@@ -107,6 +107,18 @@ public class ApplyController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
 
         return new ResponseEntity<>(applyService.getUnpaidUsers(), HttpStatus.OK);
+    }
+
+    @RequireJWT
+    @GetMapping("/paid-users")
+    public ResponseEntity<List<UserPaymentStatusResponse>> getPaidUsers(
+            @RequestHeader("Authorization") String token
+    ) {
+        User user = userService.validateUserExist(token);
+        if (user.getAuthLv() == 1)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
+
+        return new ResponseEntity<>(applyService.getPaidUsers(), HttpStatus.OK);
     }
 
     @RequireJWT
