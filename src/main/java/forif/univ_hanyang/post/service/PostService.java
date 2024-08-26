@@ -60,7 +60,6 @@ public class PostService {
         }
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 공지사항이 없습니다."));
-        post.setCreatedBy(request.getCreatedBy());
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         postRepository.save(post);
