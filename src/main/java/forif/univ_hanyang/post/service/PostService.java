@@ -1,5 +1,6 @@
 package forif.univ_hanyang.post.service;
 
+import forif.univ_hanyang.post.dto.request.AnnouncementUpdateRequest;
 import forif.univ_hanyang.post.dto.request.FAQRequest;
 import forif.univ_hanyang.post.entity.Post;
 import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
@@ -53,14 +54,14 @@ public class PostService {
     }
 
     @Transactional
-    public void updateAnnouncement(User user, Integer id, AnnouncementRequest announcementRequest) {
+    public void updateAnnouncement(User user, Integer id, AnnouncementUpdateRequest request) {
         if(user.getAuthLv()<3){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 공지사항이 없습니다."));
-        post.setTitle(announcementRequest.getTitle());
-        post.setContent(announcementRequest.getContent());
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
         postRepository.save(post);
     }
 
