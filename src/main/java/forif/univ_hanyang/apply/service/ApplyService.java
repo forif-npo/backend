@@ -47,7 +47,7 @@ public class ApplyService {
                 .filter(id -> id != 0)
                 .ifPresentOrElse(
                         id -> validateStudy(id, user),
-                        this::validateNoPrimaryStudySelected
+                        () -> validateNoPrimaryStudySelected(request.getSecondaryStudy())
                 );
 
         Optional.ofNullable(request.getSecondaryStudy())
@@ -208,7 +208,10 @@ public class ApplyService {
         applyRepository.deleteAll();
     }
 
-    private void validateNoPrimaryStudySelected() {
+    private void validateNoPrimaryStudySelected(Integer id) {
+        // 자율 스터디일 경우 확인 하지 않음.
+        if(id == 0)
+            return;
         // 1순위 스터디를 선택하지 않은 경우에 대한 처리
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "1순위 스터디를 무조건 선택해야 합니다.");
     }
