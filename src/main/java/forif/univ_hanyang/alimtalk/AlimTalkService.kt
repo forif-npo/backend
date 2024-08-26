@@ -68,8 +68,7 @@ class AlimTalkService(
             }
             .orElse(null)
     }
-
-
+    
     private fun sendMessage(receiver: String, templateCode: String, variables: HashMap<String, String>): String {
         val message = Message(
             from = senderNumber,
