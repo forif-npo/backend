@@ -10,8 +10,7 @@ import java.util.List;
 @Setter
 public class HackathonResponse {
     private Integer teamId;
-    private String teamName;
-    private Integer teamRank;
+    private String projectName;
     private String resultUrl;
     private Integer heldYear;
     private Integer heldSemester;
@@ -21,8 +20,7 @@ public class HackathonResponse {
         for (Hackathon hackathon : hackathonList) {
             HackathonResponse hackathonResponse = new HackathonResponse();
             hackathonResponse.setTeamId(hackathon.getTeamId());
-            hackathonResponse.setTeamName(hackathon.getTeamName());
-            hackathonResponse.setTeamRank(hackathon.getTeamRank());
+            hackathonResponse.setProjectName(hackathon.getProjectName());
             hackathonResponse.setResultUrl(hackathon.getResultUrl());
             hackathonResponse.setHeldYear(hackathon.getHeldYear());
             hackathonResponse.setHeldSemester(hackathon.getHeldSemester());

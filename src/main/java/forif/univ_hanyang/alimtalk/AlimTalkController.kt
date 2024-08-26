@@ -3,12 +3,11 @@ package forif.univ_hanyang.alimtalk
 import forif.univ_hanyang.user.service.UserService
 import lombok.RequiredArgsConstructor
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import java.util.concurrent.CompletableFuture
 
 @RequiredArgsConstructor
 @RestController
@@ -16,7 +15,7 @@ class AlimTalkController {
     private val alimTalkService: AlimTalkService? = null
     private val userService: UserService? = null
 
-    @GetMapping("/alim-talk")
+    @PostMapping("/alim-talk")
     fun sendAlimTalk(
         @RequestHeader("Authorization") token: String,
         @RequestBody request: AlimTalkRequest
