@@ -2,6 +2,7 @@ package forif.univ_hanyang.post.controller;
 
 import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
+import forif.univ_hanyang.post.dto.request.AnnouncementUpdateRequest;
 import forif.univ_hanyang.post.dto.request.FAQRequest;
 import forif.univ_hanyang.post.dto.response.AnnouncementResponse;
 import forif.univ_hanyang.post.dto.response.FAQResponse;
@@ -48,10 +49,10 @@ public class PostController {
     @PatchMapping("/announcements/{id}")
     public ResponseEntity<Void> updateAnnouncement(
             @PathVariable Integer id,
-            @RequestBody AnnouncementRequest announcementRequest,
+            @RequestBody AnnouncementUpdateRequest request,
             @RequestHeader("Authorization") String token
     ) {
-        postService.updateAnnouncement(userService.validateUserExist(token), id, announcementRequest);
+        postService.updateAnnouncement(userService.validateUserExist(token), id, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
