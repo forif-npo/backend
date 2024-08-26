@@ -95,7 +95,7 @@ public class AuthService {
     public User setUser(SignUpRequest request, String access_token) {
         String email = getEmailFromToken(access_token);
         if(userRepository.findByEmail(email).isPresent())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 가입된 사용자입니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 사용자입니다.");
 
         Integer id = request.getId();
         String name = request.getName();

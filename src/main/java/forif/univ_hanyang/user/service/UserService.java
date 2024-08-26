@@ -126,7 +126,7 @@ public class UserService {
 
         // 사용자 존재 여부 검증
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ID에 해당하는 유저가 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID에 해당하는 유저가 없습니다."));
     }
 
     public List<AllUserInfoResponse> getAllUsersInfo(User admin) {

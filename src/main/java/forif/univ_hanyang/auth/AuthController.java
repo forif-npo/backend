@@ -55,8 +55,8 @@ public class AuthController {
                             description = "BAD REQUEST"
                     ),
                     @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
+                            responseCode = "409",
+                            description = "CONFLICT"
                     )
             }
     )

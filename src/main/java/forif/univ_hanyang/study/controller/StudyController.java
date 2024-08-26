@@ -39,7 +39,7 @@ public class StudyController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "NOT FOUND"
+                            description = "요청 데이터에 대한 정보가 없음"
                     )
             }
     )
@@ -62,7 +62,7 @@ public class StudyController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "NOT FOUND"
+                            description = "요청 데이터에 대한 정보가 없음"
                     )
             }
     )
@@ -91,7 +91,7 @@ public class StudyController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "NOT FOUND"
+                            description = "요청 데이터에 대한 정보가 없음"
                     )
             }
     )
@@ -121,7 +121,7 @@ public class StudyController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "NOT FOUND"
+                            description = "요청 데이터에 대한 정보가 없음"
                     )
             }
     )
