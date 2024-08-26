@@ -47,7 +47,7 @@ public class ApplyService {
                 .filter(id -> id != 0)
                 .ifPresentOrElse(
                         id -> validateStudy(id, user),
-                        () -> validateNoPrimaryStudySelected(request.getSecondaryStudy())
+                        () -> validateNoPrimaryStudySelected(request.getPrimaryStudy())
                 );
 
         Optional.ofNullable(request.getSecondaryStudy())
@@ -142,7 +142,7 @@ public class ApplyService {
 
     @Transactional(readOnly = true)
     public Map<String, List<RankedStudyResponse>> getAllApplicationsOfStudy(Integer studyId, User user) {
-        if (user.getAuthLv() < 2) throw new IllegalStateException("잘못된 접근입니다.");
+        if (user.getAuthLv() < 2) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
         studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 없습니다."));
 

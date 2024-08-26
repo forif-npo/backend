@@ -22,13 +22,13 @@ public class User {
     private String email;
 
     @Column(name = "user_name")
-    private String name;
+    public String name;
 
     private String department;
 
     @Column(name = "phone_num")
     private String phoneNumber;
 
-    private Integer authLv;
+    public Integer authLv;
     private String imgUrl;
 }

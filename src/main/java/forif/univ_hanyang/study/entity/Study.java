@@ -31,7 +31,6 @@ public class Study {
     private Integer difficulty;
     @Column(name = "img_url")
     private String image;
-    private String webUrl;
     private String location;
     private String tag;
     private Integer actYear;
