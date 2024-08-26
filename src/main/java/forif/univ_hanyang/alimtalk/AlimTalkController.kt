@@ -11,18 +11,17 @@ import org.springframework.web.server.ResponseStatusException
 
 @RequiredArgsConstructor
 @RestController
-class AlimTalkController {
-    private val alimTalkService: AlimTalkService? = null
-    private val userService: UserService? = null
+class AlimTalkController(private val alimTalkService: AlimTalkService,
+                         private val userService: UserService) {
 
     @PostMapping("/alim-talk")
     fun sendAlimTalk(
         @RequestHeader("Authorization") token: String,
         @RequestBody request: AlimTalkRequest
     ): Any {
-        val user = userService?.validateUserExist(token) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자 정보를 찾을 수 없습니다.")
-        return alimTalkService?.sendAlimTalk(user, request)
-            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "알림톡 발송 실패")
-
+        val user = userService.validateUserExist(token)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자 정보를 찾을 수 없습니다.")
+        return alimTalkService.sendAlimTalk(user, request)
     }
 }
+
