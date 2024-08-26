@@ -73,7 +73,7 @@ public class ApplyService {
         AppliedStudyResponse secondaryStudy = new AppliedStudyResponse();
 
         primaryStudy.setId(apply.getPrimaryStudy());
-        primaryStudy.setName(studyRepository.findById(apply.getPrimaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 없습니다.")).getName());
+        primaryStudy.setName(studyRepository.findById(apply.getPrimaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다.")).getName());
         primaryStudy.setIntroduction(apply.getPrimaryIntro());
         primaryStudy.setStatus(apply.getPrimaryStatus().toString());
 
@@ -85,7 +85,7 @@ public class ApplyService {
             return response;
         }
         secondaryStudy.setId(apply.getSecondaryStudy());
-        secondaryStudy.setName(studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 없습니다.")).getName());
+        secondaryStudy.setName(studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다.")).getName());
         secondaryStudy.setIntroduction(apply.getSecondaryIntro());
         secondaryStudy.setStatus(apply.getSecondaryStatus().toString());
 
@@ -100,7 +100,7 @@ public class ApplyService {
 
     @Transactional
     public Apply patchApplication(User user, ApplyRequest request) throws IllegalAccessException, InvocationTargetException {
-        Apply apply = applyRepository.findByApplierId(user.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서가 없습니다."));
+        Apply apply = applyRepository.findByApplierId(user.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다."));
         // request 객체에서 apply 객체로 null이 아닌 필드만 복사
         BeanUtils.copyProperties(apply, request);
         apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
@@ -144,7 +144,7 @@ public class ApplyService {
     public Map<String, List<RankedStudyResponse>> getAllApplicationsOfStudy(Integer studyId, User user) {
         if (user.getAuthLv() < 2) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
-        studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 없습니다."));
+        studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다."));
 
         List<Apply> allApplies = applyRepository.findAll(); // 모든 Apply 엔티티를 가져옴
 
@@ -196,7 +196,7 @@ public class ApplyService {
 
         Set<Integer> applierIds = request.getApplierIds();
         for (Integer applierId : applierIds) {
-            Apply apply = applyRepository.findByApplierId(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서가 없습니다. ID: " + applierId));
+            Apply apply = applyRepository.findByApplierId(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다. ID: " + applierId));
             apply.setPayYn(request.getPayYn());
         }
     }
@@ -224,7 +224,7 @@ public class ApplyService {
 
     private void validateStudy(Integer studyId, User user) {
         Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 존재하지 않습니다. ID: " + studyId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 존재하지 않습니다. ID: " + studyId));
 
         if (isUserMentorOfStudy(study, user)) {
             throw new IllegalArgumentException(study.getName() + "은(는) 자신의 스터디입니다.");
@@ -259,7 +259,7 @@ public class ApplyService {
         }
 
         Study study = studyRepository.findById(request.getStudyId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디가 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당하는 스터디가 없습니다."));
 
         if (request.getStudyId() != 0 && !isUserMentorOfStudy(study, mentor)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 스터디의 멘토가 아닙니다.");
@@ -270,10 +270,10 @@ public class ApplyService {
 
     private void processApplier(Integer applierId, Study study) {
         Apply apply = applyRepository.findByApplierId(applierId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다. ID: " + applierId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서를 찾을 수 없습니다. ID: " + applierId));
 
         User user = userRepository.findById(applierId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다. ID: " + applierId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다. ID: " + applierId));
 
         validateApplyForStudy(apply, study);
 
@@ -323,11 +323,11 @@ public class ApplyService {
 
 
     private String getUserName(Integer userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저가 없습니다.")).getName();
+        return userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저가 없습니다.")).getName();
     }
 
     private String getUserPhoneNumber(Integer userId) {
-        return userRepository.findById(userId).map(User::getPhoneNumber).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
+        return userRepository.findById(userId).map(User::getPhoneNumber).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다."));
     }
 
 

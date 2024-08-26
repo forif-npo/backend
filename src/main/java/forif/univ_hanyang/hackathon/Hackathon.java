@@ -16,8 +16,7 @@ import lombok.Setter;
 public class Hackathon {
     @Id
     private Integer teamId;
-    private String teamName;
-    private Integer teamRank;
+    private String projectName;
     private String resultUrl;
     private Integer heldYear;
     private Integer heldSemester;
