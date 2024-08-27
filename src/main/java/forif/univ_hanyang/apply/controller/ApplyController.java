@@ -32,6 +32,15 @@ public class ApplyController {
     private final ApplyService applyService;
 
     @RequireJWT
+    @GetMapping
+    public ResponseEntity<List<Apply>> getAllApplications(
+            @RequestHeader("Authorization") String token
+    ) {
+        User user = userService.validateUserExist(token);
+        return new ResponseEntity<>(applyService.getAllApplications(user), HttpStatus.OK);
+    }
+
+    @RequireJWT
     @PostMapping
     public ResponseEntity<Void> applyStudy(
             @RequestHeader("Authorization") String token,
@@ -121,10 +130,11 @@ public class ApplyController {
         return new ResponseEntity<>(applyService.getPaidUsers(), HttpStatus.OK);
     }
 
+
     @RequireJWT
-    @GetMapping
+    @GetMapping("{studyId}")
     public ResponseEntity<?> getAllApplicationsOfStudy(
-            @RequestParam Integer studyId,
+            @PathVariable Integer studyId,
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
