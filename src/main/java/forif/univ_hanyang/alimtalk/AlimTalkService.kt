@@ -66,7 +66,9 @@ class AlimTalkService(
                 val variables = createVariables(user, request)
                 sendMessage(receiver, request.templateCode, variables)
             }
-            .orElse(null)
+            .orElseThrow {
+                ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: $receiver")
+            }
     }
 
     private fun sendMessage(receiver: String, templateCode: String, variables: HashMap<String, String>): String {
