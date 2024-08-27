@@ -129,6 +129,7 @@ public class ApplyService {
     @Transactional(readOnly = true)
     public List<UserPaymentStatusResponse> getUnpaidUsers() {
         return applyRepository.findAllByPayYn("N").stream()
+                .filter(apply -> apply.getPrimaryStatus() == ApplyStatus.승낙 || apply.getSecondaryStatus() == ApplyStatus.승낙)
                 .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply.getApplierId()), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
                 .collect(Collectors.toList());
     }
@@ -136,6 +137,7 @@ public class ApplyService {
     @Transactional(readOnly = true)
     public List<UserPaymentStatusResponse> getPaidUsers() {
         return applyRepository.findAllByPayYn("Y").stream()
+                .filter(apply -> apply.getPrimaryStatus() == ApplyStatus.승낙 || apply.getSecondaryStatus() == ApplyStatus.승낙)
                 .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply.getApplierId()), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
                 .collect(Collectors.toList());
     }

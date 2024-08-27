@@ -60,6 +60,7 @@ public class PostService {
         }
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 공지사항이 없습니다."));
+        post.setCreatedAt(LocalDateTime.now().toString());
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         postRepository.save(post);
@@ -112,6 +113,7 @@ public class PostService {
         PostFAQ postFAQ = postFAQRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 FAQ가 없습니다."));
         postFAQ.setTag(request.getTag());
+        postFAQ.getPost().setCreatedAt(LocalDateTime.now().toString());
         postFAQ.getPost().setTitle(request.getTitle());
         postFAQ.getPost().setContent(request.getContent());
 
