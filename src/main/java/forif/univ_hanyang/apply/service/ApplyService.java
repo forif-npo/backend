@@ -40,6 +40,13 @@ public class ApplyService {
     private final StudyUserRepository studyUserRepository;
     private final ApplyRepository applyRepository;
 
+
+    public List<Apply> getAllApplications(User user) {
+        if(user.getAuthLv() < 3) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+
+        return applyRepository.findAll();
+    }
+
     @Transactional
     public void applyStudy(ApplyRequest request, User user) {
         validateUserNotApplied(user);
@@ -129,7 +136,7 @@ public class ApplyService {
     @Transactional(readOnly = true)
     public List<UserPaymentStatusResponse> getUnpaidUsers() {
         return applyRepository.findAllByPayYn("N").stream()
-                .filter(apply -> apply.getPrimaryStatus() == ApplyStatus.승낙 || apply.getSecondaryStatus() == ApplyStatus.승낙)
+                .filter(apply -> Objects.equals(ApplyStatus.승낙, apply.getPrimaryStatus()) || Objects.equals(ApplyStatus.승낙, apply.getSecondaryStatus()))
                 .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply.getApplierId()), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
                 .collect(Collectors.toList());
     }
@@ -137,7 +144,7 @@ public class ApplyService {
     @Transactional(readOnly = true)
     public List<UserPaymentStatusResponse> getPaidUsers() {
         return applyRepository.findAllByPayYn("Y").stream()
-                .filter(apply -> apply.getPrimaryStatus() == ApplyStatus.승낙 || apply.getSecondaryStatus() == ApplyStatus.승낙)
+                .filter(apply -> Objects.equals(ApplyStatus.승낙, apply.getPrimaryStatus()) || Objects.equals(ApplyStatus.승낙, apply.getSecondaryStatus()))
                 .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply.getApplierId()), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
                 .collect(Collectors.toList());
     }
