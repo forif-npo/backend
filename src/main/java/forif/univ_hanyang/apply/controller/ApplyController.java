@@ -5,7 +5,7 @@ import forif.univ_hanyang.apply.dto.request.ApplyRequest;
 import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
 import forif.univ_hanyang.apply.dto.response.ApplyResponse;
 import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
-import forif.univ_hanyang.apply.dto.response.RankedStudyResponse;
+import forif.univ_hanyang.apply.dto.response.ApplyInfoResponse;
 import forif.univ_hanyang.apply.dto.response.UserPaymentStatusResponse;
 import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.service.ApplyService;
@@ -33,7 +33,7 @@ public class ApplyController {
 
     @RequireJWT
     @GetMapping
-    public ResponseEntity<List<Apply>> getAllApplications(
+    public ResponseEntity<List<ApplyInfoResponse>> getAllApplications(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
@@ -71,6 +71,7 @@ public class ApplyController {
         return new ResponseEntity<>(application, HttpStatus.OK);
     }
 
+
     @RequireJWT
     @PatchMapping("/me")
     private ResponseEntity<Apply> patchApplication(
@@ -81,6 +82,7 @@ public class ApplyController {
 
         return new ResponseEntity<>(applyService.patchApplication(user, request), HttpStatus.OK);
     }
+
 
     @RequireJWT
     @DeleteMapping("/me")
@@ -130,7 +132,6 @@ public class ApplyController {
         return new ResponseEntity<>(applyService.getPaidUsers(), HttpStatus.OK);
     }
 
-
     @RequireJWT
     @GetMapping("{studyId}")
     public ResponseEntity<?> getAllApplicationsOfStudy(
@@ -138,7 +139,7 @@ public class ApplyController {
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-        Map<String, List<RankedStudyResponse>> applications = applyService.getAllApplicationsOfStudy(studyId, user);
+        Map<String, List<ApplyInfoResponse>> applications = applyService.getAllApplicationsOfStudy(studyId, user);
         if (applications.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
