@@ -356,6 +356,7 @@ public class ApplyService {
     }
 
     private String getStudyName(Integer studyId) {
+        if(studyId == null) return null;
         return studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다.")).getName();
     }
 
