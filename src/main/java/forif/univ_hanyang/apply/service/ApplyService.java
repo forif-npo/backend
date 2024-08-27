@@ -5,7 +5,7 @@ import forif.univ_hanyang.apply.dto.request.ApplyRequest;
 import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
 import forif.univ_hanyang.apply.dto.response.AppliedStudyResponse;
 import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
-import forif.univ_hanyang.apply.dto.response.RankedStudyResponse;
+import forif.univ_hanyang.apply.dto.response.ApplyInfoResponse;
 import forif.univ_hanyang.apply.dto.response.UserPaymentStatusResponse;
 import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.entity.ApplyStatus;
@@ -41,10 +41,24 @@ public class ApplyService {
     private final ApplyRepository applyRepository;
 
 
-    public List<Apply> getAllApplications(User user) {
+    public List<ApplyInfoResponse> getAllApplications(User user) {
         if(user.getAuthLv() < 3) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
-
-        return applyRepository.findAll();
+        
+        List<Apply> applies = applyRepository.findAll();
+        List<ApplyInfoResponse> responses = new ArrayList<>();
+        
+        for(Apply apply : applies) {
+            ApplyInfoResponse response = new ApplyInfoResponse();
+            response.setUserId(apply.getApplierId());
+            response.setName(getUserName(apply.getApplierId()));
+            response.setPrimaryStudyName(getStudyName(apply.getPrimaryStudy()));
+            response.setSecondaryStudyName(getStudyName(apply.getSecondaryStudy()));
+            response.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
+            response.setApplyPath(apply.getApplyPath());
+            responses.add(response);
+        }
+        
+        return responses;
     }
 
     @Transactional
@@ -150,7 +164,7 @@ public class ApplyService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, List<RankedStudyResponse>> getAllApplicationsOfStudy(Integer studyId, User user) {
+    public Map<String, List<ApplyInfoResponse>> getAllApplicationsOfStudy(Integer studyId, User user) {
         if (user.getAuthLv() < 2) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
         studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다."));
@@ -164,34 +178,36 @@ public class ApplyService {
                 .filter(apply -> studyId.equals(apply.getSecondaryStudy()))
                 .toList();
 
-        Map<String, List<RankedStudyResponse>> applications = new TreeMap<>();
+        Map<String, List<ApplyInfoResponse>> applications = new TreeMap<>();
 
-        List<RankedStudyResponse> studyResponses1 = new LinkedList<>();
+        List<ApplyInfoResponse> studyResponses1 = new LinkedList<>();
 
         for (Apply apply : primaryStudies) {
-            RankedStudyResponse rankedStudyResponse = new RankedStudyResponse();
-            rankedStudyResponse.setName(getUserName(apply.getApplierId()));
-            rankedStudyResponse.setIntro(apply.getPrimaryIntro());
-            rankedStudyResponse.setId(apply.getApplierId());
-            rankedStudyResponse.setApplyPath(apply.getApplyPath());
-            rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
+            ApplyInfoResponse applyInfoResponse = new ApplyInfoResponse();
+            applyInfoResponse.setName(getUserName(apply.getApplierId()));
+            applyInfoResponse.setIntro(apply.getPrimaryIntro());
+            applyInfoResponse.setPrimaryStudyName(getStudyName(apply.getPrimaryStudy()));
+            applyInfoResponse.setUserId(apply.getApplierId());
+            applyInfoResponse.setApplyPath(apply.getApplyPath());
+            applyInfoResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
 
-            studyResponses1.add(rankedStudyResponse);
+            studyResponses1.add(applyInfoResponse);
         }
 
         applications.put("first", studyResponses1);
 
-        List<RankedStudyResponse> studyResponses2 = new LinkedList<>();
+        List<ApplyInfoResponse> studyResponses2 = new LinkedList<>();
 
         for (Apply apply : secondaryStudies) {
-            RankedStudyResponse rankedStudyResponse = new RankedStudyResponse();
-            rankedStudyResponse.setName(getUserName(apply.getApplierId()));
-            rankedStudyResponse.setIntro(apply.getSecondaryIntro());
-            rankedStudyResponse.setId(apply.getApplierId());
-            rankedStudyResponse.setApplyPath(apply.getApplyPath());
-            rankedStudyResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
+            ApplyInfoResponse applyInfoResponse = new ApplyInfoResponse();
+            applyInfoResponse.setName(getUserName(apply.getApplierId()));
+            applyInfoResponse.setIntro(apply.getSecondaryIntro());
+            applyInfoResponse.setSecondaryStudyName(getStudyName(apply.getSecondaryStudy()));
+            applyInfoResponse.setUserId(apply.getApplierId());
+            applyInfoResponse.setApplyPath(apply.getApplyPath());
+            applyInfoResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
 
-            studyResponses2.add(rankedStudyResponse);
+            studyResponses2.add(applyInfoResponse);
         }
 
         applications.put("second", studyResponses2);
@@ -336,7 +352,11 @@ public class ApplyService {
     }
 
     private String getUserPhoneNumber(Integer userId) {
-        return userRepository.findById(userId).map(User::getPhoneNumber).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다."));
+        return userRepository.findById(userId).map(User::getPhoneNumber).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저가 없습니다."));
+    }
+
+    private String getStudyName(Integer studyId) {
+        return studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다.")).getName();
     }
 
 
