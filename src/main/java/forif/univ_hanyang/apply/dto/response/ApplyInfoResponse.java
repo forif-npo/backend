@@ -18,4 +18,5 @@ public class ApplyInfoResponse {
     private String payYn;
     private String primaryStatus;
     private String secondaryStatus;
+    private String applyDate;
 }
