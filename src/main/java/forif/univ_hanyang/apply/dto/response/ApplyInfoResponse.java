@@ -22,7 +22,11 @@ public class ApplyInfoResponse {
     private String secondaryStatus;
     private String applyDate;
 
-    public ApplyInfoResponse(Integer applierId, String name, String primaryStudyName, String secondaryStudyName, String phoneNumber, String department, String applyPath, String applyDate) {
+    public ApplyInfoResponse(Integer applierId, String name,
+                             String primaryStudyName, String secondaryStudyName,
+                             String phoneNumber, String department,
+                             String applyPath, String applyDate,
+                             String primaryStatus, String secondaryStatus, String payYn) {
         this.userId = applierId;
         this.name = name;
         this.department = department;
@@ -31,5 +35,8 @@ public class ApplyInfoResponse {
         this.secondaryStudyName = secondaryStudyName;
         this.applyPath = applyPath;
         this.applyDate = applyDate;
+        this.primaryStatus = primaryStatus;
+        this.secondaryStatus = secondaryStatus;
+        this.payYn = payYn;
     }
 }
