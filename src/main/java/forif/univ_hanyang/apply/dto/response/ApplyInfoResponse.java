@@ -10,6 +10,7 @@ import lombok.Setter;
 public class ApplyInfoResponse {
     private Integer userId;
     private String name;
+    private String department;
     private String primaryStudyName;
     private String secondaryStudyName;
     private String phoneNumber;
