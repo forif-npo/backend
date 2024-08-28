@@ -55,6 +55,7 @@ public class ApplyService {
             response.setSecondaryStudyName(getStudyName(apply.getSecondaryStudy()));
             response.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
             response.setApplyPath(apply.getApplyPath());
+            response.setApplyDate(apply.getApplyDate());
             responses.add(response);
         }
         
