@@ -133,7 +133,7 @@ public class ApplyController {
     }
 
     @RequireJWT
-    @GetMapping("{studyId}")
+    @GetMapping("/{studyId}")
     public ResponseEntity<?> getAllApplicationsOfStudy(
             @PathVariable Integer studyId,
             @RequestHeader("Authorization") String token
