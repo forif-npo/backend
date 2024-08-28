@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Service
@@ -40,25 +41,56 @@ public class ApplyService {
 
     public List<ApplyInfoResponse> getAllApplications(User user) {
         if(user.getAuthLv() < 3) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
-        
-        List<Apply> applies = applyRepository.findAll();
-        List<ApplyInfoResponse> responses = new ArrayList<>();
 
-        for(Apply apply : applies) {
-            UserInfoDTO userInfo = getUserInfo(apply.getApplierId());
-            ApplyInfoResponse response = new ApplyInfoResponse();
-            response.setUserId(apply.getApplierId());
-            response.setName(userInfo.getName());
-            response.setPrimaryStudyName(getStudyName(apply.getPrimaryStudy()));
-            response.setSecondaryStudyName(getStudyName(apply.getSecondaryStudy()));
-            response.setPhoneNumber(userInfo.getPhoneNumber());
-            response.setDepartment(userInfo.getDepartment());
-            response.setApplyPath(apply.getApplyPath());
-            response.setApplyDate(apply.getApplyDate());
-            responses.add(response);
-        }
-        
-        return responses;
+        List<Apply> applies = applyRepository.findAll();
+
+        // 모든 applier ID와 study ID를 한 번에 수집
+        Set<Integer> applierIds = applies.stream()
+                .map(Apply::getApplierId)
+                .collect(Collectors.toSet());
+
+        Set<Integer> studyIds = applies.stream()
+                .flatMap(apply -> Stream.of(apply.getPrimaryStudy(), apply.getSecondaryStudy()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // 한 번의 쿼리로 모든 사용자 정보를 가져옴
+        Map<Integer, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
+
+        // 한 번의 쿼리로 모든 스터디 정보를 가져옴
+        Map<Integer, String> studyNameMap = getStudyNameBulk(studyIds);
+
+        return applies.stream()
+                .map(apply -> {
+                    UserInfoDTO userInfo = userInfoMap.get(apply.getApplierId());
+                    return new ApplyInfoResponse(
+                            apply.getApplierId(),
+                            userInfo.getName(),
+                            studyNameMap.get(apply.getPrimaryStudy()),
+                            studyNameMap.get(apply.getSecondaryStudy()),
+                            userInfo.getPhoneNumber(),
+                            userInfo.getDepartment(),
+                            apply.getApplyPath(),
+                            apply.getApplyDate()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    private Map<Integer, UserInfoDTO> getUserInfoBulk(Set<Integer> userIds) {
+        return userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(
+                        User::getId,
+                        user -> new UserInfoDTO(user.getName(), user.getPhoneNumber(), user.getDepartment())
+                ));
+    }
+
+    private Map<Integer, String> getStudyNameBulk(Set<Integer> studyIds) {
+        return studyRepository.findAllById(studyIds).stream()
+                .collect(Collectors.toMap(
+                        Study::getId,
+                        Study::getName
+                ));
     }
 
     @Transactional
