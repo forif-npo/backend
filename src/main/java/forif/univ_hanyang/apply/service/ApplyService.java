@@ -181,36 +181,68 @@ public class ApplyService {
 
     @Transactional(readOnly = true)
     public List<UserPaymentStatusResponse> getUnpaidUsers() {
-        return applyRepository.findAllByPayYn("N").stream()
-                .filter(apply -> Objects.equals(ApplyStatus.승낙, apply.getPrimaryStatus()) || Objects.equals(ApplyStatus.승낙, apply.getSecondaryStatus()))
-                .map(apply -> {
-                    UserInfoDTO userInfo = getUserInfo(apply.getApplierId());
-                    return new UserPaymentStatusResponse(
-                            apply.getApplierId(),
-                            userInfo.getName(),
-                            apply.getPrimaryStudy(),
-                            apply.getSecondaryStudy(),
-                            userInfo.getPhoneNumber()
-                    );
+        List<Apply> applies = applyRepository.findAll();
+
+        // 모든 applier ID를 한 번에 수집
+        Set<Integer> applierIds = applies.stream()
+                .map(Apply::getApplierId)
+                .collect(Collectors.toSet());
+
+        // 한 번의 쿼리로 모든 사용자 정보를 가져옴
+        Map<Integer, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
+
+        return applies.stream()
+                .filter(apply -> "N".equals(apply.getPayYn()))
+                .flatMap(apply -> { // flatMap을 사용하여 각 신청(Apply)에 대해 0개 또는 1개의 응답을 생성
+                    UserInfoDTO userInfo = userInfoMap.get(apply.getApplierId());
+                    List<UserPaymentStatusResponse> responses = new ArrayList<>();
+                    if (ApplyStatus.승낙.equals(apply.getPrimaryStatus())) {
+                        responses.add(createResponse(apply, userInfo, apply.getPrimaryStudy(), true));
+                    } else if (ApplyStatus.승낙.equals(apply.getSecondaryStatus())) {
+                        responses.add(createResponse(apply, userInfo, apply.getSecondaryStudy(), false));
+                    }
+                    return responses.stream();
                 })
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<UserPaymentStatusResponse> getPaidUsers() {
-        return applyRepository.findAllByPayYn("Y").stream()
-                .filter(apply -> Objects.equals(ApplyStatus.승낙, apply.getPrimaryStatus()) || Objects.equals(ApplyStatus.승낙, apply.getSecondaryStatus()))
-                .map(apply -> {
-                    UserInfoDTO userInfo = getUserInfo(apply.getApplierId());
-                    return new UserPaymentStatusResponse(
-                            apply.getApplierId(),
-                            userInfo.getName(),
-                            apply.getPrimaryStudy(),
-                            apply.getSecondaryStudy(),
-                            userInfo.getPhoneNumber()
-                    );
+        List<Apply> applies = applyRepository.findAll();
+
+        // 모든 applier ID를 한 번에 수집
+        Set<Integer> applierIds = applies.stream()
+                .map(Apply::getApplierId)
+                .collect(Collectors.toSet());
+
+        // 한 번의 쿼리로 모든 사용자 정보를 가져옴
+        Map<Integer, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
+
+        return applies.stream()
+                .filter(apply -> "Y".equals(apply.getPayYn()))
+                .flatMap(apply -> { // flatMap을 사용하여 각 신청(Apply)에 대해 0개 또는 1개의 응답을 생성
+                    UserInfoDTO userInfo = userInfoMap.get(apply.getApplierId());
+                    List<UserPaymentStatusResponse> responses = new ArrayList<>();
+                    if (ApplyStatus.승낙.equals(apply.getPrimaryStatus())) {
+                        responses.add(createResponse(apply, userInfo, apply.getPrimaryStudy(), true));
+                    } else if (ApplyStatus.승낙.equals(apply.getSecondaryStatus())) {
+                        responses.add(createResponse(apply, userInfo, apply.getSecondaryStudy(), false));
+                    }
+                    return responses.stream();
                 })
                 .collect(Collectors.toList());
+    }
+
+    private UserPaymentStatusResponse createResponse(Apply apply, UserInfoDTO userInfo, Integer studyId, boolean isPrimary) {
+        String studyType = studyId != 0 ? "정규 스터디" : "자율 스터디";
+        return new UserPaymentStatusResponse(
+                apply.getApplierId(),
+                userInfo.getName(),
+                studyId,
+                studyType,
+                isPrimary ? "1순위" : "2순위",
+                userInfo.getPhoneNumber()
+        );
     }
 
     @Transactional(readOnly = true)
@@ -240,6 +272,7 @@ public class ApplyService {
             applyInfoResponse.setPrimaryStudyName(getStudyName(apply.getPrimaryStudy()));
             applyInfoResponse.setUserId(apply.getApplierId());
             applyInfoResponse.setApplyPath(apply.getApplyPath());
+            applyInfoResponse.setDepartment(userInfo.getDepartment());
             applyInfoResponse.setPhoneNumber(userInfo.getPhoneNumber());
 
             studyResponses1.add(applyInfoResponse);
