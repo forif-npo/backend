@@ -3,10 +3,7 @@ package forif.univ_hanyang.apply.service;
 import forif.univ_hanyang.apply.dto.request.AcceptRequest;
 import forif.univ_hanyang.apply.dto.request.ApplyRequest;
 import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
-import forif.univ_hanyang.apply.dto.response.AppliedStudyResponse;
-import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
-import forif.univ_hanyang.apply.dto.response.ApplyInfoResponse;
-import forif.univ_hanyang.apply.dto.response.UserPaymentStatusResponse;
+import forif.univ_hanyang.apply.dto.response.*;
 import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.entity.ApplyStatus;
 import forif.univ_hanyang.apply.repository.ApplyRepository;
@@ -46,14 +43,16 @@ public class ApplyService {
         
         List<Apply> applies = applyRepository.findAll();
         List<ApplyInfoResponse> responses = new ArrayList<>();
-        
+
         for(Apply apply : applies) {
+            UserInfoDTO userInfo = getUserInfo(apply.getApplierId());
             ApplyInfoResponse response = new ApplyInfoResponse();
             response.setUserId(apply.getApplierId());
-            response.setName(getUserName(apply.getApplierId()));
+            response.setName(userInfo.getName());
             response.setPrimaryStudyName(getStudyName(apply.getPrimaryStudy()));
             response.setSecondaryStudyName(getStudyName(apply.getSecondaryStudy()));
-            response.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
+            response.setPhoneNumber(userInfo.getPhoneNumber());
+            response.setDepartment(userInfo.getDepartment());
             response.setApplyPath(apply.getApplyPath());
             response.setApplyDate(apply.getApplyDate());
             responses.add(response);
@@ -152,7 +151,16 @@ public class ApplyService {
     public List<UserPaymentStatusResponse> getUnpaidUsers() {
         return applyRepository.findAllByPayYn("N").stream()
                 .filter(apply -> Objects.equals(ApplyStatus.승낙, apply.getPrimaryStatus()) || Objects.equals(ApplyStatus.승낙, apply.getSecondaryStatus()))
-                .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply.getApplierId()), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
+                .map(apply -> {
+                    UserInfoDTO userInfo = getUserInfo(apply.getApplierId());
+                    return new UserPaymentStatusResponse(
+                            apply.getApplierId(),
+                            userInfo.getName(),
+                            apply.getPrimaryStudy(),
+                            apply.getSecondaryStudy(),
+                            userInfo.getPhoneNumber()
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -160,7 +168,16 @@ public class ApplyService {
     public List<UserPaymentStatusResponse> getPaidUsers() {
         return applyRepository.findAllByPayYn("Y").stream()
                 .filter(apply -> Objects.equals(ApplyStatus.승낙, apply.getPrimaryStatus()) || Objects.equals(ApplyStatus.승낙, apply.getSecondaryStatus()))
-                .map(apply -> new UserPaymentStatusResponse(apply.getApplierId(), getUserName(apply.getApplierId()), apply.getPrimaryStudy(), apply.getSecondaryStudy(), getUserPhoneNumber(apply.getApplierId())))
+                .map(apply -> {
+                    UserInfoDTO userInfo = getUserInfo(apply.getApplierId());
+                    return new UserPaymentStatusResponse(
+                            apply.getApplierId(),
+                            userInfo.getName(),
+                            apply.getPrimaryStudy(),
+                            apply.getSecondaryStudy(),
+                            userInfo.getPhoneNumber()
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -184,13 +201,14 @@ public class ApplyService {
         List<ApplyInfoResponse> studyResponses1 = new LinkedList<>();
 
         for (Apply apply : primaryStudies) {
+            UserInfoDTO userInfo = getUserInfo(apply.getApplierId());
             ApplyInfoResponse applyInfoResponse = new ApplyInfoResponse();
-            applyInfoResponse.setName(getUserName(apply.getApplierId()));
+            applyInfoResponse.setName(userInfo.getName());
             applyInfoResponse.setIntro(apply.getPrimaryIntro());
             applyInfoResponse.setPrimaryStudyName(getStudyName(apply.getPrimaryStudy()));
             applyInfoResponse.setUserId(apply.getApplierId());
             applyInfoResponse.setApplyPath(apply.getApplyPath());
-            applyInfoResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
+            applyInfoResponse.setPhoneNumber(userInfo.getPhoneNumber());
 
             studyResponses1.add(applyInfoResponse);
         }
@@ -200,13 +218,14 @@ public class ApplyService {
         List<ApplyInfoResponse> studyResponses2 = new LinkedList<>();
 
         for (Apply apply : secondaryStudies) {
+            UserInfoDTO userInfo = getUserInfo(apply.getApplierId());
             ApplyInfoResponse applyInfoResponse = new ApplyInfoResponse();
-            applyInfoResponse.setName(getUserName(apply.getApplierId()));
+            applyInfoResponse.setName(userInfo.getName());
             applyInfoResponse.setIntro(apply.getSecondaryIntro());
             applyInfoResponse.setSecondaryStudyName(getStudyName(apply.getSecondaryStudy()));
             applyInfoResponse.setUserId(apply.getApplierId());
             applyInfoResponse.setApplyPath(apply.getApplyPath());
-            applyInfoResponse.setPhoneNumber(getUserPhoneNumber(apply.getApplierId()));
+            applyInfoResponse.setPhoneNumber(userInfo.getPhoneNumber());
 
             studyResponses2.add(applyInfoResponse);
         }
@@ -348,13 +367,16 @@ public class ApplyService {
     }
 
 
-    private String getUserName(Integer userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저가 없습니다.")).getName();
+    private UserInfoDTO getUserInfo(Integer userId) {
+        return userRepository.findById(userId)
+                .map(user -> new UserInfoDTO(
+                        user.getName(),
+                        user.getPhoneNumber(),
+                        user.getDepartment()
+                ))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저가 없습니다."));
     }
 
-    private String getUserPhoneNumber(Integer userId) {
-        return userRepository.findById(userId).map(User::getPhoneNumber).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저가 없습니다."));
-    }
 
     private String getStudyName(Integer studyId) {
         if(studyId == null) return null;
