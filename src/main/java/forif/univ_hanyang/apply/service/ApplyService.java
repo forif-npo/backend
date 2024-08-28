@@ -71,7 +71,10 @@ public class ApplyService {
                             userInfo.getPhoneNumber(),
                             userInfo.getDepartment(),
                             apply.getApplyPath(),
-                            apply.getApplyDate()
+                            apply.getApplyDate(),
+                            Objects.toString(apply.getPrimaryStatus(), null),
+                            Objects.toString(apply.getSecondaryStatus(), null),
+                            apply.getPayYn()
                     );
                 })
                 .collect(Collectors.toList());
