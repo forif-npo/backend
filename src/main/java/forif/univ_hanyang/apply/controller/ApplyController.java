@@ -114,7 +114,7 @@ public class ApplyController {
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-        if (user.getAuthLv() == 1)
+        if (user.getAuthLv() < 3)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
 
         return new ResponseEntity<>(applyService.getUnpaidUsers(), HttpStatus.OK);
