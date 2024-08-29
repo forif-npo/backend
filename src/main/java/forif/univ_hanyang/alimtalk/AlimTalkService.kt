@@ -1,21 +1,34 @@
 package forif.univ_hanyang.alimtalk
 
 import forif.univ_hanyang.user.entity.User
-import forif.univ_hanyang.user.repository.StudyUserRepository
 import forif.univ_hanyang.user.repository.UserRepository
 import net.nurigo.sdk.NurigoApp
 import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException
 import net.nurigo.sdk.message.model.KakaoOption
 import net.nurigo.sdk.message.model.Message
 import net.nurigo.sdk.message.service.DefaultMessageService
+import org.apache.commons.codec.binary.Hex
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ssm.SsmClient
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest
+import java.nio.charset.StandardCharsets
+import java.security.InvalidKeyException
+import java.security.NoSuchAlgorithmException
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.*
 import java.util.concurrent.CompletableFuture
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+
+import org.springframework.http.*
+import org.springframework.web.client.RestTemplate
+
 
 @Service
 class AlimTalkService(
@@ -35,6 +48,16 @@ class AlimTalkService(
         NurigoApp.initialize(apiKey, apiSecret, "https://api.solapi.com")
     }
 
+    fun sendAlimTalk(user: User, request: AlimTalkRequest): CompletableFuture<List<String>> {
+        if (user.authLv < 3)
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "알림 톡을 보낼 권한이 없습니다.")
+        return CompletableFuture.supplyAsync {
+            request.receivers.map { receiver ->
+                sendMessageToReceiver(receiver, request)
+            }
+        }
+    }
+
     private fun getSSMParameter(parameterName: String): String {
         val request = GetParameterRequest.builder()
             .name(parameterName)
@@ -50,15 +73,6 @@ class AlimTalkService(
         }
     }
 
-    fun sendAlimTalk(user: User, request: AlimTalkRequest): CompletableFuture<List<String>> {
-        if (user.authLv < 3)
-            throw ResponseStatusException(HttpStatus.FORBIDDEN, "알림 톡을 보낼 권한이 없습니다.")
-        return CompletableFuture.supplyAsync {
-            request.receivers.map { receiver ->
-                sendMessageToReceiver(receiver, request)
-            }
-        }
-    }
 
     private fun sendMessageToReceiver(receiver: String, request: AlimTalkRequest): String {
         return userRepository.findByPhoneNumber(receiver)
@@ -110,4 +124,53 @@ class AlimTalkService(
 
         return variables
     }
+
+
+    fun getKakaoTemplates(user: User): ResponseEntity<String> {
+        if(user.authLv < 3)
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "알림 톡 템플릿을 조회할 권한이 없습니다.")
+
+        val url = "https://api.solapi.com/kakao/v2/templates/"
+
+        // APIInit 클래스에서 인증 헤더 가져오기
+        val authHeader = getHeaders()
+
+        // HTTP 헤더 설정
+        val headers = HttpHeaders().apply {
+            set("Authorization", authHeader)
+            contentType = MediaType.APPLICATION_JSON
+        }
+
+        // HTTP 엔티티 생성
+        val entity = HttpEntity<String>(headers)
+
+        // GET 요청 보내기
+        return RestTemplate().exchange(
+            url,
+            HttpMethod.GET,
+            entity,
+            String::class.java
+        )
+    }
+
+    private fun getHeaders(): String? {
+        return try {
+            val salt = UUID.randomUUID().toString().replace("-", "")
+            val date = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toString().split("[")[0]
+
+            val sha256HMAC = Mac.getInstance("HmacSHA256")
+            val secretKey = SecretKeySpec(apiSecret.toByteArray(StandardCharsets.UTF_8), "HmacSHA256")
+            sha256HMAC.init(secretKey)
+            val signature = String(Hex.encodeHex(sha256HMAC.doFinal((date + salt).toByteArray(StandardCharsets.UTF_8))))
+
+            "HMAC-SHA256 ApiKey=$apiKey, Date=$date, salt=$salt, signature=$signature"
+        } catch (e: InvalidKeyException) {
+            logger.error("Error occurred while getting headers(Invalid Key): ${e.message}")
+            null
+        } catch (e: NoSuchAlgorithmException) {
+            logger.error("Error occurred while getting headers(No Such Algorithm): ${e.message}")
+            null
+        }
+    }
+
 }
