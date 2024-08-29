@@ -67,7 +67,6 @@ public class StudyApplyController {
                     )
             }
     )
-    @RequireJWT
     @GetMapping
     public ResponseEntity<List<StudyApplyResponse>> getAllAppliedStudies(
             @RequestHeader("Authorization") String token
@@ -90,7 +89,6 @@ public class StudyApplyController {
                     )
             }
     )
-    @RequireJWT
     @PatchMapping("/{applyId}")
     public ResponseEntity<Void> updateStudyApplication(
             @RequestBody StudyApplyRequest request,

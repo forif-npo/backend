@@ -95,7 +95,6 @@ public class StudyController {
                     )
             }
     )
-    @RequireJWT
     @GetMapping("/{studyId}/users")
     public ResponseEntity<List<StudyMemberResponse>> getStudyMembers(
             @RequestHeader("Authorization") String token,
@@ -125,7 +124,6 @@ public class StudyController {
                     )
             }
     )
-    @RequireJWT
     @PatchMapping("/{id}")
     public ResponseEntity<Void> patchStudy(
             @RequestHeader("Authorization") String token,
@@ -160,7 +158,6 @@ public class StudyController {
                     )
             }
     )
-    @RequireJWT
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudy(
             @RequestHeader("Authorization") String token,
@@ -200,7 +197,6 @@ public class StudyController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequireJWT
     @GetMapping("/my-created")
     public ResponseEntity<List<MyCreatedStudiesResponse>> getMyCreatedStudies(
             @RequestHeader("Authorization") String token

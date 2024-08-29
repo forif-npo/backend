@@ -25,10 +25,10 @@ public class ForifTeamController {
         return new ResponseEntity<>(forifTeamService.getForifTeamByActYearAndActSemester(year, semester), HttpStatus.OK);
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<ForifTeamResponse> getForifTeamById(
-//            @PathVariable Integer id
-//    ){
-//        return new ResponseEntity<>(forifTeamService.getForifTeamById(id), HttpStatus.OK);
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<ForifTeamResponse> getForifTeamById(
+            @PathVariable Integer id
+    ){
+        return new ResponseEntity<>(forifTeamService.getForifTeamById(id), HttpStatus.OK);
+    }
 }
