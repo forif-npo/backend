@@ -1,6 +1,6 @@
 package forif.univ_hanyang.study.service;
 
-import forif.univ_hanyang.CustomBeanUtils;
+import forif.univ_hanyang.util.CustomBeanUtils;
 import forif.univ_hanyang.study.dto.request.StudyPatchRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.MyCreatedStudiesResponse;

@@ -1,4 +1,4 @@
-package forif.univ_hanyang;
+package forif.univ_hanyang.util;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;

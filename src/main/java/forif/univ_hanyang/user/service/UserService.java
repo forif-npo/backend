@@ -1,6 +1,6 @@
 package forif.univ_hanyang.user.service;
 
-import forif.univ_hanyang.CustomBeanUtils;
+import forif.univ_hanyang.util.CustomBeanUtils;
 import forif.univ_hanyang.apply.repository.ApplyRepository;
 import forif.univ_hanyang.jwt.JwtUtils;
 import forif.univ_hanyang.study.entity.Study;
