@@ -9,10 +9,11 @@ import org.springframework.web.server.ResponseStatusException
 
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/alim-talk")
 class AlimTalkController(private val alimTalkService: AlimTalkService,
                          private val userService: UserService) {
 
-    @PostMapping("/alim-talk")
+    @PostMapping
     fun sendAlimTalk(
         @RequestHeader("Authorization") token: String,
         @RequestBody request: AlimTalkRequest
@@ -22,7 +23,7 @@ class AlimTalkController(private val alimTalkService: AlimTalkService,
         return alimTalkService.sendAlimTalk(user, request)
     }
 
-    @GetMapping("/kakao-templates")
+    @GetMapping("/templates")
     fun getKakaoTemplates(
         @RequestHeader("Authorization") token: String
     ): ResponseEntity<String> {

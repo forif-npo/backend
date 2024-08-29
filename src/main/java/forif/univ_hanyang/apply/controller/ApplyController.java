@@ -154,7 +154,6 @@ public class ApplyController {
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-
         applyService.deleteAllApplications(user);
 
         return new ResponseEntity<>(HttpStatus.OK);
