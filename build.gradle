@@ -19,7 +19,7 @@ dependencies {
 	implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
-
+	implementation 'org.ini4j:ini4j:0.5.4'
 	implementation 'net.nurigo:sdk:4.3.0'
 	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1")
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
