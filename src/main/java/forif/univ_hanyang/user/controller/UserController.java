@@ -1,6 +1,5 @@
 package forif.univ_hanyang.user.controller;
 
-import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.user.dto.request.UserPatchRequest;
 import forif.univ_hanyang.user.dto.response.AllUserInfoResponse;
 import forif.univ_hanyang.user.dto.response.UserInfoResponse;
@@ -40,7 +39,6 @@ public class UserController {
                     )
             }
     )
-    @RequireJWT
     @GetMapping("/auth/profile")
     public ResponseEntity<UserInfoResponse> getUser(
             @RequestHeader("Authorization") String token
@@ -67,7 +65,6 @@ public class UserController {
                     )
             }
     )
-    @RequireJWT
     @PatchMapping("/auth/profile")
     public ResponseEntity<User> patchUser(
             @RequestHeader("Authorization") String token,
@@ -96,7 +93,6 @@ public class UserController {
                     )
             }
     )
-    @RequireJWT
     @DeleteMapping("/auth/profile")
     public ResponseEntity<Void> deleteUser(
             @RequestHeader("Authorization") String token
@@ -130,7 +126,6 @@ public class UserController {
                     )
             }
     )
-    @RequireJWT
     @GetMapping("/users")
     public ResponseEntity<List<AllUserInfoResponse>> getAllUsers(
             @RequestHeader("Authorization") String token

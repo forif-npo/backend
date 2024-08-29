@@ -3,13 +3,12 @@ package forif.univ_hanyang.apply.controller;
 import forif.univ_hanyang.apply.dto.request.AcceptRequest;
 import forif.univ_hanyang.apply.dto.request.ApplyRequest;
 import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
+import forif.univ_hanyang.apply.dto.response.ApplyInfoResponse;
 import forif.univ_hanyang.apply.dto.response.ApplyResponse;
 import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
-import forif.univ_hanyang.apply.dto.response.ApplyInfoResponse;
 import forif.univ_hanyang.apply.dto.response.UserPaymentStatusResponse;
 import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.service.ApplyService;
-import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +30,6 @@ public class ApplyController {
     private final UserService userService;
     private final ApplyService applyService;
 
-    @RequireJWT
     @GetMapping
     public ResponseEntity<List<ApplyInfoResponse>> getAllApplications(
             @RequestHeader("Authorization") String token
@@ -40,7 +38,6 @@ public class ApplyController {
         return new ResponseEntity<>(applyService.getAllApplications(user), HttpStatus.OK);
     }
 
-    @RequireJWT
     @PostMapping
     public ResponseEntity<Void> applyStudy(
             @RequestHeader("Authorization") String token,
@@ -56,7 +53,6 @@ public class ApplyController {
      * @param token 지원자의 토큰
      * @return <?> 형식으로 해서 null일 때와 지원서가 있을 때 다른 객체를 반환하도록 함
      */
-    @RequireJWT
     @GetMapping("/me")
     public ResponseEntity<?> getUserApplication(
             @RequestHeader("Authorization") String token
@@ -72,7 +68,6 @@ public class ApplyController {
     }
 
 
-    @RequireJWT
     @PatchMapping("/me")
     private ResponseEntity<Apply> patchApplication(
             @RequestHeader("Authorization") String token,
@@ -84,7 +79,6 @@ public class ApplyController {
     }
 
 
-    @RequireJWT
     @DeleteMapping("/me")
     private ResponseEntity<Void> deleteApplication(
             @RequestHeader("Authorization") String token
@@ -97,7 +91,6 @@ public class ApplyController {
     }
 
 
-    @RequireJWT
     @PostMapping("/accept")
     public ResponseEntity<Void> acceptApplications(
             @RequestBody AcceptRequest request,
@@ -108,7 +101,6 @@ public class ApplyController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequireJWT
     @GetMapping("/unpaid-users")
     public ResponseEntity<List<UserPaymentStatusResponse>> getUnpaidUsers(
             @RequestHeader("Authorization") String token
@@ -120,7 +112,6 @@ public class ApplyController {
         return new ResponseEntity<>(applyService.getUnpaidUsers(), HttpStatus.OK);
     }
 
-    @RequireJWT
     @GetMapping("/paid-users")
     public ResponseEntity<List<UserPaymentStatusResponse>> getPaidUsers(
             @RequestHeader("Authorization") String token
@@ -132,7 +123,6 @@ public class ApplyController {
         return new ResponseEntity<>(applyService.getPaidUsers(), HttpStatus.OK);
     }
 
-    @RequireJWT
     @GetMapping("/{studyId}")
     public ResponseEntity<?> getAllApplicationsOfStudy(
             @PathVariable Integer studyId,
@@ -146,7 +136,6 @@ public class ApplyController {
         return new ResponseEntity<>(applications, HttpStatus.OK);
     }
 
-    @RequireJWT
     @PatchMapping("/payment-status")
     public ResponseEntity<Void> patchIsPaid(
             @RequestHeader("Authorization") String token,
@@ -160,7 +149,6 @@ public class ApplyController {
     }
 
 
-    @RequireJWT
     @DeleteMapping
     public ResponseEntity<Void> deleteAllApplications(
             @RequestHeader("Authorization") String token

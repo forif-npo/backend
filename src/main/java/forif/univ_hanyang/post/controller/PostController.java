@@ -1,6 +1,5 @@
 package forif.univ_hanyang.post.controller;
 
-import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
 import forif.univ_hanyang.post.dto.request.AnnouncementUpdateRequest;
 import forif.univ_hanyang.post.dto.request.FAQRequest;
@@ -35,7 +34,6 @@ public class PostController {
         return new ResponseEntity<>(postService.getAnnouncement(id), HttpStatus.OK);
     }
 
-    @RequireJWT
     @PostMapping("/announcements")
     public ResponseEntity<Void> createAnnouncement(
             @RequestBody AnnouncementRequest announcementRequest,
@@ -45,7 +43,6 @@ public class PostController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @RequireJWT
     @PatchMapping("/announcements/{id}")
     public ResponseEntity<Void> updateAnnouncement(
             @PathVariable Integer id,
@@ -56,7 +53,6 @@ public class PostController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequireJWT
     @DeleteMapping("/announcements/{id}")
     public ResponseEntity<Void> deleteAnnouncement(
             @PathVariable Integer id,
@@ -71,7 +67,6 @@ public class PostController {
         return new ResponseEntity<>(postService.getFAQs(), HttpStatus.OK);
     }
 
-    @RequireJWT
     @PostMapping("/faqs")
     public ResponseEntity<Void> createFAQ(
             @RequestBody FAQRequest request,
@@ -81,7 +76,6 @@ public class PostController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @RequireJWT
     @PatchMapping("/faqs/{id}")
     public ResponseEntity<Void> updateFAQ(
             @PathVariable Integer id,
@@ -92,7 +86,6 @@ public class PostController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequireJWT
     @DeleteMapping("/faqs/{id}")
     public ResponseEntity<Void> deleteFAQ(
             @PathVariable Integer id,
