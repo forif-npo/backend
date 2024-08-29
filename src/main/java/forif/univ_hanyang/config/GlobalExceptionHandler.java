@@ -1,4 +1,4 @@
-package forif.univ_hanyang;
+package forif.univ_hanyang.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
