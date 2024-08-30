@@ -152,6 +152,32 @@ class AlimTalkService(
         )
     }
 
+    fun getAlimTalkLogs(user: User): ResponseEntity<String> {
+        if(user.authLv < 3)
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "알림 톡 로그를 조회할 권한이 없습니다.")
+
+        val url = "https://api.solapi.com/messages/v4/list"
+
+        val authHeader = getHeaders()
+
+        // HTTP 헤더 설정
+        val headers = HttpHeaders().apply {
+            set("Authorization", authHeader)
+            contentType = MediaType.APPLICATION_JSON
+        }
+
+        // HTTP 엔티티 생성
+        val entity = HttpEntity<String>(headers)
+
+        // GET 요청 보내기
+        return RestTemplate().exchange(
+            url,
+            HttpMethod.GET,
+            entity,
+            String::class.java
+        )
+    }
+
     private fun getHeaders(): String? {
         return try {
             val salt = UUID.randomUUID().toString().replace("-", "")
