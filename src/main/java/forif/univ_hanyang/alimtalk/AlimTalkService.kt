@@ -132,7 +132,6 @@ class AlimTalkService(
 
         val url = "https://api.solapi.com/kakao/v2/templates/"
 
-        // APIInit 클래스에서 인증 헤더 가져오기
         val authHeader = getHeaders()
 
         // HTTP 헤더 설정

@@ -1,6 +1,10 @@
-package forif.univ_hanyang.auth;
+package forif.univ_hanyang.auth.service;
 
-import forif.univ_hanyang.auth.dto.*;
+import forif.univ_hanyang.auth.dto.request.SignUpRequest;
+import forif.univ_hanyang.auth.dto.response.AccessTokenResponse;
+import forif.univ_hanyang.auth.dto.response.AuthResponse;
+import forif.univ_hanyang.auth.dto.response.AuthUserResponse;
+import forif.univ_hanyang.auth.dto.response.OAuthResponse;
 import forif.univ_hanyang.jwt.JwtUtils;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.UserRepository;

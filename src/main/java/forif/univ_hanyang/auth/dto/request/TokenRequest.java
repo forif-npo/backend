@@ -1,4 +1,4 @@
-package forif.univ_hanyang.auth.dto;
+package forif.univ_hanyang.auth.dto.request;
 
 import lombok.Data;
 
