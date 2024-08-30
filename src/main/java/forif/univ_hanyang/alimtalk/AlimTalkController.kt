@@ -31,5 +31,15 @@ class AlimTalkController(private val alimTalkService: AlimTalkService,
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자 정보를 찾을 수 없습니다.")
         return alimTalkService.getKakaoTemplates(user)
     }
+
+    @GetMapping("/logs")
+    fun getAlimTalkLogs(
+        @RequestHeader("Authorization") token: String
+    ): ResponseEntity<String> {
+        val user = userService.validateUserExist(token)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자 정보를 찾을 수 없습니다.")
+        return alimTalkService.getAlimTalkLogs(user)
+    }
+
 }
 
