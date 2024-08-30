@@ -1,4 +1,4 @@
-package forif.univ_hanyang.auth.dto;
+package forif.univ_hanyang.auth.dto.response;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
