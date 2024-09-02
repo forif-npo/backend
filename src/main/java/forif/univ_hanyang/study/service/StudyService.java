@@ -1,6 +1,5 @@
 package forif.univ_hanyang.study.service;
 
-import forif.univ_hanyang.util.CustomBeanUtils;
 import forif.univ_hanyang.study.dto.request.StudyPatchRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.MyCreatedStudiesResponse;
@@ -17,8 +16,11 @@ import forif.univ_hanyang.user.entity.StudyUser;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
+import forif.univ_hanyang.util.CustomBeanUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,14 +41,14 @@ public class StudyService {
     private final StudyPlanRepository studyPlanRepository;
     private final MentorStudyRepository mentorStudyRepository;
 
-    @Transactional(readOnly = true)
-    public List<Study> getAllStudiesInfo(Integer year, Integer semester) {
+    @Cacheable(value = "studies", key = "#year + '-' + #semester")
+    public List<Study> getStudiesInfo(Integer year, Integer semester) {
         return studyRepository.findAllByActYearAndActSemester(year, semester)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디가 없습니다."));
     }
 
 
-    @Transactional(readOnly = true)
+    @Cacheable(value = "study", key = "#studyId")
     public StudyInfoResponse getStudyInfo(Integer studyId) {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
@@ -99,11 +101,12 @@ public class StudyService {
 
 
     @Transactional
+    @CacheEvict(value = "study", key = "#studyId")
     public void updateStudy(User user, Integer studyId, StudyPatchRequest request) {
         if (user.getAuthLv() == 1)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
-        // 기존 스터디를 찾아옴
+        // 기존 스터디를 찾아옴ㄷ
         Study study = studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
 
         studyRepository.save(setStudy(study, request));

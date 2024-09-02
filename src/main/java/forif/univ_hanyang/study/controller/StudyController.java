@@ -48,7 +48,7 @@ public class StudyController {
             @RequestParam(value = "year") Integer year,
             @RequestParam(value = "semester") Integer semester
     ) {
-        List<Study> studies = studyService.getAllStudiesInfo(year, semester);
+        List<Study> studies = studyService.getStudiesInfo(year, semester);
         return new ResponseEntity<>(studyService.convertToStudyInfoResponse(studies, year, semester), HttpStatus.OK);
     }
 
