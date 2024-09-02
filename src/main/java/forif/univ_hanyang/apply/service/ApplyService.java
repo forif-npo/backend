@@ -40,7 +40,7 @@ public class ApplyService {
 
 
     public List<ApplyInfoResponse> getAllApplications(User user) {
-        if(user.getAuthLv() < 3) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        if (user.getAuthLv() < 3) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
         List<Apply> applies = applyRepository.findAll();
 
@@ -118,7 +118,6 @@ public class ApplyService {
     /**
      * 있는지 여부를 판단하기 때문에, 없을 시 예외 처리하지 않고 null 값으로 대체
      */
-    @Transactional(readOnly = true)
     public MyApplicationResponse getUserApplication(User user) {
         Apply apply = applyRepository.findByApplierId(user.getId()).orElse(null);
         if (apply == null) {
@@ -159,6 +158,10 @@ public class ApplyService {
         Apply apply = applyRepository.findByApplierId(user.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다."));
         // request 객체에서 apply 객체로 null이 아닌 필드만 복사
         BeanUtils.copyProperties(apply, request);
+        if (request.getSecondaryStudy() == null)
+            apply.setSecondaryStatus(null);
+        else
+            apply.setSecondaryStatus(ApplyStatus.대기);
         apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
 
         applyRepository.save(apply);
@@ -323,7 +326,7 @@ public class ApplyService {
 
     private void validateNoPrimaryStudySelected(Integer id) {
         // 자율 스터디일 경우 확인 하지 않음.
-        if(id == 0)
+        if (id == 0)
             return;
         // 1순위 스터디를 선택하지 않은 경우에 대한 처리
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "1순위 스터디를 무조건 선택해야 합니다.");
@@ -447,7 +450,7 @@ public class ApplyService {
 
 
     private String getStudyName(Integer studyId) {
-        if(studyId == null) return null;
+        if (studyId == null) return null;
         return studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다.")).getName();
     }
 
