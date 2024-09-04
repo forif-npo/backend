@@ -20,7 +20,7 @@ public class Study {
     @Column(name = "study_id")
     private Integer id;
     @Column(name = "study_name")
-    private String name;
+    public String name;
     private String primaryMentorName;
     private String secondaryMentorName;
     private String oneLiner;
