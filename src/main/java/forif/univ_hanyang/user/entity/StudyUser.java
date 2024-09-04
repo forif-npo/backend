@@ -31,10 +31,10 @@ public class StudyUser {
     @ManyToOne
     @MapsId("studyId")
     @JoinColumn(name = "study_id", referencedColumnName = "study_id", insertable = false, updatable = false)
-    private Study study;
+    public Study study;
 
     @ManyToOne
     @MapsId("userId")
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
-    private User user;
+    public User user;
 }
