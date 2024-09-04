@@ -3,11 +3,17 @@ package forif.univ_hanyang.attendance.model
 import forif.univ_hanyang.study.entity.Study
 import forif.univ_hanyang.user.entity.User
 import jakarta.persistence.*
+import java.sql.Date
+import java.time.LocalDate
+import java.time.MonthDay
 
 @Entity
+@Table(name = "tb_study_attendance")
 data class StudyAttendance(
     @EmbeddedId
     val id: StudyAttendanceId,
+
+    val studyDate: String? = null,
 
     @ManyToOne
     @MapsId("studyId")
@@ -24,12 +30,10 @@ data class StudyAttendance(
 ){
     constructor() : this(
         id =StudyAttendanceId(),
+        studyDate = null,
         study = Study(),
         user = User(),
         attendanceStatus = AttendanceStatus.결석)
-
-    val weekNum: Int
-        get() = id.weekNum
 }
 
 

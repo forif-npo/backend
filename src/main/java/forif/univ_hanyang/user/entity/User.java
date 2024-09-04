@@ -20,15 +20,12 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
-
     @Column(name = "user_name")
     public String name;
-
-    private String department;
-
+    public String department;
     @Column(name = "phone_num")
-    private String phoneNumber;
-
+    public String phoneNumber;
     public Integer authLv;
     private String imgUrl;
+
 }
