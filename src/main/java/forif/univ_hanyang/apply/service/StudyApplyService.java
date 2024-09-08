@@ -136,7 +136,7 @@ public class StudyApplyService {
     }
 
     @Transactional
-    public void setMentor(Study study, Integer mentorId, Integer mentorNum) {
+    public void setMentor(Study study, Long mentorId, Integer mentorNum) {
         MentorStudy mentorStudy = new MentorStudy();
         User mentor = userRepository.findById(mentorId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
         MentorStudy.MentorStudyId mentorStudyId = new MentorStudy.MentorStudyId();

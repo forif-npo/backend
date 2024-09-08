@@ -130,7 +130,7 @@ public class StudyService {
     }
 
     @Transactional
-    public void deleteUserFromStudy(Integer studyId, Integer userId) {
+    public void deleteUserFromStudy(Integer studyId, Long userId) {
         // studyId로 스터디가 존재하는지 검증
         studyRepository.findById(studyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));

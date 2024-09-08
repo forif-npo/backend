@@ -6,6 +6,6 @@ import java.io.Serializable
 @Embeddable
 data class StudyAttendanceId(
     val studyId: Int = 0,
-    val userId: Int = 0,
+    val userId: Long = 0,
     val weekNum: Int = 0
 ) : Serializable

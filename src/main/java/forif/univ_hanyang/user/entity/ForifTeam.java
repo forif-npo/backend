@@ -21,7 +21,7 @@ public class ForifTeam {
     public static class ForifTeamId implements Serializable {
         private Integer actYear;
         private Integer actSemester;
-        private Integer userId;
+        private Long userId;
     }
 
     @EmbeddedId

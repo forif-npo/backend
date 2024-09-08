@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApplyInfoResponse {
-    private Integer userId;
+    private Long userId;
     private String name;
     private String department;
     private String primaryStudyName;
@@ -22,7 +22,7 @@ public class ApplyInfoResponse {
     private String secondaryStatus;
     private String applyDate;
 
-    public ApplyInfoResponse(Integer applierId, String name,
+    public ApplyInfoResponse(Long applierId, String name,
                              String primaryStudyName, String secondaryStudyName,
                              String phoneNumber, String department,
                              String applyPath, String applyDate,

@@ -27,7 +27,7 @@ public class ForifTeamController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ForifTeamResponse> getForifTeamById(
-            @PathVariable Integer id
+            @PathVariable Long id
     ){
         return new ResponseEntity<>(forifTeamService.getForifTeamById(id), HttpStatus.OK);
     }

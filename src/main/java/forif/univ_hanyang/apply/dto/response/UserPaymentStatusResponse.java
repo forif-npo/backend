@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class UserPaymentStatusResponse {
-    private Integer userId;
+    private Long userId;
     private String name;
     private Integer studyId;
     private String studyType;

@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface ApplyRepository extends JpaRepository<Apply, Integer> {
-    Optional<Apply> findByApplierId(Integer applierId);
+public interface ApplyRepository extends JpaRepository<Apply, Long> {
+    Optional<Apply> findByApplierId(Long applierId);
     List<Apply> findAllByPayYn(String payYn);
-    void deleteByApplierId(Integer applierId);
+    void deleteByApplierId(Long applierId);
     void deleteAll();
 
 }

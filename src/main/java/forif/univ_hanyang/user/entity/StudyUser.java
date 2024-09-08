@@ -22,7 +22,7 @@ public class StudyUser {
         private Integer studyId;
 
         @Column(name = "user_id")
-        private Integer userId;
+        private Long userId;
     }
 
     @EmbeddedId

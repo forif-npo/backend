@@ -18,7 +18,7 @@ public class MentorStudy {
     @Setter
     @EqualsAndHashCode
     public static class MentorStudyId implements Serializable {
-        private Integer mentorId;
+        private Long mentorId;
         private Integer studyId;
     }
 

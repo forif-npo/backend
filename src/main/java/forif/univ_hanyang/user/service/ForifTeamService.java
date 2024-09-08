@@ -33,7 +33,7 @@ public class ForifTeamService {
                 .toList();
     }
 
-    public ForifTeamResponse getForifTeamById(Integer id) {
+    public ForifTeamResponse getForifTeamById(Long id) {
         ForifTeam forifTeam = forifTeamRepository.findById_UserId(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 학번에 해당하는 운영진이 없습니다."));
 
