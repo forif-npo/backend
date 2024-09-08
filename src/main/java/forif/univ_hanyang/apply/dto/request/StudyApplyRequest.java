@@ -9,9 +9,9 @@ import java.util.List;
 @Setter
 public class StudyApplyRequest {
     private String name;
-    private Integer primaryMentorId;
+    private Long primaryMentorId;
     private String primaryMentorName;
-    private Integer secondaryMentorId;
+    private Long secondaryMentorId;
     private String secondaryMentorName;
     private String oneLiner;
     private String explanation;

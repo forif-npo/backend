@@ -99,7 +99,7 @@ public class UserService {
 
     @Transactional
     public void deleteUser(User user) {
-        Integer id = user.getId();
+        Long id = user.getId();
         // 연관된 스터디까지 제거 (수강한 스터디)
         studyUserRepository.deleteAllById_UserId(id);
 
@@ -122,7 +122,7 @@ public class UserService {
 
         // JWT 토큰을 통해 사용자 ID 획득
         String stringId = jwtValidator.getUserIdFromToken(token);
-        Integer userId = Integer.valueOf(stringId);
+        Long userId = Long.valueOf(stringId);
 
         // 사용자 존재 여부 검증
         return userRepository.findById(userId)

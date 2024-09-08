@@ -45,7 +45,7 @@ public class ApplyService {
         List<Apply> applies = applyRepository.findAll();
 
         // 모든 applier ID와 study ID를 한 번에 수집
-        Set<Integer> applierIds = applies.stream()
+        Set<Long> applierIds = applies.stream()
                 .map(Apply::getApplierId)
                 .collect(Collectors.toSet());
 
@@ -55,7 +55,7 @@ public class ApplyService {
                 .collect(Collectors.toSet());
 
         // 한 번의 쿼리로 모든 사용자 정보를 가져옴
-        Map<Integer, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
+        Map<Long, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
 
         // 한 번의 쿼리로 모든 스터디 정보를 가져옴
         Map<Integer, String> studyNameMap = getStudyNameBulk(studyIds);
@@ -80,7 +80,7 @@ public class ApplyService {
                 .collect(Collectors.toList());
     }
 
-    private Map<Integer, UserInfoDTO> getUserInfoBulk(Set<Integer> userIds) {
+    private Map<Long, UserInfoDTO> getUserInfoBulk(Set<Long> userIds) {
         return userRepository.findAllById(userIds).stream()
                 .collect(Collectors.toMap(
                         User::getId,
@@ -179,8 +179,8 @@ public class ApplyService {
     public void acceptApplications(User mentor, AcceptRequest request) {
         Study study = validateMentorAndStudy(mentor, request);
 
-        Set<Integer> applierIds = request.getApplierIds();
-        for (Integer applierId : applierIds) {
+        Set<Long> applierIds = request.getApplierIds();
+        for (Long applierId : applierIds) {
             processApplier(applierId, study);
         }
     }
@@ -190,12 +190,12 @@ public class ApplyService {
         List<Apply> applies = applyRepository.findAll();
 
         // 모든 applier ID를 한 번에 수집
-        Set<Integer> applierIds = applies.stream()
+        Set<Long> applierIds = applies.stream()
                 .map(Apply::getApplierId)
                 .collect(Collectors.toSet());
 
         // 한 번의 쿼리로 모든 사용자 정보를 가져옴
-        Map<Integer, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
+        Map<Long, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
 
         return applies.stream()
                 .filter(apply -> "N".equals(apply.getPayYn()))
@@ -217,12 +217,12 @@ public class ApplyService {
         List<Apply> applies = applyRepository.findAll();
 
         // 모든 applier ID를 한 번에 수집
-        Set<Integer> applierIds = applies.stream()
+        Set<Long> applierIds = applies.stream()
                 .map(Apply::getApplierId)
                 .collect(Collectors.toSet());
 
         // 한 번의 쿼리로 모든 사용자 정보를 가져옴
-        Map<Integer, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
+        Map<Long, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
 
         return applies.stream()
                 .filter(apply -> "Y".equals(apply.getPayYn()))
@@ -310,8 +310,8 @@ public class ApplyService {
     public void patchIsPaid(User user, IsPaidRequest request) {
         if (user.getAuthLv() < 3) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
-        Set<Integer> applierIds = request.getApplierIds();
-        for (Integer applierId : applierIds) {
+        Set<Long> applierIds = request.getApplierIds();
+        for (Long applierId : applierIds) {
             Apply apply = applyRepository.findByApplierId(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다. ID: " + applierId));
             apply.setPayYn(request.getPayYn());
         }
@@ -384,7 +384,7 @@ public class ApplyService {
         return study;
     }
 
-    private void processApplier(Integer applierId, Study study) {
+    private void processApplier(Long applierId, Study study) {
         Apply apply = applyRepository.findByApplierId(applierId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서를 찾을 수 없습니다. ID: " + applierId));
 
@@ -408,7 +408,7 @@ public class ApplyService {
         }
     }
 
-    private void handleSecondaryStudy(Apply apply, Study study, Integer applierId) {
+    private void handleSecondaryStudy(Apply apply, Study study, Long applierId) {
         if (apply.getSecondaryStudy() != null &&
                 apply.getSecondaryStatus() == ApplyStatus.승낙 &&
                 Objects.equals(apply.getPrimaryStudy(), study.getId())) {
@@ -438,7 +438,7 @@ public class ApplyService {
     }
 
 
-    private UserInfoDTO getUserInfo(Integer userId) {
+    private UserInfoDTO getUserInfo(Long userId) {
         return userRepository.findById(userId)
                 .map(user -> new UserInfoDTO(
                         user.getName(),

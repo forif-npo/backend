@@ -15,7 +15,7 @@ import lombok.Setter;
 public class Apply {
     @Id
     @Column(name = "applier_id", unique = true)
-    private Integer applierId;
+    private Long applierId;
     private Integer primaryStudy;
     private Integer secondaryStudy;
     private String primaryIntro;

@@ -23,9 +23,9 @@ public class StudyApply {
     private Integer id;
     @Column(name = "study_name")
     private String name;
-    private Integer primaryMentorId;
+    private Long primaryMentorId;
     private String primaryMentorName;
-    private Integer secondaryMentorId;
+    private Long secondaryMentorId;
     private String secondaryMentorName;
     private String oneLiner;
     private String explanation;

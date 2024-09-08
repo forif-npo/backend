@@ -13,9 +13,9 @@ import java.util.List;
 public class StudyApplyResponse {
     private Integer id;
     private String name;
-    private Integer primaryMentorId;
+    private Long primaryMentorId;
     private String primaryMentorName;
-    private Integer secondaryMentorId;
+    private Long secondaryMentorId;
     private String secondaryMentorName;
     private String primaryMentorEmail;
     private String secondaryMentorEmail;

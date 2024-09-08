@@ -17,7 +17,7 @@ class AttendanceService(
     private val studyAttendanceRepository: StudyAttendanceRepository,
     private val studyUserRepository: StudyUserRepository
 ) {
-    fun recordAttendance(studyId: Int, userId: Int, weekNum: Int, status: AttendanceStatus) {
+    fun recordAttendance(studyId: Int, userId: Long, weekNum: Int, status: AttendanceStatus) {
         val studyUser: StudyUser = studyUserRepository.findById_StudyIdAndId_UserId(studyId, userId)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 사용자가 스터디에 가입되어 있지 않습니다.")
 
@@ -47,7 +47,7 @@ class AttendanceService(
             }
     }
 
-    fun getAttendanceForUser(userId: Int): List<UserAttendanceResponse> {
+    fun getAttendanceForUser(userId: Long): List<UserAttendanceResponse> {
         return studyAttendanceRepository.findByIdUserId(userId)
             .map { attendance ->
                 UserAttendanceResponse(
