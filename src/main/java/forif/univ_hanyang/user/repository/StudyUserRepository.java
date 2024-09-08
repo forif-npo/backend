@@ -6,19 +6,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface StudyUserRepository extends JpaRepository<StudyUser, Integer> {
+public interface StudyUserRepository extends JpaRepository<StudyUser, Long> {
     List<StudyUser> findAllById_StudyId(Integer studyId);
     void deleteAllById_StudyId(Integer studyId);
 
-    void deleteById_StudyIdAndId_UserId(Integer studyId, Integer userId);
+    void deleteById_StudyIdAndId_UserId(Integer studyId, Long userId);
 
-    void deleteAllById_UserId(Integer userId);
+    void deleteAllById_UserId(Long userId);
 
-    List<StudyUser> findAllById_UserId(Integer userId);
+    List<StudyUser> findAllById_UserId(Long userId);
 
-    StudyUser findById_StudyIdAndId_UserId(Integer studyId, Integer userId);
-
-    Optional<StudyUser> findTopById_UserIdOrderByStudyIdDesc(Integer userId);
-
-
+    StudyUser findById_StudyIdAndId_UserId(Integer studyId, Long userId);
 }

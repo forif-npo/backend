@@ -191,7 +191,7 @@ public class StudyController {
     @DeleteMapping("/{studyId}/users/{userId}")
     public ResponseEntity<Void> deleteUserFromStudy(
             @PathVariable Integer studyId,
-            @PathVariable Integer userId) {
+            @PathVariable Long userId) {
         studyService.deleteUserFromStudy(studyId, userId);
 
         return new ResponseEntity<>(HttpStatus.OK);

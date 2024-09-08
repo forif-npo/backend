@@ -101,7 +101,7 @@ public class AuthService {
         if(userRepository.findByEmail(email).isPresent())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 사용자입니다.");
 
-        Integer id = request.getId();
+        Long id = request.getId();
         String name = request.getName();
         String department = request.getDepartment();
 
@@ -127,7 +127,7 @@ public class AuthService {
         }
 
         String userId = jwtUtils.getUserIdFromToken(refresh_token);
-        Optional<User> user = userRepository.findById(Integer.parseInt(userId));
+        Optional<User> user = userRepository.findById(Long.parseLong(userId));
 
         if (user.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다.");

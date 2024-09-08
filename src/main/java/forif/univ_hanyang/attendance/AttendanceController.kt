@@ -4,6 +4,7 @@ import forif.univ_hanyang.attendance.dto.UserAttendanceResponse
 import forif.univ_hanyang.attendance.dto.AttendanceRequest
 import forif.univ_hanyang.attendance.dto.StudyAttendanceResponse
 import forif.univ_hanyang.attendance.model.AttendanceStatus
+import forif.univ_hanyang.jwt.RequireJWT
 import forif.univ_hanyang.user.entity.User
 import forif.univ_hanyang.user.service.UserService
 import org.springframework.http.HttpStatus
@@ -35,13 +36,15 @@ class AttendanceController(
         )
     }
 
+    @RequireJWT
     @GetMapping("/studies/{studyId}")
     fun getAttendanceForStudy(@PathVariable studyId: Int): List<StudyAttendanceResponse> {
         return attendanceService.getAttendanceForStudy(studyId)
     }
 
+    @RequireJWT
     @GetMapping("/users/{userId}")
-    fun getAttendanceForUser(@PathVariable userId: Int): List<UserAttendanceResponse> {
+    fun getAttendanceForUser(@PathVariable userId: Long): List<UserAttendanceResponse> {
         return attendanceService.getAttendanceForUser(userId)
     }
 }

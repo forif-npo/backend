@@ -16,7 +16,7 @@ import lombok.Setter;
 public class User {
     @Id
     @Column(name = "user_id")
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String email;

@@ -13,7 +13,7 @@ public class UserInfoResponse {
     private String email;
     private String name;
     private String department;
-    private Integer id;
+    private Long id;
     private String phoneNumber;
     private String imgUrl;
     private Integer currentStudyId;
