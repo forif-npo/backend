@@ -142,9 +142,6 @@ public class UserService {
             allUserInfoResponse.setEmail(user.getEmail());
             allUserInfoResponse.setDepartment(user.getDepartment());
             allUserInfoResponse.setPhoneNumber(user.getPhoneNumber());
-
-            List<StudyUser> userStudies = studyUserRepository.findAllById_UserId(user.getId());
-            allUserInfoResponse.setPayment(!userStudies.isEmpty());
             allUserInfoResponses.add(allUserInfoResponse);
         }
         return allUserInfoResponses;
