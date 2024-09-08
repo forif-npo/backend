@@ -124,14 +124,14 @@ public class StudyController {
                     )
             }
     )
-    @PatchMapping("/{id}")
+    @PatchMapping("/{studyId}")
     public ResponseEntity<Void> patchStudy(
             @RequestHeader("Authorization") String token,
-            @PathVariable Integer id,
+            @PathVariable Integer studyId,
             @RequestBody StudyPatchRequest request) {
         User user = userService.validateUserExist(token);
 
-        studyService.updateStudy(user, id, request);
+        studyService.updateStudy(user, studyId, request);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -158,13 +158,13 @@ public class StudyController {
                     )
             }
     )
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{studyId}")
     public ResponseEntity<Void> deleteStudy(
             @RequestHeader("Authorization") String token,
-            @PathVariable Integer id) {
+            @PathVariable Integer studyId) {
         User user = userService.validateUserExist(token);
 
-        studyService.deleteStudy(user, id);
+        studyService.deleteStudy(user, studyId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
