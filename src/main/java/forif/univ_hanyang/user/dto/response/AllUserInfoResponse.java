@@ -9,5 +9,4 @@ public class AllUserInfoResponse {
     private String email;
     private String phoneNumber;
     private String department;
-    private Boolean payment;
 }
