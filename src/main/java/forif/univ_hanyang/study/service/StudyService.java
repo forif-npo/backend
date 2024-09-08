@@ -106,7 +106,7 @@ public class StudyService {
         if (user.getAuthLv() == 1)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
-        // 기존 스터디를 찾아옴ㄷ
+        // 기존 스터디를 찾아옴
         Study study = studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
 
         studyRepository.save(setStudy(study, request));
