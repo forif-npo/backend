@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface StudyUserRepository extends JpaRepository<StudyUser, Long> {
     List<StudyUser> findAllById_StudyId(Integer studyId);
     void deleteAllById_StudyId(Integer studyId);
-
+    Optional<StudyUser> findById_StudyId(Integer studyId);
     void deleteById_StudyIdAndId_UserId(Integer studyId, Long userId);
 
     void deleteAllById_UserId(Long userId);

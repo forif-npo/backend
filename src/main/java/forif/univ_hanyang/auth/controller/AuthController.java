@@ -24,14 +24,8 @@ public class AuthController {
             summary = "로그인",
             description = "사용자가 구글 토큰을 이용해서 로그인 함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
     @GetMapping("/auth/sign-in")
@@ -47,18 +41,9 @@ public class AuthController {
             summary = "회원가입",
             description = "사용자가 구글 토큰을 이용해서 회원가입 함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "CONFLICT"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "409", description = "CONFLICT")
             }
     )
     @PostMapping("/auth/sign-up")
@@ -75,18 +60,9 @@ public class AuthController {
             summary = "토큰 발급",
             description = "리프레시 토큰을 이용해서 액세스 토큰을 발급함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
     @PostMapping("/auth/token")

@@ -81,7 +81,7 @@ class AlimTalkService(
                 sendMessage(receiver, request.templateCode, variables)
             }
             .orElseThrow {
-                ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: $receiver")
+                ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자 정보를 찾을 수 없습니다: $receiver")
             }
     }
 
@@ -113,6 +113,7 @@ class AlimTalkService(
 
     private fun createVariables(user: User, request: AlimTalkRequest): HashMap<String, String> {
         val variables = HashMap<String, String>()
+
 
         variables["#{이름}"] = user.name
 

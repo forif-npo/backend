@@ -30,14 +30,8 @@ public class StudyApplyController {
             summary = "스터디 개설 신청",
             description = "스터디 개설을 위한 신청을 합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "CREATED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    )
+                    @ApiResponse(responseCode = "201", description = "CREATED"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
             }
     )
     @RequireJWT
@@ -53,18 +47,9 @@ public class StudyApplyController {
             summary = "신청된 스터디 조회",
             description = "개설 신청된 스터디들을 모두 조회합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
             }
     )
     @GetMapping
@@ -79,14 +64,8 @@ public class StudyApplyController {
             summary = "신청한 스터디 수정",
             description = "신청된 스터디의 정보를 수정합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "CREATED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    )
+                    @ApiResponse(responseCode = "201", description = "CREATED"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
             }
     )
     @PatchMapping("/{applyId}")
@@ -106,22 +85,10 @@ public class StudyApplyController {
             summary = "정규 스터디로 이동",
             description = "신청된 스터디를 정규 스터디로 이동합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT_FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+                    @ApiResponse(responseCode = "404", description = "NOT_FOUND")
             }
     )
     @PostMapping("/move")

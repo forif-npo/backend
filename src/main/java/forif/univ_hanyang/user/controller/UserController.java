@@ -25,18 +25,9 @@ public class UserController {
             summary = "프로필 조회",
             description = "해당 토큰의 유저 정보를 조회함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Unauthorized"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
     @GetMapping("/auth/profile")
