@@ -34,12 +34,12 @@ public class StudyUser {
     @EmbeddedId
     private StudyUserId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @MapsId("studyId")
     @JoinColumn(name = "study_id", referencedColumnName = "study_id", insertable = false, updatable = false)
     public Study study;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @MapsId("userId")
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     public User user;
