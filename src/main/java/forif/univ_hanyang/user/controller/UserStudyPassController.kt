@@ -1,5 +1,6 @@
 package forif.univ_hanyang.user.controller
 
+import forif.univ_hanyang.jwt.RequireJWT
 import forif.univ_hanyang.user.dto.request.UserStudyPassDTO
 import forif.univ_hanyang.user.entity.UserStudyPass
 import forif.univ_hanyang.user.service.UserService
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @Tag(name = "스터디 수료", description = "유저의 스터디 수료를 관리하는 API")
 @RestController
@@ -38,20 +40,47 @@ class UserStudyPassController(
         return ResponseEntity("Creation Success", HttpStatus.CREATED)
     }
 
+    @Operation(summary = "유저의 스터디 수료 조회", description = "유저의 스터디 수료를 조회합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "스터디 수료 조회 성공"),
+            ApiResponse(responseCode = "400", description = "스터디 수료 조회 실패"),
+            ApiResponse(responseCode = "403", description = "권한이 없습니다.")
+        ]
+    )
+    @RequireJWT
     @GetMapping("/users/{userId}")
     fun getUserStudyPassesByUserId(@PathVariable userId: Long): ResponseEntity<List<UserStudyPass>> {
         val userStudyPasses = userStudyPassService.getUserStudyPassesByUserId(userId)
         return ResponseEntity(userStudyPasses, HttpStatus.OK)
     }
 
+    @Operation(summary = "스터디의 유저 수료 조회", description = "스터디의 유저 수료를 조회합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "유저 수료 조회 성공"),
+            ApiResponse(responseCode = "400", description = "유저 수료 조회 실패"),
+            ApiResponse(responseCode = "403", description = "권한이 없습니다.")
+        ]
+    )
     @GetMapping("/studies/{studyId}")
-    fun getUserStudyPassesByStudyId(@PathVariable studyId: Int): ResponseEntity<List<UserStudyPass>> {
-        val userStudyPasses = userStudyPassService.getUserStudyPassesByStudyId(studyId)
+    fun getUserStudyPassesByStudyId(
+        @PathVariable studyId: Int,
+        @RequestHeader("Authorization") token: String
+    ): ResponseEntity<List<UserStudyPass>> {
+        val admin = userService.validateUserExist(token)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "해당하는 유저가 없습니다.")
+        val userStudyPasses = userStudyPassService.getUserStudyPassesByStudyId(admin, studyId)
         return ResponseEntity(userStudyPasses, HttpStatus.OK)
     }
 
+
     @DeleteMapping("/users/{userId}/studies/{studyId}")
-    fun deleteUserStudyPass(@PathVariable userId: Long, @PathVariable studyId: Int): ResponseEntity<Unit> {
+    fun deleteUserStudyPass(
+        @PathVariable userId: Long,
+        @PathVariable studyId: Int,
+        @RequestHeader("Authorization") token: String
+    ): ResponseEntity<Unit> {
         userStudyPassService.deleteUserStudyPass(userId, studyId)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }

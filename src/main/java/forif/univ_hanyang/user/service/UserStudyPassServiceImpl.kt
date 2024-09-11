@@ -80,7 +80,10 @@ open class UserStudyPassServiceImpl(
         return userStudyPassRepository.findByIdUserId(userId)
     }
 
-    override fun getUserStudyPassesByStudyId(studyId: Int): List<UserStudyPass> {
+    override fun getUserStudyPassesByStudyId(admin: User, studyId: Int): List<UserStudyPass> {
+        if(admin.authLv == 1){
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.")
+        }
         return userStudyPassRepository.findByIdStudyId(studyId)
     }
 
