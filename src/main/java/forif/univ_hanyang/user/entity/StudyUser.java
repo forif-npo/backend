@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.io.Serializable;
 
-@Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +13,6 @@ import java.io.Serializable;
 @Table(name = "tb_study_user")
 public class StudyUser {
     @Embeddable
-    @Getter
     @Setter
     @EqualsAndHashCode
     public static class StudyUserId implements Serializable {
@@ -23,6 +21,14 @@ public class StudyUser {
 
         @Column(name = "user_id")
         private Long userId;
+
+        public Integer getStudyId() {
+            return studyId;
+        }
+
+        public Long getUserId() {
+            return userId;
+        }
     }
 
     @EmbeddedId
@@ -37,4 +43,16 @@ public class StudyUser {
     @MapsId("userId")
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     public User user;
+
+    public StudyUserId getId() {
+        return id;
+    }
+
+    public Study getStudy() {
+        return study;
+    }
+
+    public User getUser() {
+        return user;
+    }
 }

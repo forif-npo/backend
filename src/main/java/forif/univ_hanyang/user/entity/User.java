@@ -7,25 +7,49 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-@Getter
 @Setter
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "tb_user") // 테이블 이름 지정
 public class User {
     @Id
     @Column(name = "user_id")
     private Long id;
-
     @Column(nullable = false, unique = true)
     private String email;
     @Column(name = "user_name")
-    public String name;
-    public String department;
+    private String name;
+    private String department;
     @Column(name = "phone_num")
-    public String phoneNumber;
-    public Integer authLv;
+    private String phoneNumber;
+    private Integer authLv;
     private String imgUrl;
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public Integer getAuthLv() {
+        return authLv;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
 }

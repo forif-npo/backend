@@ -36,22 +36,10 @@ public class ApplyController {
             summary = "모든 지원서 조회",
             description = "모든 지원서를 조회합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
             }
     )
     @GetMapping
@@ -66,18 +54,9 @@ public class ApplyController {
             summary = "지원서 작성",
             description = "지원서를 작성합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
             }
     )
     @PostMapping
@@ -95,22 +74,10 @@ public class ApplyController {
             summary = "내 지원서 조회",
             description = "내 지원서를 조회합니다., return <?> 형식으로 해서 null일 때와 지원서가 있을 때 다른 객체를 반환하도록 함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
     @GetMapping("/me")
@@ -132,18 +99,9 @@ public class ApplyController {
             summary = "지원서 수정",
             description = "지원서를 수정합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
             }
     )
     @PatchMapping("/me")
@@ -161,18 +119,9 @@ public class ApplyController {
             summary = "지원서 삭제",
             description = "지원서를 삭제합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "204",
-                            description = "NO CONTENT"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    )
+                    @ApiResponse(responseCode = "204", description = "NO CONTENT"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
             }
     )
     @DeleteMapping("/me")
@@ -191,28 +140,16 @@ public class ApplyController {
             summary = "지원서 수락",
             description = "지원서를 수락합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
             }
     )
     @PostMapping("/accept")
     public ResponseEntity<Void> acceptApplications(
             @RequestBody AcceptRequest request,
-            @RequestHeader("Authorization") String token){
+            @RequestHeader("Authorization") String token) {
         User mentor = userService.validateUserExist(token);
         applyService.acceptApplications(mentor, request);
 
@@ -223,22 +160,10 @@ public class ApplyController {
             summary = "회비 미지불 유저 조회",
             description = "회비를 미지불한 유저들을 조회합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
             }
     )
     @GetMapping("/unpaid-users")
@@ -252,6 +177,16 @@ public class ApplyController {
         return new ResponseEntity<>(applyService.getUnpaidUsers(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "회비 지불 유저 조회",
+            description = "회비를 지불한 유저들을 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
+            }
+    )
     @GetMapping("/paid-users")
     public ResponseEntity<List<UserPaymentStatusResponse>> getPaidUsers(
             @RequestHeader("Authorization") String token
@@ -267,26 +202,11 @@ public class ApplyController {
             summary = "특정 스터디의 모든 지원서 조회",
             description = "특정 스터디의 모든 지원서를 조회합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
     @GetMapping("/{studyId}")
@@ -306,22 +226,10 @@ public class ApplyController {
             summary = "유저의 납부 상태 수정",
             description = "납부 상태를 수정합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
             }
     )
     @PatchMapping("/payment-status")
@@ -341,21 +249,10 @@ public class ApplyController {
             summary = "모든 지원서 삭제",
             description = "모든 지원서를 삭제합니다.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "BAD REQUEST"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN"
                     )
             }
     )
