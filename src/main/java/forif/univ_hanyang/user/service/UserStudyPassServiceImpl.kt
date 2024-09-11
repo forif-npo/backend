@@ -1,6 +1,9 @@
 package forif.univ_hanyang.user.service
 
+import forif.univ_hanyang.study.repository.StudyRepository
 import forif.univ_hanyang.user.dto.request.UserStudyPassDTO
+import forif.univ_hanyang.user.entity.StudyUser
+import forif.univ_hanyang.user.entity.User
 import forif.univ_hanyang.user.entity.UserStudyPass
 import forif.univ_hanyang.user.entity.UserStudyPassId
 import forif.univ_hanyang.user.repository.StudyUserRepository
@@ -14,30 +17,63 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 open class UserStudyPassServiceImpl(
     private val userStudyPassRepository: UserStudyPassRepository,
-    private val studyUserRepository: StudyUserRepository
+    private val studyUserRepository: StudyUserRepository,
+    private val studyRepository: StudyRepository
 ) : UserStudyPassService {
 
     @Transactional
-    override fun createUserStudyPass(userStudyPassDTO: UserStudyPassDTO) {
+    override fun createUserStudyPass(mentor: User, userStudyPassDTO: UserStudyPassDTO) {
+        validateMentorAuthorization(mentor, userStudyPassDTO.studyId)
+        validatePassedUserIds(userStudyPassDTO.passedUserIds)
+
         val studyUsers = studyUserRepository.findAllById_StudyId(userStudyPassDTO.studyId)
+        val filteredStudyUsers = filterValidStudyUsers(studyUsers, userStudyPassDTO.passedUserIds)
 
-        val filteredStudyUsers = studyUsers.filter { studyUser ->
-            if (userStudyPassDTO.passedUserIds.isEmpty())
-                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "passedUserIds 가 비어있습니다.")
-            if (studyUser.id.userId !in userStudyPassDTO.passedUserIds)
-                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다. ${studyUser.user.id}는 해당 스터디를 수강하지 않았습니다.")
+        val userStudyPasses = createUserStudyPasses(filteredStudyUsers)
+        userStudyPassRepository.saveAll(userStudyPasses)
+    }
 
-            userStudyPassDTO.passedUserIds.contains(studyUser.id.userId)
+    private fun validateMentorAuthorization(mentor: User, studyId: Int) {
+        if (mentor.authLv == 1) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.")
         }
 
-        val userStudyPasses = filteredStudyUsers.map { studyUser ->
+        val study = studyRepository.findById(studyId).orElseThrow {
+            ResponseStatusException(HttpStatus.NOT_FOUND, "스터디를 찾을 수 없습니다.")
+        }
+
+        if (study.primaryMentorName != mentor.name && study.secondaryMentorName?.let { it != mentor.name } == true) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "해당 스터디의 멘토가 아닙니다.")
+        }
+    }
+
+    private fun validatePassedUserIds(passedUserIds: Set<Long>) {
+        if (passedUserIds.isEmpty()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "요청 값이 비어있습니다.")
+        }
+    }
+
+    private fun filterValidStudyUsers(studyUsers: List<StudyUser>, passedUserIds: Set<Long>): List<StudyUser> {
+        val studyUserMap = studyUsers.associateBy { it.user.id }
+
+        val invalidUserIds = passedUserIds - studyUserMap.keys
+        if (invalidUserIds.isNotEmpty()) {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "잘못된 요청입니다. 다음 유저들은 스터디에 포함되지 않습니다: $invalidUserIds"
+            )
+        }
+        return passedUserIds.mapNotNull { studyUserMap[it] }
+    }
+
+    private fun createUserStudyPasses(studyUsers: List<StudyUser>): List<UserStudyPass> {
+        return studyUsers.map { studyUser ->
             UserStudyPass(
                 id = UserStudyPassId(studyUser.user.id, studyUser.study.id),
                 user = studyUser.user,
                 study = studyUser.study
             )
         }
-        userStudyPassRepository.saveAll(userStudyPasses)
     }
 
     override fun getUserStudyPassesByUserId(userId: Long): List<UserStudyPass> {
