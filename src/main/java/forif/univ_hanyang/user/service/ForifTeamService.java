@@ -17,7 +17,7 @@ public class ForifTeamService {
 
     public List<ForifTeamResponse> getForifTeamByActYearAndActSemester(Integer actYear, Integer actSemester) {
         List<ForifTeam> forifTeams = forifTeamRepository.findAllById_ActYearAndId_ActSemester(actYear, actSemester)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 연도, 학기에 해당하는 운영진이 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 연도, 학기에 해당하는 운영진이 없습니다."));
 
         return forifTeams.stream()
                 .map(forifTeam -> ForifTeamResponse.builder()
@@ -35,7 +35,7 @@ public class ForifTeamService {
 
     public ForifTeamResponse getForifTeamById(Long id) {
         ForifTeam forifTeam = forifTeamRepository.findById_UserId(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 학번에 해당하는 운영진이 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 학번에 해당하는 운영진이 없습니다."));
 
         return ForifTeamResponse.builder()
                 .actYear(forifTeam.getId().getActYear())
