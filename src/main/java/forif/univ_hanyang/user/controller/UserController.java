@@ -42,18 +42,9 @@ public class UserController {
             summary = "프로필 수정",
             description = "프로필의 이름, 학번, 학과, 전화번호, 사진을 수정함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Unauthorized"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
     @PatchMapping("/auth/profile")
@@ -70,18 +61,9 @@ public class UserController {
             summary = "프로필 삭제",
             description = "프로필을 삭제함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Unauthorized"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
     @DeleteMapping("/auth/profile")
@@ -99,22 +81,10 @@ public class UserController {
             summary = "전체 유저 조회",
             description = "전체 유저의 정보를 조회함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Unauthorized"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
     @GetMapping("/users")
