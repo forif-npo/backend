@@ -88,11 +88,14 @@ open class UserStudyPassServiceImpl(
     }
 
     @Transactional
-    override fun deleteUserStudyPass(userId: Long, studyId: Int) {
+    override fun deleteUserStudyPass(admin: User, userId: Long, studyId: Int) {
+        if(admin.authLv<3){
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.")
+        }
         val id = UserStudyPassId(userId, studyId)
 
         if (!userStudyPassRepository.existsById(id)) {
-            throw EntityNotFoundException("UserStudyPass with userId $userId and studyId $studyId not found.")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "UserStudyPass with userId $userId and studyId $studyId not found.")
         }
 
         userStudyPassRepository.deleteById(UserStudyPassId(userId, studyId))

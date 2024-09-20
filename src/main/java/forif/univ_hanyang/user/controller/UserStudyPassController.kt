@@ -74,14 +74,23 @@ class UserStudyPassController(
         return ResponseEntity(userStudyPasses, HttpStatus.OK)
     }
 
-
+    @Operation(summary = "유저의 스터디 수료 삭제", description = "유저의 스터디 수료를 삭제합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "스터디 수료 삭제 성공"),
+            ApiResponse(responseCode = "400", description = "스터디 수료 삭제 실패"),
+            ApiResponse(responseCode = "403", description = "권한이 없습니다.")
+        ]
+    )
     @DeleteMapping("/users/{userId}/studies/{studyId}")
     fun deleteUserStudyPass(
         @PathVariable userId: Long,
         @PathVariable studyId: Int,
         @RequestHeader("Authorization") token: String
     ): ResponseEntity<Unit> {
-        userStudyPassService.deleteUserStudyPass(userId, studyId)
+        val admin = userService.validateUserExist(token)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "해당하는 유저가 없습니다.")
+        userStudyPassService.deleteUserStudyPass(admin, userId, studyId)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }

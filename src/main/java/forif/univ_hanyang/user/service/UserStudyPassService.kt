@@ -9,5 +9,5 @@ interface UserStudyPassService{
     fun createUserStudyPass(mentor: User, userStudyPassDTO: UserStudyPassDTO)
     fun getUserStudyPassesByUserId(userId: Long): List<UserStudyPass>
     fun getUserStudyPassesByStudyId(admin: User, studyId: Int): List<UserStudyPass>
-    fun deleteUserStudyPass(userId: Long, studyId: Int)
+    fun deleteUserStudyPass(admin : User, userId: Long, studyId: Int)
 }

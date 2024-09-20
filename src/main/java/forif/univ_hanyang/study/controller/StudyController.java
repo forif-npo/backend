@@ -33,14 +33,8 @@ public class StudyController {
             summary = "전체 스터디 조회",
             description = "해당 년도와 학기에 해당하는 전체 스터디를 조회함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "요청 데이터에 대한 정보가 없음"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "404", description = "요청 데이터에 대한 정보가 없음")
             }
     )
     @GetMapping
@@ -56,14 +50,8 @@ public class StudyController {
             summary = "스터디 조회",
             description = "해당 스터디의 정보를 조회함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "요청 데이터에 대한 정보가 없음"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "404", description = "요청 데이터에 대한 정보가 없음")
             }
     )
     @GetMapping("/{studyId}")
@@ -77,22 +65,10 @@ public class StudyController {
             summary = "해당 스터디 부원 전체 조회",
             description = "해당 스터디의 부원들을 조회함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "요청 데이터에 대한 정보가 없음"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+                    @ApiResponse(responseCode = "404", description = "요청 데이터에 대한 정보가 없음")
             }
     )
     @GetMapping("/{studyId}/users")
@@ -110,18 +86,9 @@ public class StudyController {
             summary = "스터디 수정",
             description = "해당 스터디의 정보를 수정함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "요청 데이터에 대한 정보가 없음"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "404", description = "요청 데이터에 대한 정보가 없음")
             }
     )
     @PatchMapping("/{studyId}")
@@ -140,22 +107,10 @@ public class StudyController {
             summary = "스터디 삭제",
             description = "해당 스터디를 삭제함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "FORBIDDEN"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
     @DeleteMapping("/{studyId}")
@@ -173,18 +128,9 @@ public class StudyController {
             summary = "스터디의 멘티 삭제",
             description = "해당 스터디의 유저를 삭제함",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "NOT FOUND"
-                    )
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
     @RequireJWT
