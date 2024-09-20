@@ -54,12 +54,34 @@ class AttendanceController(
             HttpStatus.OK)
     }
 
+    @Operation(
+        summary = "스터디의 출석 조회",
+        description = "스터디에 대한 출석을 조회합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "스터디의 출석 조회 성공"),
+            ApiResponse(responseCode = "400", description = "스터디의 출석 조회 실패"),
+            ApiResponse(responseCode = "403", description = "권한이 없습니다.")
+        ]
+    )
     @RequireJWT
     @GetMapping("/studies/{studyId}")
     fun getAttendanceForStudy(@PathVariable studyId: Int): ResponseEntity<List<StudyAttendanceResponse>> {
         return ResponseEntity(attendanceService.getAttendanceForStudy(studyId), HttpStatus.OK)
     }
 
+    @Operation(
+        summary = "사용자의 출석 조회",
+        description = "사용자의 출석을 조회합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "사용자의 출석 조회 성공"),
+            ApiResponse(responseCode = "400", description = "사용자의 출석 조회 실패"),
+            ApiResponse(responseCode = "403", description = "권한이 없습니다.")
+        ]
+    )
     @RequireJWT
     @GetMapping("/users/{userId}")
     fun getAttendanceForUser(@PathVariable userId: Long): ResponseEntity<List<UserAttendanceResponse>> {
