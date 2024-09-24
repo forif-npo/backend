@@ -1,6 +1,7 @@
 package forif.univ_hanyang.alimtalk
 
 import forif.univ_hanyang.user.entity.User
+import forif.univ_hanyang.user.repository.StudyUserRepository
 import forif.univ_hanyang.user.repository.UserRepository
 import net.nurigo.sdk.NurigoApp
 import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException
@@ -33,6 +34,7 @@ import org.springframework.web.client.RestTemplate
 @Service
 class AlimTalkService(
     private val userRepository: UserRepository,
+    private val studyUserRepository: StudyUserRepository
 ) {
     private val logger = LoggerFactory.getLogger(AlimTalkService::class.java)
     private val ssmClient: SsmClient = SsmClient.builder()
@@ -114,10 +116,13 @@ class AlimTalkService(
     private fun createVariables(user: User, request: AlimTalkRequest): HashMap<String, String> {
         val variables = HashMap<String, String>()
 
+        val studyName = studyUserRepository.findByUser(user)
+            .maxByOrNull { it.study.id }
+            ?.study?.name
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 유저는 스터디에 가입되어 있지 않습니다. 학번: ${user.id}")
 
         variables["#{이름}"] = user.name
-
-        request.studyName?.let { variables["#{스터디명}"] = it }
+        variables["#{스터디명}"] = studyName
         request.responseSchedule?.let { variables["#{응답일정}"] = it }
         request.dateTime?.let { variables["#{일시}"] = it }
         request.location?.let { variables["#{장소}"] = it }
