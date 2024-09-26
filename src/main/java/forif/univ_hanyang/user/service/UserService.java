@@ -1,6 +1,5 @@
 package forif.univ_hanyang.user.service;
 
-import forif.univ_hanyang.util.CustomBeanUtils;
 import forif.univ_hanyang.apply.repository.ApplyRepository;
 import forif.univ_hanyang.jwt.JwtUtils;
 import forif.univ_hanyang.study.entity.Study;
@@ -14,6 +13,7 @@ import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.ForifTeamRepository;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
+import forif.univ_hanyang.util.CustomBeanUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,7 +85,7 @@ public class UserService {
     }
 
     @Transactional
-    public User patchUser(UserPatchRequest request, User user){
+    public User patchUser(UserPatchRequest request, User user) {
         // request 객체에서 user 객체로 null이 아닌 필드만 복사
         CustomBeanUtils.copyNonNullProperties(user, request);
 
@@ -146,4 +143,17 @@ public class UserService {
         }
         return allUserInfoResponses;
     }
+
+    public List<AllUserInfoResponse> getTargetTermUsersInfo(User admin, Integer year, Integer semester) {
+        if (admin.getAuthLv() != 4)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+
+        List<AllUserInfoResponse> usersInfo = studyUserRepository.getUserInfoByYearAndSemester(year, semester);
+
+        if (usersInfo.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 학기의 정보가 존재하지 않습니다.");
+
+        return usersInfo;
+    }
+
 }
