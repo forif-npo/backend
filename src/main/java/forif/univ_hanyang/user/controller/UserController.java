@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -93,6 +94,28 @@ public class UserController {
     ) {
         User admin = userService.validateUserExist(token);
         List<AllUserInfoResponse> allUserInfoResponses = userService.getAllUsersInfo(admin);
+
+        return new ResponseEntity<>(allUserInfoResponses, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "특정 학기 모든 유저 조회",
+            description = "특정 학기 모든 유저의 정보들을 조회함",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
+            }
+    )
+    @GetMapping("/users/terms")
+    public ResponseEntity<List<AllUserInfoResponse>> getTargetTermUsers(
+            @RequestHeader("Authorization") String token,
+            @RequestParam Integer year,
+            @RequestParam Integer semester
+    ) {
+        User admin = userService.validateUserExist(token);
+        List<AllUserInfoResponse> allUserInfoResponses = userService.getTargetTermUsersInfo(admin, year, semester);
 
         return new ResponseEntity<>(allUserInfoResponses, HttpStatus.OK);
     }

@@ -1,10 +1,7 @@
 package forif.univ_hanyang.auth.service;
 
 import forif.univ_hanyang.auth.dto.request.SignUpRequest;
-import forif.univ_hanyang.auth.dto.response.AccessTokenResponse;
-import forif.univ_hanyang.auth.dto.response.AuthResponse;
-import forif.univ_hanyang.auth.dto.response.AuthUserResponse;
-import forif.univ_hanyang.auth.dto.response.OAuthResponse;
+import forif.univ_hanyang.auth.dto.response.*;
 import forif.univ_hanyang.jwt.JwtUtils;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.UserRepository;
@@ -25,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -98,7 +96,7 @@ public class AuthService {
     @Transactional
     public User setUser(SignUpRequest request, String access_token) {
         String email = getEmailFromToken(access_token);
-        if(userRepository.findByEmail(email).isPresent())
+        if (userRepository.findByEmail(email).isPresent())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 사용자입니다.");
 
         Long id = request.getId();
@@ -140,5 +138,14 @@ public class AuthService {
         accessTokenResponse.setAccess_token(jwtUtils.generateAccessToken(userId));
 
         return accessTokenResponse;
+    }
+
+    public CurrentTermResponse getCurrentTerm() {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        int semester = month / 8 + 1;
+
+        return new CurrentTermResponse(year, semester);
     }
 }

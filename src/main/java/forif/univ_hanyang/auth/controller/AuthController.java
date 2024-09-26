@@ -1,10 +1,12 @@
 package forif.univ_hanyang.auth.controller;
 
+import forif.univ_hanyang.auth.dto.response.CurrentTermResponse;
 import forif.univ_hanyang.auth.service.AuthService;
 import forif.univ_hanyang.auth.dto.response.AccessTokenResponse;
 import forif.univ_hanyang.auth.dto.response.AuthResponse;
 import forif.univ_hanyang.auth.dto.request.SignUpRequest;
 import forif.univ_hanyang.auth.dto.request.TokenRequest;
+import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "인증", description = "인증 관련 API")
 @RestController
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
@@ -28,7 +31,7 @@ public class AuthController {
                     @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
-    @GetMapping("/auth/sign-in")
+    @GetMapping("/sign-in")
     public ResponseEntity<AuthResponse> signIn(@RequestParam String access_token) {
         AuthResponse authResponse = authService.signIn(access_token);
         if(authResponse == null) {
@@ -46,7 +49,7 @@ public class AuthController {
                     @ApiResponse(responseCode = "409", description = "CONFLICT")
             }
     )
-    @PostMapping("/auth/sign-up")
+    @PostMapping("/sign-up")
     public ResponseEntity<User> signUp(
             @RequestHeader("Authorization") String accessToken,
             @RequestBody SignUpRequest request
@@ -65,11 +68,24 @@ public class AuthController {
                     @ApiResponse(responseCode = "404", description = "NOT FOUND")
             }
     )
-    @PostMapping("/auth/token")
+    @PostMapping("/token")
     public ResponseEntity<AccessTokenResponse> getAccessToken(@RequestBody TokenRequest request) {
         String refreshToken = request.getRefresh_token().trim(); // JSON 객체에서 값 추출 및 공백 제거
         AccessTokenResponse accessTokenResponse = authService.getAccessToken(refreshToken);
         return new ResponseEntity<>(accessTokenResponse, HttpStatus.OK);
+    }
 
+    @Operation(
+            summary = "현재 학기 조회",
+            description = "현재 학기를 조회함",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+            }
+    )
+    @RequireJWT
+    @GetMapping("/current-term")
+    public ResponseEntity<CurrentTermResponse> getCurrentTerm() {
+        return new ResponseEntity<>(authService.getCurrentTerm(), HttpStatus.OK);
     }
 }
