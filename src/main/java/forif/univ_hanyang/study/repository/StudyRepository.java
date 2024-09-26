@@ -1,7 +1,7 @@
 package forif.univ_hanyang.study.repository;
 
-import forif.univ_hanyang.apply.entity.StudyApply;
 import forif.univ_hanyang.study.entity.Study;
+import forif.univ_hanyang.user.dto.response.AllUserInfoResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
