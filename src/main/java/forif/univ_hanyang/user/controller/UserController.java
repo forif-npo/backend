@@ -36,7 +36,7 @@ public class UserController {
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-        return ResponseEntity.ok(userService.getUserInfo(user));
+        return new ResponseEntity<>(userService.getUserInfo(user), HttpStatus.OK);
     }
 
     @Operation(

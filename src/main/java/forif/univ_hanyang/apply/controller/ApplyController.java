@@ -4,7 +4,6 @@ import forif.univ_hanyang.apply.dto.request.AcceptRequest;
 import forif.univ_hanyang.apply.dto.request.ApplyRequest;
 import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
 import forif.univ_hanyang.apply.dto.response.ApplyInfoResponse;
-import forif.univ_hanyang.apply.dto.response.ApplyResponse;
 import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
 import forif.univ_hanyang.apply.dto.response.UserPaymentStatusResponse;
 import forif.univ_hanyang.apply.entity.Apply;
@@ -88,8 +87,7 @@ public class ApplyController {
         MyApplicationResponse application = applyService.getUserApplication(user);
 
         if (application == null) {
-            ApplyResponse responseObj = new ApplyResponse(404, "지원서가 없습니다.");
-            return new ResponseEntity<>(responseObj, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("지원서가 없습니다.", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(application, HttpStatus.OK);
     }
