@@ -16,7 +16,6 @@ public interface StudyUserRepository extends JpaRepository<StudyUser, Long> {
     void deleteById_StudyIdAndId_UserId(Integer studyId, Long userId);
     void deleteAllById_UserId(Long userId);
     List<StudyUser> findAllById_UserId(Long userId);
-    List<StudyUser> findAllById_StudyIdIn(Set<Integer> studyIds);
     StudyUser findById_StudyIdAndId_UserId(Integer studyId, Long userId);
     List<StudyUser> findByUser(User user);
 

@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  S3_BUCKET_NAME: forif-web
+  S3_BUCKET_NAME: forif-backend
   RESOURCE_PATH: ./src/main/resources/application.yaml
   CODE_DEPLOY_APPLICATION_NAME: code-deploy
   CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: forif-server

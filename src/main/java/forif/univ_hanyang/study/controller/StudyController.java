@@ -139,16 +139,24 @@ public class StudyController {
             @PathVariable Integer studyId,
             @PathVariable Long userId) {
         studyService.deleteUserFromStudy(studyId, userId);
-
+    
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
+    
+    @Operation(
+            summary = "내가 생성한 스터디 조회",
+            description = "사용자가 생성한 스터디 목록을 조회함",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+            }
+    )
     @GetMapping("/my-created")
     public ResponseEntity<List<MyCreatedStudiesResponse>> getMyCreatedStudies(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-
+    
         return new ResponseEntity<>(studyService.getMyCreatedStudies(user), HttpStatus.OK);
     }
 
