@@ -5,6 +5,7 @@ echo "> SSM에서 환경변수 로드 중..." >> $DEPLOY_LOG_PATH
 RDS_URL=$(aws ssm get-parameter --name "/config/forif/RDS_URL" --query "Parameter.Value" --output text)
 RDS_USERNAME=$(aws ssm get-parameter --name "/config/forif/RDS_USERNAME" --query "Parameter.Value" --output text)
 RDS_PASSWORD=$(aws ssm get-parameter --name "/config/forif/RDS_PASSWORD" --with-decryption --query "Parameter.Value" --output text)
+JWT_SECRET=$(aws ssm get-parameter --name "/config/forif/JWT_SECRET" --query "Parameter.Value" --output text)
 
 # 환경변수 유효성 검증
 if [ -z "$RDS_URL" ] || [ -z "$RDS_USERNAME" ] || [ -z "$RDS_PASSWORD" ]; then
@@ -15,7 +16,6 @@ fi
 echo "> RDS_URL: $RDS_URL" >> $DEPLOY_LOG_PATH
 echo "> RDS_USERNAME: $RDS_USERNAME" >> $DEPLOY_LOG_PATH
 # RDS_PASSWORD는 보안을 위해 출력하지 않음
-
 
 PROJECT_NAME="github_action"
 JAR_PATH="/home/ubuntu/github_action/build/libs/*.jar"
@@ -51,7 +51,15 @@ fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
 echo "> DEPLOY_JAR 배포" >> $DEPLOY_LOG_PATH
-nohup java -jar -Dspring.profiles.active=local $DEPLOY_JAR --server.port=8080 >> $APPLICATION_LOG_PATH 2>> $DEPLOY_ERR_LOG_PATH &
+
+# 수정된 java -jar 실행 명령
+nohup java -jar \
+  -Dspring.profiles.active=local \
+  -Dspring.datasource.url=$RDS_URL \
+  -Dspring.datasource.username=$RDS_USERNAME \
+  -Dspring.datasource.password=$RDS_PASSWORD \
+  -Dspring.jwt.secret=$JWT_SECRET \
+  $DEPLOY_JAR --server.port=8080 >> $APPLICATION_LOG_PATH 2>> $DEPLOY_ERR_LOG_PATH &
 
 # 백그라운드 실행이 완료될 때까지 잠시 대기
 sleep 3
