@@ -1,4 +1,22 @@
 #!/bin/bash
+# SSM에서 환경변수 가져오기
+echo "> SSM에서 환경변수 로드 중..." >> $DEPLOY_LOG_PATH
+
+RDS_URL=$(aws ssm get-parameter --name "/config/forif/RDS_URL" --query "Parameter.Value" --output text)
+RDS_USERNAME=$(aws ssm get-parameter --name "/config/forif/RDS_USERNAME" --query "Parameter.Value" --output text)
+RDS_PASSWORD=$(aws ssm get-parameter --name "/config/forif/RDS_PASSWORD" --with-decryption --query "Parameter.Value" --output text)
+
+# 환경변수 유효성 검증
+if [ -z "$RDS_URL" ] || [ -z "$RDS_USERNAME" ] || [ -z "$RDS_PASSWORD" ]; then
+  echo "> ERROR: SSM 파라미터를 가져오지 못했습니다." >> $DEPLOY_ERR_LOG_PATH
+  exit 1
+fi
+
+echo "> RDS_URL: $RDS_URL" >> $DEPLOY_LOG_PATH
+echo "> RDS_USERNAME: $RDS_USERNAME" >> $DEPLOY_LOG_PATH
+# RDS_PASSWORD는 보안을 위해 출력하지 않음
+
+
 PROJECT_NAME="github_action"
 JAR_PATH="/home/ubuntu/github_action/build/libs/*.jar"
 DEPLOY_PATH=/home/ubuntu/$PROJECT_NAME/
