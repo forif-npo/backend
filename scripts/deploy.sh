@@ -1,4 +1,15 @@
 #!/bin/bash
+
+PROJECT_NAME="github_action"
+JAR_PATH="/home/ubuntu/github_action/build/libs/*.jar"
+DEPLOY_PATH=/home/ubuntu/$PROJECT_NAME/
+DEPLOY_LOG_PATH="/home/ubuntu/$PROJECT_NAME/deploy.log"
+DEPLOY_ERR_LOG_PATH="/home/ubuntu/$PROJECT_NAME/deploy_err.log"
+APPLICATION_LOG_PATH="/home/ubuntu/$PROJECT_NAME/application.log"
+BUILD_JAR=$(ls $JAR_PATH)
+JAR_NAME=$(basename $BUILD_JAR)
+
+echo "===== 배포 시작 : $(date +%c) =====" >> $DEPLOY_LOG_PATH
 # SSM에서 환경변수 가져오기
 echo "> SSM에서 환경변수 로드 중..." >> $DEPLOY_LOG_PATH
 
@@ -16,17 +27,6 @@ fi
 echo "> RDS_URL: $RDS_URL" >> $DEPLOY_LOG_PATH
 echo "> RDS_USERNAME: $RDS_USERNAME" >> $DEPLOY_LOG_PATH
 # RDS_PASSWORD는 보안을 위해 출력하지 않음
-
-PROJECT_NAME="github_action"
-JAR_PATH="/home/ubuntu/github_action/build/libs/*.jar"
-DEPLOY_PATH=/home/ubuntu/$PROJECT_NAME/
-DEPLOY_LOG_PATH="/home/ubuntu/$PROJECT_NAME/deploy.log"
-DEPLOY_ERR_LOG_PATH="/home/ubuntu/$PROJECT_NAME/deploy_err.log"
-APPLICATION_LOG_PATH="/home/ubuntu/$PROJECT_NAME/application.log"
-BUILD_JAR=$(ls $JAR_PATH)
-JAR_NAME=$(basename $BUILD_JAR)
-
-echo "===== 배포 시작 : $(date +%c) =====" >> $DEPLOY_LOG_PATH
 
 if [ -z "$BUILD_JAR" ]; then
   echo "> ERROR: build 파일을 찾을 수 없습니다." >> $DEPLOY_LOG_PATH
