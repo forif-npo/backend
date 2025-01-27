@@ -11,5 +11,4 @@ public class StudyMemberResponse {
     private String name;
     private String department;
     private String phoneNumber;
-
 }

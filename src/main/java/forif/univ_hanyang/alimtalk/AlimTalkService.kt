@@ -117,7 +117,7 @@ class AlimTalkService(
         val variables = HashMap<String, String>()
 
         val studyName = studyUserRepository.findByUser(user)
-            .maxByOrNull { it.study.id }
+            .maxByOrNull { it.study.id ?: -1}
             ?.study?.name
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 유저는 스터디에 가입되어 있지 않습니다. 학번: ${user.id}")
 

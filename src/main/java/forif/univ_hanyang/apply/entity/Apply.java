@@ -18,14 +18,15 @@ public class Apply {
     private Long applierId;
     private Integer primaryStudy;
     private Integer secondaryStudy;
+    @Column(length = 2000)
     private String primaryIntro;
+    @Column(length = 2000)
     private String secondaryIntro;
+    @Column(length = 100)
     private String applyPath;
-    private String payYn;
+    @Column(length = 50)
     private String applyDate;
-
-    @Enumerated(EnumType.STRING)
-    private ApplyStatus primaryStatus;
-    @Enumerated(EnumType.STRING)
-    private ApplyStatus secondaryStatus;
+    private Integer payStatus;
+    private Integer primaryStatus;
+    private Integer secondaryStatus;
 }

@@ -13,6 +13,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AnnouncementResponse {
     private Integer id;
+    private Long authorId;
     private String type;
     private String createdBy;
     private String createdAt;
@@ -22,8 +23,8 @@ public class AnnouncementResponse {
     public static AnnouncementResponse from(Post post) {
         AnnouncementResponse announcementResponse = new AnnouncementResponse();
         announcementResponse.setId(post.getId());
+        announcementResponse.setAuthorId(post.getUser() != null ? post.getUser().getId() : null);
         announcementResponse.setType(post.getType());
-        announcementResponse.setCreatedBy(post.getCreatedBy());
         announcementResponse.setCreatedAt(post.getCreatedAt());
         announcementResponse.setContent(post.getContent());
         announcementResponse.setTitle(post.getTitle());
@@ -37,8 +38,8 @@ public class AnnouncementResponse {
         for (Post post : postList) {
             AnnouncementResponse announcementResponse = new AnnouncementResponse();
             announcementResponse.setId(post.getId());
+            announcementResponse.setAuthorId(post.getUser() != null ? post.getUser().getId() : null);
             announcementResponse.setType(post.getType());
-            announcementResponse.setCreatedBy(post.getCreatedBy());
             announcementResponse.setCreatedAt(post.getCreatedAt());
             announcementResponse.setTitle(post.getTitle());
 

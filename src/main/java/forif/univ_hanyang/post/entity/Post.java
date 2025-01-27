@@ -1,11 +1,13 @@
 package forif.univ_hanyang.post.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import forif.univ_hanyang.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,20 +17,24 @@ import lombok.Setter;
 @Table(name = "tb_post")
 public class Post {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
     private Integer id;
-    @Column(name = "post_type")
+    @Column(name = "post_type", length = 50)
     private String type;
-    private String createdBy;
+    @Column(length = 100)
     private String createdAt;
+    @Column(length = 100)
     private String title;
+    @Column(length = 5000)
     private String content;
+    @Column(length = 100)
+    private String tag;
 
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private PostFAQ postFAQ;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private PostTech postTech;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true) // 양방향 매핑
+    private List<PostFile> files;
 }

@@ -27,11 +27,16 @@ public class ForifTeam {
     @EmbeddedId
     ForifTeamId id;
 
-    private String userName;
+    private Integer graduateYear;
+    @Column(length = 30)
     private String userTitle;
+    @Column(length = 30)
     private String clubDepartment;
+    @Column(length = 100)
     private String introTag;
+    @Column(length = 100)
     private String selfIntro;
+    @Column(length = 300)
     private String profImgUrl;
 
     @OneToOne

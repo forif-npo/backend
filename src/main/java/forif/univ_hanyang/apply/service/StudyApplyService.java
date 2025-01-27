@@ -81,25 +81,30 @@ public class StudyApplyService {
 
         List<Integer> idList = request.getIdList();
 
-        for (Integer id : idList) {
-            StudyApply studyApply = studyApplyRepository.findById(id)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디 신청을 찾을 수 없습니다."));
+        List<StudyApply> studyApplies = studyApplyRepository.findAllById(idList);
 
-            if (studyApply.getStatus() == 1)
+        for (StudyApply studyApply : studyApplies) {
+            if (studyApply.getAcceptanceStatus() == 1)
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 승인된 스터디입니다.");
             // 승인 상태로 변경
-            studyApply.setStatus(1);
+            studyApply.setAcceptanceStatus(1);
+            User primaryMentor = userRepository.findById(studyApply.getPrimaryMentorId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
 
-            Integer studyId = studyRepository.findMaxStudyId().orElse(0) + 1;
+            User secondaryMentor = studyApply.getSecondaryMentorId() == null ? null : userRepository.findById(studyApply.getSecondaryMentorId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
 
             Study study = new Study();
-            study.setId(studyId);
             study.setExplanation(studyApply.getExplanation());
             study.setDifficulty(studyApply.getDifficulty());
             study.setEndTime(studyApply.getEndTime());
             study.setName(studyApply.getName());
-            study.setPrimaryMentorName(studyApply.getPrimaryMentorName());
-            study.setSecondaryMentorName(studyApply.getSecondaryMentorName());
+            study.setPrimaryMentorName(primaryMentor.getName());
+            if (secondaryMentor != null) {
+                study.setSecondaryMentorName(secondaryMentor.getName());
+            } else {
+                study.setSecondaryMentorName(null);
+            }
             study.setStartTime(studyApply.getStartTime());
             study.setTag(studyApply.getTag());
             study.setWeekDay(studyApply.getWeekDay());
@@ -154,10 +159,8 @@ public class StudyApplyService {
     @Transactional
     public void setStudyApply(StudyApplyRequest request, StudyApply newStudy) {
         newStudy.setName(request.getName());
-        newStudy.setPrimaryMentorName(request.getPrimaryMentorName());
         newStudy.setPrimaryMentorId(request.getPrimaryMentorId());
         newStudy.setSecondaryMentorId(request.getSecondaryMentorId());
-        newStudy.setSecondaryMentorName(request.getSecondaryMentorName());
         newStudy.setOneLiner(request.getOneLiner());
         newStudy.setExplanation(request.getExplanation());
         newStudy.setWeekDay(request.getWeekDay());

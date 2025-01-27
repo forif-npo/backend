@@ -7,5 +7,5 @@ import java.util.Set;
 @Data
 public class IsPaidRequest {
     private Set<Long> applierIds;
-    private String payYn;
+    private Integer payStatus;
 }

@@ -17,20 +17,29 @@ import java.util.List;
 public class Study {
     @Id
     @Column(name = "study_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "study_name")
+    @Column(name = "study_name", length = 50)
     public String name;
+    @Column(length = 50)
     private String primaryMentorName;
+    @Column(length = 50)
     private String secondaryMentorName;
+    @Column(length = 300)
     private String oneLiner;
+    @Column(length = 5000)
     private String explanation;
     private Integer weekDay;
+    @Column(length = 50)
     private String startTime;
+    @Column(length = 50)
     private String endTime;
     private Integer difficulty;
-    @Column(name = "img_url")
+    @Column(name = "img_url", length = 300)
     private String image;
+    @Column(length = 50)
     private String location;
+    @Column(length = 100)
     private String tag;
     private Integer actYear;
     private Integer actSemester;

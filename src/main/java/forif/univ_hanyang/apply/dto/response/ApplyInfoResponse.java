@@ -17,16 +17,16 @@ public class ApplyInfoResponse {
     private String phoneNumber;
     private String intro;
     private String applyPath;
-    private String payYn;
-    private String primaryStatus;
-    private String secondaryStatus;
+    private Integer payStatus;
+    private Integer primaryStatus;
+    private Integer secondaryStatus;
     private String applyDate;
 
     public ApplyInfoResponse(Long applierId, String name,
                              String primaryStudyName, String secondaryStudyName,
                              String phoneNumber, String department,
                              String applyPath, String applyDate,
-                             String primaryStatus, String secondaryStatus, String payYn) {
+                             Integer primaryStatus, Integer secondaryStatus, Integer payStatus) {
         this.userId = applierId;
         this.name = name;
         this.department = department;
@@ -37,6 +37,6 @@ public class ApplyInfoResponse {
         this.applyDate = applyDate;
         this.primaryStatus = primaryStatus;
         this.secondaryStatus = secondaryStatus;
-        this.payYn = payYn;
+        this.payStatus = payStatus;
     }
 }

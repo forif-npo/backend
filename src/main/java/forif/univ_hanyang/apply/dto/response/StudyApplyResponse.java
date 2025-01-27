@@ -37,9 +37,7 @@ public class StudyApplyResponse {
         studyApplyResponse.setId(studyApply.getId());
         studyApplyResponse.setName(studyApply.getName());
         studyApplyResponse.setPrimaryMentorId(studyApply.getPrimaryMentorId());
-        studyApplyResponse.setPrimaryMentorName(studyApply.getPrimaryMentorName());
         studyApplyResponse.setSecondaryMentorId(studyApply.getSecondaryMentorId());
-        studyApplyResponse.setSecondaryMentorName(studyApply.getSecondaryMentorName());
         studyApplyResponse.setOneLiner(studyApply.getOneLiner());
         studyApplyResponse.setExplanation(studyApply.getExplanation());
         studyApplyResponse.setWeekDay(studyApply.getWeekDay());
@@ -48,7 +46,7 @@ public class StudyApplyResponse {
         studyApplyResponse.setDifficulty(studyApply.getDifficulty());
         studyApplyResponse.setLocation(studyApply.getLocation());
         studyApplyResponse.setTag(studyApply.getTag());
-        studyApplyResponse.setStatus(studyApply.getStatus());
+        studyApplyResponse.setStatus(studyApply.getAcceptanceStatus());
         studyApplyResponse.setStudyApplyPlans(StudyApplyPlanResponse.from(studyApply.getStudyApplyPlans()));
         return studyApplyResponse;
     }

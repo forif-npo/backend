@@ -1,14 +1,12 @@
 package forif.univ_hanyang.post.service;
 
+import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
 import forif.univ_hanyang.post.dto.request.AnnouncementUpdateRequest;
 import forif.univ_hanyang.post.dto.request.FAQRequest;
-import forif.univ_hanyang.post.entity.Post;
-import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
 import forif.univ_hanyang.post.dto.response.AnnouncementResponse;
 import forif.univ_hanyang.post.dto.response.FAQResponse;
 import forif.univ_hanyang.post.dto.response.TechResponse;
-import forif.univ_hanyang.post.entity.PostFAQ;
-import forif.univ_hanyang.post.repository.PostFAQRepository;
+import forif.univ_hanyang.post.entity.Post;
 import forif.univ_hanyang.post.repository.PostRepository;
 import forif.univ_hanyang.user.entity.User;
 import jakarta.transaction.Transactional;
@@ -24,7 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
-    private final PostFAQRepository postFAQRepository;
 
     public List<AnnouncementResponse> getAnnouncements() {
         List<Post> postList = postRepository.findAllByType("공지사항")
@@ -44,9 +41,8 @@ public class PostService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
         Post post = new Post();
-        post.setId(postRepository.findMaxId().orElse(0) + 1);
         post.setType("공지사항");
-        post.setCreatedBy(announcementRequest.getCreatedBy());
+        post.setUser(user);
         post.setCreatedAt(LocalDateTime.now().toString());
         post.setTitle(announcementRequest.getTitle());
         post.setContent(announcementRequest.getContent());
@@ -60,7 +56,6 @@ public class PostService {
         }
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 공지사항이 없습니다."));
-        post.setCreatedAt(LocalDateTime.now().toString());
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         postRepository.save(post);
@@ -87,22 +82,14 @@ public class PostService {
         if(user.getAuthLv()<3){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
-        Integer newId = postRepository.findMaxId().orElse(0) + 1;
         Post post = new Post();
-        post.setId(newId);
         post.setType("FAQ");
+        post.setUser(user);
         post.setCreatedAt(LocalDateTime.now().toString());
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
 
-        PostFAQ postFAQ = new PostFAQ();
-        postFAQ.setPost(post);
-        postFAQ.setTag(request.getTag());
-        postFAQ.setId(newId);
-        post.setPostFAQ(postFAQ);
-
         postRepository.save(post);
-        postFAQRepository.save(postFAQ);
     }
 
     @Transactional
@@ -110,14 +97,13 @@ public class PostService {
         if(user.getAuthLv()<3){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
-        PostFAQ postFAQ = postFAQRepository.findById(id)
+        Post postFAQ = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 FAQ가 없습니다."));
-        postFAQ.setTag(request.getTag());
-        postFAQ.getPost().setCreatedAt(LocalDateTime.now().toString());
-        postFAQ.getPost().setTitle(request.getTitle());
-        postFAQ.getPost().setContent(request.getContent());
 
-        postFAQRepository.save(postFAQ);
+        postFAQ.setTitle(request.getTitle());
+        postFAQ.setContent(request.getContent());
+
+        postRepository.save(postFAQ);
     }
 
     @Transactional
@@ -125,10 +111,11 @@ public class PostService {
         if(user.getAuthLv()<3){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
-        PostFAQ postFAQ = postFAQRepository.findById(id)
+
+        Post postFAQ = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 FAQ가 없습니다."));
-        postFAQRepository.delete(postFAQ);
-        postRepository.delete(postFAQ.getPost());
+
+        postRepository.delete(postFAQ);
     }
 
     public List<TechResponse> getTechs() {

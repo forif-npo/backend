@@ -24,18 +24,22 @@ public class StudyApply {
     @Column(name = "study_name")
     private String name;
     private Long primaryMentorId;
-    private String primaryMentorName;
     private Long secondaryMentorId;
-    private String secondaryMentorName;
+    @Column(length = 300)
     private String oneLiner;
+    @Column(length = 5000)
     private String explanation;
     private Integer weekDay;
+    @Column(length = 50)
     private String startTime;
+    @Column(length = 50)
     private String endTime;
     private Integer difficulty;
+    @Column(length = 50)
     private String location;
+    @Column(length = 100)
     private String tag;
-    private Integer status;
+    private Integer acceptanceStatus;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "studyApply", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
