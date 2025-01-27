@@ -5,11 +5,11 @@ import forif.univ_hanyang.apply.dto.request.ApplyRequest;
 import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
 import forif.univ_hanyang.apply.dto.response.*;
 import forif.univ_hanyang.apply.entity.Apply;
-import forif.univ_hanyang.apply.entity.ApplyStatus;
 import forif.univ_hanyang.apply.repository.ApplyRepository;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.entity.StudyUser;
+import forif.univ_hanyang.user.entity.StudyUserId;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
@@ -72,9 +72,9 @@ public class ApplyService {
                             userInfo.getDepartment(),
                             apply.getApplyPath(),
                             apply.getApplyDate(),
-                            Objects.toString(apply.getPrimaryStatus(), null),
-                            Objects.toString(apply.getSecondaryStatus(), null),
-                            apply.getPayYn()
+                            apply.getPrimaryStatus(),
+                            apply.getSecondaryStatus(),
+                            apply.getPayStatus()
                     );
                 })
                 .collect(Collectors.toList());
@@ -130,7 +130,7 @@ public class ApplyService {
         primaryStudy.setId(apply.getPrimaryStudy());
         primaryStudy.setName(studyRepository.findById(apply.getPrimaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다.")).getName());
         primaryStudy.setIntroduction(apply.getPrimaryIntro());
-        primaryStudy.setStatus(apply.getPrimaryStatus().toString());
+        primaryStudy.setStatus(apply.getPrimaryStatus());
 
         if (apply.getSecondaryStudy() == null) {
             response.setPrimaryStudy(primaryStudy);
@@ -142,7 +142,7 @@ public class ApplyService {
         secondaryStudy.setId(apply.getSecondaryStudy());
         secondaryStudy.setName(studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다.")).getName());
         secondaryStudy.setIntroduction(apply.getSecondaryIntro());
-        secondaryStudy.setStatus(apply.getSecondaryStatus().toString());
+        secondaryStudy.setStatus(apply.getSecondaryStatus());
 
         response.setPrimaryStudy(primaryStudy);
         response.setSecondaryStudy(secondaryStudy);
@@ -161,7 +161,7 @@ public class ApplyService {
         if (request.getSecondaryStudy() == null)
             apply.setSecondaryStatus(null);
         else
-            apply.setSecondaryStatus(ApplyStatus.대기);
+            apply.setSecondaryStatus(0);
         apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
 
         applyRepository.save(apply);
@@ -198,13 +198,13 @@ public class ApplyService {
         Map<Long, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
 
         return applies.stream()
-                .filter(apply -> "N".equals(apply.getPayYn()))
+                .filter(apply -> apply.getPayStatus().equals(0))
                 .flatMap(apply -> { // flatMap을 사용하여 각 신청(Apply)에 대해 0개 또는 1개의 응답을 생성
                     UserInfoDTO userInfo = userInfoMap.get(apply.getApplierId());
                     List<UserPaymentStatusResponse> responses = new ArrayList<>();
-                    if (ApplyStatus.승낙.equals(apply.getPrimaryStatus())) {
+                    if (apply.getPrimaryStatus().equals(1)) {
                         responses.add(createResponse(apply, userInfo, apply.getPrimaryStudy(), true));
-                    } else if (ApplyStatus.승낙.equals(apply.getSecondaryStatus())) {
+                    } else if (apply.getSecondaryStatus().equals(1)) {
                         responses.add(createResponse(apply, userInfo, apply.getSecondaryStudy(), false));
                     }
                     return responses.stream();
@@ -225,13 +225,13 @@ public class ApplyService {
         Map<Long, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
 
         return applies.stream()
-                .filter(apply -> "Y".equals(apply.getPayYn()))
+                .filter(apply -> apply.getPayStatus().equals(1))
                 .flatMap(apply -> { // flatMap을 사용하여 각 신청(Apply)에 대해 0개 또는 1개의 응답을 생성
                     UserInfoDTO userInfo = userInfoMap.get(apply.getApplierId());
                     List<UserPaymentStatusResponse> responses = new ArrayList<>();
-                    if (ApplyStatus.승낙.equals(apply.getPrimaryStatus())) {
+                    if (apply.getPrimaryStatus().equals(1)) {
                         responses.add(createResponse(apply, userInfo, apply.getPrimaryStudy(), true));
-                    } else if (ApplyStatus.승낙.equals(apply.getSecondaryStatus())) {
+                    } else if (apply.getSecondaryStatus().equals(1)) {
                         responses.add(createResponse(apply, userInfo, apply.getSecondaryStudy(), false));
                     }
                     return responses.stream();
@@ -313,7 +313,7 @@ public class ApplyService {
         Set<Long> applierIds = request.getApplierIds();
         for (Long applierId : applierIds) {
             Apply apply = applyRepository.findByApplierId(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다. ID: " + applierId));
-            apply.setPayYn(request.getPayYn());
+            apply.setPayStatus(request.getPayStatus());
         }
     }
 
@@ -360,10 +360,10 @@ public class ApplyService {
         apply.setPrimaryIntro(request.getPrimaryIntro());
         apply.setSecondaryIntro(request.getSecondaryIntro());
         apply.setApplyPath(request.getApplyPath());
-        apply.setPayYn("N");
-        apply.setPrimaryStatus(ApplyStatus.대기);
+        apply.setPayStatus(0);
+        apply.setPrimaryStatus(0);
         if (request.getSecondaryStudy() != null) {
-            apply.setSecondaryStatus(ApplyStatus.대기);
+            apply.setSecondaryStatus(0);
         }
         apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
         return apply;
@@ -393,7 +393,7 @@ public class ApplyService {
 
         validateApplyForStudy(apply, study);
 
-        if (apply.getPrimaryStatus() == ApplyStatus.승낙) {
+        if (apply.getPrimaryStatus().equals(1)) {
             return;  // 이미 1순위 스터디가 승낙이면, 2순위는 고려안함.
         }
 
@@ -410,7 +410,7 @@ public class ApplyService {
 
     private void handleSecondaryStudy(Apply apply, Study study, Long applierId) {
         if (apply.getSecondaryStudy() != null &&
-                apply.getSecondaryStatus() == ApplyStatus.승낙 &&
+                apply.getSecondaryStatus().equals(1) &&
                 Objects.equals(apply.getPrimaryStudy(), study.getId())) {
             studyUserRepository.deleteById_StudyIdAndId_UserId(apply.getSecondaryStudy(), applierId);
         }
@@ -418,22 +418,17 @@ public class ApplyService {
 
     private void updateApplyStatus(Apply apply, Study study) {
         if (Objects.equals(apply.getPrimaryStudy(), study.getId())) {
-            apply.setPrimaryStatus(ApplyStatus.승낙);
+            apply.setPrimaryStatus(1);
         } else {
-            apply.setSecondaryStatus(ApplyStatus.승낙);
+            apply.setSecondaryStatus(1);
         }
     }
 
     private void createAndSaveStudyUser(Study study, User user) {
-        StudyUser.StudyUserId studyUserId = new StudyUser.StudyUserId();
-        studyUserId.setStudyId(study.getId());
-        studyUserId.setUserId(user.getId());
-
         StudyUser studyUser = new StudyUser();
-        studyUser.setId(studyUserId);
-        studyUser.setStudy(study);
-        studyUser.setUser(user);
-
+        studyUser.id = new StudyUserId(study.getId(), user.getId());
+        studyUser.study = study;
+        studyUser.user = user;
         studyUserRepository.save(studyUser);
     }
 

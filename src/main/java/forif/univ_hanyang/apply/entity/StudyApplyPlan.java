@@ -24,7 +24,9 @@ public class StudyApplyPlan {
 
     @EmbeddedId
     private StudyApplyPlanId id;
+    @Column(length = 300)
     private String section;
+    @Column(length = 1000)
     private String content;
 
     @JsonBackReference

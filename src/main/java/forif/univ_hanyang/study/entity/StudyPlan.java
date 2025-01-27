@@ -24,7 +24,9 @@ public class StudyPlan {
 
     @EmbeddedId
     private StudyPlanId id;
+    @Column(length = 300)
     private String section;
+    @Column(length = 500)
     private String content;
 
     @ManyToOne

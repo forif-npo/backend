@@ -24,7 +24,7 @@ class AttendanceService(
         val attendanceId = StudyAttendanceId(studyId, userId, weekNum)
         val attendance = StudyAttendance(
             id = attendanceId,
-            studyDate = LocalDate.now(java.time.ZoneId.of("Asia/Seoul")).toString(),
+            studyDate = LocalDate.now().toString(),
             study = studyUser.study,
             user = studyUser.user,
             attendanceStatus = status

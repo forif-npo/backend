@@ -7,13 +7,14 @@ spring:
 
   jackson:
     property-naming-strategy: SNAKE_CASE
+    time-zone: Asia/Seoul
 
   jpa:
     show-sql: true
     generate-ddl: true
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate.format_sql: true
 jwt:

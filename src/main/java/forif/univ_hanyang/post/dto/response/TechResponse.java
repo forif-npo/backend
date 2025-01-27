@@ -13,27 +13,23 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TechResponse {
     private Integer id;
+    private Long authorId;
     private String type;
     private String tag;
-    private String createdBy;
     private String createdAt;
     private String title;
-    private String subtitle;
     private String content;
-    private Integer LikeNum;
 
     public static List<TechResponse> from(List<Post> postList) {
         List<TechResponse> techResponseList = new ArrayList<>();
         for (Post post : postList) {
             TechResponse techResponse = new TechResponse();
             techResponse.setId(post.getId());
-            techResponse.setTag(post.getPostTech().getTag());
+            techResponse.setAuthorId(post.getUser() != null ? post.getUser().getId() : null);
+            techResponse.setTag(post.getTag());
             techResponse.setType(post.getType());
             techResponse.setCreatedAt(post.getCreatedAt());
             techResponse.setTitle(post.getTitle());
-            techResponse.setSubtitle(post.getPostTech().getSubtitle());
-            techResponse.setCreatedBy(post.getCreatedBy());
-            techResponse.setLikeNum(post.getPostTech().getLikeNum());
 
             techResponseList.add(techResponse);
         }
@@ -43,13 +39,12 @@ public class TechResponse {
     public static TechResponse from(Post post) {
         TechResponse techResponse = new TechResponse();
         techResponse.setId(post.getId());
-        techResponse.setTag(post.getPostTech().getTag());
+        techResponse.setAuthorId(post.getUser() != null ? post.getUser().getId() : null);
         techResponse.setType(post.getType());
+        techResponse.setTag(post.getTag());
         techResponse.setCreatedAt(post.getCreatedAt());
         techResponse.setTitle(post.getTitle());
-        techResponse.setCreatedBy(post.getCreatedBy());
         techResponse.setContent(post.getContent());
-        techResponse.setLikeNum(post.getPostTech().getLikeNum());
 
         return techResponse;
     }

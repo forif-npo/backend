@@ -15,14 +15,17 @@ public class User {
     @Id
     @Column(name = "user_id")
     private Long id;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, length = 100)
     private String email;
-    @Column(name = "user_name")
+    @Column(name = "user_name", length = 50)
     private String name;
+    @Column(length = 50)
     private String department;
-    @Column(name = "phone_num")
+    @Column(name = "phone_num", length = 20)
     private String phoneNumber;
+    @Column(nullable = false)
     private Integer authLv;
+    @Column(length = 300)
     private String imgUrl;
 
     public Long getId() {

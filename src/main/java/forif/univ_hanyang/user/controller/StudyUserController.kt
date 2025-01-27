@@ -1,10 +1,10 @@
 package forif.univ_hanyang.user.controller
 
 import forif.univ_hanyang.jwt.RequireJWT
-import forif.univ_hanyang.user.dto.request.UserStudyPassDTO
-import forif.univ_hanyang.user.entity.UserStudyPass
+import forif.univ_hanyang.user.dto.request.StudyUserDTO
+import forif.univ_hanyang.user.entity.StudyUser
+import forif.univ_hanyang.user.service.StudyUserService
 import forif.univ_hanyang.user.service.UserService
-import forif.univ_hanyang.user.service.UserStudyPassService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -17,12 +17,12 @@ import org.springframework.web.server.ResponseStatusException
 @Tag(name = "스터디 수료", description = "유저의 스터디 수료를 관리하는 API")
 @RestController
 @RequestMapping("/user-study-pass")
-class UserStudyPassController(
-    private val userStudyPassService: UserStudyPassService,
+class StudyUserController(
+    private val studyUserService: StudyUserService,
     private val userService: UserService
 ) {
 
-    @Operation(summary = "유저의 스터디 수료 생성", description = "유저를 스터디 수료로 추가합니다.")
+    @Operation(summary = "유저 스터디 수료로 변경", description = "유저를 스터디 수료로 추가합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "201", description = "스터디 수료 생성 성공"),
@@ -30,13 +30,13 @@ class UserStudyPassController(
         ]
     )
     @PostMapping
-    fun createUserStudyPass(
-        @RequestBody userStudyPassDTO: UserStudyPassDTO,
+    fun changeUsersToPassed(
+        @RequestBody studyUserDTO: StudyUserDTO,
         @RequestHeader("Authorization") token: String
     ): ResponseEntity<String> {
-        val mentor = userService.validateUserExist(token)
+        val authUser = userService.validateUserExist(token)
             ?: return ResponseEntity("해당하는 유저가 없습니다.", HttpStatus.BAD_REQUEST)
-        userStudyPassService.createUserStudyPass(mentor, userStudyPassDTO)
+        studyUserService.changeUsersToPassed(authUser, studyUserDTO)
         return ResponseEntity("Creation Success", HttpStatus.CREATED)
     }
 
@@ -50,8 +50,8 @@ class UserStudyPassController(
     )
     @RequireJWT
     @GetMapping("/users/{userId}")
-    fun getUserStudyPassesByUserId(@PathVariable userId: Long): ResponseEntity<List<UserStudyPass>> {
-        val userStudyPasses = userStudyPassService.getUserStudyPassesByUserId(userId)
+    fun getStudyUserByUserId(@PathVariable userId: Long): ResponseEntity<List<StudyUser>> {
+        val userStudyPasses = studyUserService.getStudyUserByUserId(userId)
         return ResponseEntity(userStudyPasses, HttpStatus.OK)
     }
 
@@ -64,13 +64,13 @@ class UserStudyPassController(
         ]
     )
     @GetMapping("/studies/{studyId}")
-    fun getUserStudyPassesByStudyId(
+    fun getStudyUserByStudyId(
         @PathVariable studyId: Int,
         @RequestHeader("Authorization") token: String
-    ): ResponseEntity<List<UserStudyPass>> {
+    ): ResponseEntity<List<StudyUser>> {
         val admin = userService.validateUserExist(token)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "해당하는 유저가 없습니다.")
-        val userStudyPasses = userStudyPassService.getUserStudyPassesByStudyId(admin, studyId)
+        val userStudyPasses = studyUserService.getStudyUserByStudyId(admin, studyId)
         return ResponseEntity(userStudyPasses, HttpStatus.OK)
     }
 
@@ -83,14 +83,14 @@ class UserStudyPassController(
         ]
     )
     @DeleteMapping("/users/{userId}/studies/{studyId}")
-    fun deleteUserStudyPass(
+    fun deleteStudyUser(
         @PathVariable userId: Long,
         @PathVariable studyId: Int,
         @RequestHeader("Authorization") token: String
     ): ResponseEntity<Unit> {
         val admin = userService.validateUserExist(token)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "해당하는 유저가 없습니다.")
-        userStudyPassService.deleteUserStudyPass(admin, userId, studyId)
+        studyUserService.revertPassedStatus(admin, studyId, userId)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }

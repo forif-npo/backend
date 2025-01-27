@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 public class FAQResponse {
     private Integer id;
+    private Long authorId;
     private String tag;
     private String type;
     private String createdAt;
@@ -22,7 +23,8 @@ public class FAQResponse {
         for (Post post : postList) {
             FAQResponse faqResponse = new FAQResponse();
             faqResponse.setId(post.getId());
-            faqResponse.setTag(post.getPostFAQ().getTag());
+            faqResponse.setAuthorId(post.getUser() != null ? post.getUser().getId() : null);
+            faqResponse.setTag(post.getTag());
             faqResponse.setType(post.getType());
             faqResponse.setCreatedAt(post.getCreatedAt());
             faqResponse.setTitle(post.getTitle());
