@@ -15,7 +15,6 @@ public class AnnouncementResponse {
     private Integer id;
     private Long authorId;
     private String type;
-    private String createdBy;
     private String createdAt;
     private String title;
     private String content;
