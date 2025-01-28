@@ -6,7 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AnnouncementRequest {
-    private String createdBy;
     private String title;
     private String content;
 }
