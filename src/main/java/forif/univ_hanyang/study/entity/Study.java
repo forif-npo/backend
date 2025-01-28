@@ -1,57 +1,113 @@
 package forif.univ_hanyang.study.entity;
 
-import forif.univ_hanyang.clubInfo.entity.ClubInfo;
-import forif.univ_hanyang.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "study")
+@Table(name = "tb_study")
 public class Study {
     @Id
+    @Column(name = "study_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String name;
-    @Column(name = "mentor_id")
-    private Integer mentorId;
-    @Column(name = "mentor_name")
-    private String mentorName;
+    @Column(name = "study_name", length = 50)
+    public String name;
+    @Column(length = 50)
+    private String primaryMentorName;
+    @Column(length = 50)
+    private String secondaryMentorName;
+    @Column(length = 300)
+    private String oneLiner;
+    @Column(length = 5000)
     private String explanation;
-    @Column(name = "week_day")
     private Integer weekDay;
-    @Column(name = "start_time")
-    private Time startTime;
-    @Column(name = "end_time")
-    private Time endTime;
-    private Short level;
-    @Column(name = "club_id")
-    private Integer clubId;
+    @Column(length = 50)
+    private String startTime;
+    @Column(length = 50)
+    private String endTime;
+    private Integer difficulty;
+    @Column(name = "img_url", length = 300)
     private String image;
+    @Column(length = 50)
     private String location;
+    @Column(length = 100)
     private String tag;
-
-    @Enumerated(EnumType.STRING)
-    private StudyStatus studyStatus;
+    private Integer actYear;
+    private Integer actSemester;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<WeeklyPlan> weeklyPlans = new ArrayList<>();
+    private List<StudyPlan> studyPlans = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "mentor_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User mentor;
+    public Integer getId() {
+        return id;
+    }
 
-    @ManyToOne
-    @JoinColumn(name = "club_id", referencedColumnName = "club_id", insertable = false, updatable = false)
-    private ClubInfo clubInfo;
+    public String getName() {
+        return name;
+    }
+
+    public String getPrimaryMentorName() {
+        return primaryMentorName;
+    }
+
+    public String getSecondaryMentorName() {
+        return secondaryMentorName;
+    }
+
+    public String getOneLiner() {
+        return oneLiner;
+    }
+
+    public String getExplanation() {
+        return explanation;
+    }
+
+    public Integer getWeekDay() {
+        return weekDay;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public Integer getDifficulty() {
+        return difficulty;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public Integer getActYear() {
+        return actYear;
+    }
+
+    public Integer getActSemester() {
+        return actSemester;
+    }
+
+    public List<StudyPlan> getStudyPlans() {
+        return studyPlans;
+    }
 }

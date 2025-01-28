@@ -3,125 +3,234 @@ package forif.univ_hanyang.apply.controller;
 import forif.univ_hanyang.apply.dto.request.AcceptRequest;
 import forif.univ_hanyang.apply.dto.request.ApplyRequest;
 import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
-import forif.univ_hanyang.apply.dto.response.ApplyResponse;
-import forif.univ_hanyang.apply.dto.response.RankedStudyResponse;
-import forif.univ_hanyang.apply.dto.response.UnpaidUserResponse;
+import forif.univ_hanyang.apply.dto.response.ApplyInfoResponse;
+import forif.univ_hanyang.apply.dto.response.MyApplicationResponse;
+import forif.univ_hanyang.apply.dto.response.UserPaymentStatusResponse;
 import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.service.ApplyService;
-import forif.univ_hanyang.jwt.RequireJWT;
 import forif.univ_hanyang.user.entity.User;
-import forif.univ_hanyang.user.entity.UserAuthorization;
 import forif.univ_hanyang.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
 @Tag(name = "지원서", description = "지원서 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/apply")
+@RequestMapping("/applications")
 public class ApplyController {
-
     private final UserService userService;
     private final ApplyService applyService;
 
-    @RequireJWT
+    @Operation(
+            summary = "모든 지원서 조회",
+            description = "모든 지원서를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
+            }
+    )
+    @GetMapping
+    public ResponseEntity<List<ApplyInfoResponse>> getAllApplications(
+            @RequestHeader("Authorization") String token
+    ) {
+        User user = userService.validateUserExist(token);
+        return new ResponseEntity<>(applyService.getAllApplications(user), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "지원서 작성",
+            description = "지원서를 작성합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+            }
+    )
     @PostMapping
-    public ResponseEntity<ApplyResponse> applyStudy(
+    public ResponseEntity<Void> applyStudy(
             @RequestHeader("Authorization") String token,
             @RequestBody ApplyRequest request) {
 
         User user = userService.validateUserExist(token);
         applyService.applyStudy(request, user);
 
-        // 성공 메시지 객체 생성
-        ApplyResponse responseObj = new ApplyResponse(200, "정상 작동");
-
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
-        return new ResponseEntity<>(responseObj, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequireJWT
-    @PostMapping("/accept")
-    public ResponseEntity<ApplyResponse> acceptApplication(
-            @RequestBody AcceptRequest request) {
-        applyService.acceptApplication(request);
-
-        // 성공 메시지 객체 생성
-        ApplyResponse responseObj = new ApplyResponse(200, "정상 작동");
-
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
-        return new ResponseEntity<>(responseObj, HttpStatus.OK);
-    }
-
-    @RequireJWT
-    @GetMapping("/payment")
-    public ResponseEntity<List<UnpaidUserResponse>> getUnpaidUsers(
-            @RequestHeader("Authorization") String token
-    ) {
-        User user = userService.validateUserExist(token);
-        if (user.getUserAuthorization().equals(UserAuthorization.회원))
-            throw new IllegalArgumentException("권한이 없습니다.");
-
-        return new ResponseEntity<>(applyService.getUnpaidUsers(), HttpStatus.OK);
-    }
-
-    @RequireJWT
-    @GetMapping("/all")
-    public ResponseEntity<?> getAllApplicationsOfStudy(
-            @RequestParam Integer studyId,
-            @RequestHeader("Authorization") String token
-    ) {
-        User user = userService.validateUserExist(token);
-        Map<String, List<RankedStudyResponse>> applications = applyService.getAllApplicationsOfStudy(studyId, user);
-        if (applications.isEmpty()) {
-            ApplyResponse responseObj = new ApplyResponse(500, "지원서가 없습니다.");
-            return new ResponseEntity<>(responseObj, HttpStatus.BAD_GATEWAY);
-        }
-        return new ResponseEntity<>(applications, HttpStatus.OK);
-    }
-
-    @RequireJWT
-    @GetMapping("/mentor/all")
-    public ResponseEntity<?> getAllApplicationsOfStudyForMentor(
-            @RequestHeader("Authorization") String token
-    ) {
-        User user = userService.validateUserExist(token);
-        Map<String, List<RankedStudyResponse>> applications = applyService.getAllApplicationsOfStudyForMentor(user);
-        if (applications.isEmpty()) {
-            ApplyResponse responseObj = new ApplyResponse(500, "지원서가 없습니다.");
-            return new ResponseEntity<>(responseObj, HttpStatus.BAD_GATEWAY);
-        }
-        return new ResponseEntity<>(applications, HttpStatus.OK);
-    }
-
-    /**
-     * @param token 지원자의 토큰
-     * @return <?> 형식으로 해서 null 일 때와 지원서가 있을 때 다른 객체를 반환하도록 함
-     */
-    @RequireJWT
-    @GetMapping("/user")
+    @Operation(
+            summary = "내 지원서 조회",
+            description = "내 지원서를 조회합니다., return <?> 형식으로 해서 null일 때와 지원서가 있을 때 다른 객체를 반환하도록 함",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
+            }
+    )
+    @GetMapping("/me")
     public ResponseEntity<?> getUserApplication(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-        Apply application = applyService.getUserApplication(user);
-
+        MyApplicationResponse application = applyService.getUserApplication(user);
 
         if (application == null) {
-            ApplyResponse responseObj = new ApplyResponse(500, "지원서가 없습니다.");
-            return new ResponseEntity<>(responseObj, HttpStatus.BAD_GATEWAY);
+            return new ResponseEntity<>("지원서가 없습니다.", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(application, HttpStatus.OK);
     }
 
-    @RequireJWT
-    @PatchMapping("/paid")
+
+    @Operation(
+            summary = "지원서 수정",
+            description = "지원서를 수정합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+            }
+    )
+    @PatchMapping("/me")
+    private ResponseEntity<Apply> patchApplication(
+            @RequestHeader("Authorization") String token,
+            @RequestBody ApplyRequest request
+    ) throws InvocationTargetException, IllegalAccessException {
+        User user = userService.validateUserExist(token);
+
+        return new ResponseEntity<>(applyService.patchApplication(user, request), HttpStatus.OK);
+    }
+
+
+    @Operation(
+            summary = "지원서 삭제",
+            description = "지원서를 삭제합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "NO CONTENT"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+            }
+    )
+    @DeleteMapping("/me")
+    private ResponseEntity<Void> deleteApplication(
+            @RequestHeader("Authorization") String token
+    ) {
+        User user = userService.validateUserExist(token);
+
+        applyService.deleteApplication(user);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+    @Operation(
+            summary = "지원서 수락",
+            description = "지원서를 수락합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
+            }
+    )
+    @PostMapping("/accept")
+    public ResponseEntity<Void> acceptApplications(
+            @RequestBody AcceptRequest request,
+            @RequestHeader("Authorization") String token) {
+        User mentor = userService.validateUserExist(token);
+        applyService.acceptApplications(mentor, request);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "회비 미지불 유저 조회",
+            description = "회비를 미지불한 유저들을 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
+            }
+    )
+    @GetMapping("/unpaid-users")
+    public ResponseEntity<List<UserPaymentStatusResponse>> getUnpaidUsers(
+            @RequestHeader("Authorization") String token
+    ) {
+        User user = userService.validateUserExist(token);
+        if (user.getAuthLv() < 3)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
+
+        return new ResponseEntity<>(applyService.getUnpaidUsers(), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "회비 지불 유저 조회",
+            description = "회비를 지불한 유저들을 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
+            }
+    )
+    @GetMapping("/paid-users")
+    public ResponseEntity<List<UserPaymentStatusResponse>> getPaidUsers(
+            @RequestHeader("Authorization") String token
+    ) {
+        User user = userService.validateUserExist(token);
+        if (user.getAuthLv() == 1)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
+
+        return new ResponseEntity<>(applyService.getPaidUsers(), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "특정 스터디의 모든 지원서 조회",
+            description = "특정 스터디의 모든 지원서를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+                    @ApiResponse(responseCode = "404", description = "NOT FOUND")
+            }
+    )
+    @GetMapping("/{studyId}")
+    public ResponseEntity<?> getAllApplicationsOfStudy(
+            @PathVariable Integer studyId,
+            @RequestHeader("Authorization") String token
+    ) {
+        User user = userService.validateUserExist(token);
+        Map<String, List<ApplyInfoResponse>> applications = applyService.getAllApplicationsOfStudy(studyId, user);
+        if (applications.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(applications, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "유저의 납부 상태 수정",
+            description = "납부 상태를 수정합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
+            }
+    )
+    @PatchMapping("/payment-status")
     public ResponseEntity<Void> patchIsPaid(
             @RequestHeader("Authorization") String token,
             @RequestBody IsPaidRequest request
@@ -130,34 +239,28 @@ public class ApplyController {
 
         applyService.patchIsPaid(user, request);
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequireJWT
-    @DeleteMapping("/application")
-    private ResponseEntity<Void> deleteApplication(
-            @RequestHeader("Authorization") String token,
-            @RequestParam Integer applierId
-    ) {
-        User user = userService.validateUserExist(token);
 
-        applyService.deleteApplication(user, applierId);
-
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @RequireJWT
-    @DeleteMapping("/allApplications")
+    @Operation(
+            summary = "모든 지원서 삭제",
+            description = "모든 지원서를 삭제합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+                    @ApiResponse(responseCode = "403", description = "FORBIDDEN"
+                    )
+            }
+    )
+    @DeleteMapping
     public ResponseEntity<Void> deleteAllApplications(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-
         applyService.deleteAllApplications(user);
 
-        // 성공 시 200 OK 상태 코드와 함께 JSON 응답
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -1,14 +1,21 @@
 package forif.univ_hanyang.user.dto.response;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AllUserInfoResponse {
-    private Integer id;
+    private Long id;
     private String name;
     private String email;
     private String phoneNumber;
     private String department;
-    private Boolean payment;
-    private String image;
+    private String studyName;
 }
