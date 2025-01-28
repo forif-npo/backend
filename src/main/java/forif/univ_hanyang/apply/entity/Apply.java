@@ -1,5 +1,6 @@
 package forif.univ_hanyang.apply.entity;
 
+import forif.univ_hanyang.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,11 +12,16 @@ import lombok.Setter;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "tb_user_apply") // 테이블 이름 지정
+@Table(name = "tb_user_apply")
 public class Apply {
     @Id
-    @Column(name = "applier_id", unique = true)
-    private Long applierId;
+    private Long applierId; // PK이자 FK
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "applier_id")
+    private User applier;
+
     private Integer primaryStudy;
     private Integer secondaryStudy;
     @Column(length = 2000)
