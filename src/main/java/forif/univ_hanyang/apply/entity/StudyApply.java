@@ -24,6 +24,10 @@ public class StudyApply {
     private Integer id;
     @Column(name = "study_name")
     private String name;
+    @Column(name = "primary_mentor_id")
+    private Long primaryMentorId;
+    @Column(name = "secondary_mentor_id")
+    private Long secondaryMentorId;
     @Column(length = 300)
     private String oneLiner;
     @Column(length = 5000)
