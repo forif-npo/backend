@@ -189,11 +189,15 @@ public class StudyApplyService {
 
     @Transactional
     protected void setStudyApply(StudyApplyRequest request, StudyApply newStudy) {
-        newStudy.setPrimaryMentor(userRepository.findById(request.getPrimaryMentorId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다.")));
+        User primaryMentor = userRepository.findById(request.getPrimaryMentorId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
+        newStudy.setPrimaryMentor(primaryMentor);
+        newStudy.setPrimaryMentorId(primaryMentor.getId());
         if(request.getSecondaryMentorId() != null) {
-            newStudy.setSecondaryMentor(userRepository.findById(request.getSecondaryMentorId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다.")));
+            User secondaryMentor = userRepository.findById(request.getSecondaryMentorId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
+            newStudy.setSecondaryMentor(secondaryMentor);
+            newStudy.setSecondaryMentorId(secondaryMentor.getId());
         }
         newStudy.setName(request.getName());
         newStudy.setOneLiner(request.getOneLiner());
