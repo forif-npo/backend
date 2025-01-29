@@ -10,9 +10,7 @@ import java.util.List;
 public class StudyApplyRequest {
     private String name;
     private Long primaryMentorId;
-    private String primaryMentorName;
     private Long secondaryMentorId;
-    private String secondaryMentorName;
     private String oneLiner;
     private String explanation;
     private Integer weekDay;

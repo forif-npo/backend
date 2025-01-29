@@ -1,6 +1,7 @@
 package forif.univ_hanyang.apply.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import forif.univ_hanyang.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,8 +24,6 @@ public class StudyApply {
     private Integer id;
     @Column(name = "study_name")
     private String name;
-    private Long primaryMentorId;
-    private Long secondaryMentorId;
     @Column(length = 300)
     private String oneLiner;
     @Column(length = 5000)
@@ -44,4 +43,12 @@ public class StudyApply {
     @JsonManagedReference
     @OneToMany(mappedBy = "studyApply", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<StudyApplyPlan> studyApplyPlans = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "primary_mentor_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    private User primaryMentor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "secondary_mentor_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    private User secondaryMentor;
 }
