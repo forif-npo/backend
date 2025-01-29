@@ -15,11 +15,11 @@ public class StudyApplyResponse {
     private String name;
     private Long primaryMentorId;
     private String primaryMentorName;
+    private String primaryMentorEmail;
+    private String primaryMentorPhoneNumber;
     private Long secondaryMentorId;
     private String secondaryMentorName;
-    private String primaryMentorEmail;
     private String secondaryMentorEmail;
-    private String primaryMentorPhoneNumber;
     private String secondaryMentorPhoneNumber;
     private String oneLiner;
     private String explanation;
@@ -36,8 +36,10 @@ public class StudyApplyResponse {
         StudyApplyResponse studyApplyResponse = new StudyApplyResponse();
         studyApplyResponse.setId(studyApply.getId());
         studyApplyResponse.setName(studyApply.getName());
-        studyApplyResponse.setPrimaryMentorId(studyApply.getPrimaryMentorId());
-        studyApplyResponse.setSecondaryMentorId(studyApply.getSecondaryMentorId());
+        studyApplyResponse.setPrimaryMentorId(studyApply.getPrimaryMentor().getId());
+        studyApplyResponse.setPrimaryMentorName(studyApply.getPrimaryMentor().getName());
+        studyApplyResponse.setPrimaryMentorEmail(studyApply.getPrimaryMentor().getEmail());
+        studyApplyResponse.setPrimaryMentorEmail(studyApply.getPrimaryMentor().getPhoneNumber());
         studyApplyResponse.setOneLiner(studyApply.getOneLiner());
         studyApplyResponse.setExplanation(studyApply.getExplanation());
         studyApplyResponse.setWeekDay(studyApply.getWeekDay());
