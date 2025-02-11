@@ -42,6 +42,8 @@ public class StudyApply {
     private String location;
     @Column(length = 100)
     private String tag;
+    private Integer actYear;
+    private Integer actSemester;
     private Integer acceptanceStatus;
 
     @JsonManagedReference

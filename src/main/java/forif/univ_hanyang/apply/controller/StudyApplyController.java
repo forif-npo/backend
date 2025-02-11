@@ -44,8 +44,8 @@ public class StudyApplyController {
     }
 
     @Operation(
-            summary = "신청된 스터디 조회",
-            description = "개설 신청된 스터디들을 모두 조회합니다.",
+            summary = "신청된 모든 스터디 조회",
+            description = "해당 연도, 학기에 개설 신청된 스터디들을 모두 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK"),
                     @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
@@ -53,11 +53,13 @@ public class StudyApplyController {
             }
     )
     @GetMapping
-    public ResponseEntity<List<StudyApplyResponse>> getAllAppliedStudies(
-            @RequestHeader("Authorization") String token
+    public ResponseEntity<List<StudyApplyResponse>> getAllAppliedStudiesBy(
+            @RequestHeader("Authorization") String token,
+            @RequestParam Integer year,
+            @RequestParam Integer semester
     ) {
         User admin = userService.validateUserExist(token);
-        return new ResponseEntity<>(studyApplyService.getAllAppliedStudy(admin), HttpStatus.OK);
+        return new ResponseEntity<>(studyApplyService.getAppliedStudies(admin, year, semester), HttpStatus.OK);
     }
 
     @Operation(

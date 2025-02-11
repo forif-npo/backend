@@ -15,4 +15,6 @@ public interface StudyApplyRepository extends JpaRepository<StudyApply, Integer>
             "LEFT JOIN FETCH sa.studyApplyPlans " +
             "WHERE sa.id IN :ids")
     List<StudyApply> findAllWithMentorsById(@Param("ids") List<Integer> ids);
+
+    List<StudyApply> findAllByActYearAndActSemester(Integer actYear, Integer actSemester);
 }
