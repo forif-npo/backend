@@ -39,12 +39,12 @@ public class StudyApplyService {
     }
 
     @Transactional(readOnly = true)
-    public List<StudyApplyResponse> getAllAppliedStudy(User admin) {
+    public List<StudyApplyResponse> getAppliedStudies(User admin, Integer year, Integer semester) {
         if (admin.getAuthLv() < 3) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
 
-        List<StudyApply> studyApplies = studyApplyRepository.findAll();
+        List<StudyApply> studyApplies = studyApplyRepository.findAllByActYearAndActSemester(year, semester);
         if (studyApplies.isEmpty()) {
             return Collections.emptyList();
         }
