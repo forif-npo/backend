@@ -209,6 +209,8 @@ public class StudyApplyService {
         newStudy.setLocation(request.getLocation());
         newStudy.setTag(request.getTag());
         newStudy.setAcceptanceStatus(0);
+        newStudy.setActYear(LocalDateTime.now().getYear());
+        newStudy.setActSemester(LocalDateTime.now().getMonthValue() / 7 + 1);
 
         List<StudyApplyPlan> studyPlans = request.getStudyApplyPlans().stream()
                 .map(planRequest -> {
