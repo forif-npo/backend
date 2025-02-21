@@ -98,7 +98,6 @@ public class ApplyService {
 
     @Transactional
     public void applyStudy(ApplyRequest request, User user) {
-        validateUserNotApplied(user);
         Optional.of(request.getPrimaryStudy())
                 .filter(id -> id != 0)
                 .ifPresentOrElse(
@@ -118,8 +117,8 @@ public class ApplyService {
     /**
      * 있는지 여부를 판단하기 때문에, 없을 시 예외 처리하지 않고 null 값으로 대체
      */
-    public MyApplicationResponse getUserApplication(User user) {
-        Apply apply = applyRepository.findByApplierId(user.getId()).orElse(null);
+    public MyApplicationResponse getUserApplication(User user, Integer year, Integer semester) {
+        Apply apply = applyRepository.findByApplierIdAndApplyYearAndApplySemester(user.getId(), year, semester).orElse(null);
         if (apply == null) {
             return null;
         }
@@ -332,12 +331,6 @@ public class ApplyService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "1순위 스터디를 무조건 선택해야 합니다.");
     }
 
-    private void validateUserNotApplied(User user) {
-        if (applyRepository.findByApplierId(user.getId()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 지원서를 접수한 유저입니다. 학번: " + user.getId());
-        }
-    }
-
     private void validateStudy(Integer studyId, User user) {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 존재하지 않습니다. ID: " + studyId));
@@ -355,6 +348,8 @@ public class ApplyService {
     private Apply createApply(ApplyRequest request, User user) {
         Apply apply = new Apply();
         apply.setApplierId(user.getId());
+        apply.setApplyYear(LocalDateTime.now().getYear());
+        apply.setApplySemester(LocalDateTime.now().getMonthValue() <= 6 ? 1 : 2);
         apply.setPrimaryStudy(request.getPrimaryStudy());
         apply.setSecondaryStudy(request.getSecondaryStudy());
         apply.setPrimaryIntro(request.getPrimaryIntro());

@@ -81,10 +81,12 @@ public class ApplyController {
     )
     @GetMapping("/me")
     public ResponseEntity<?> getUserApplication(
-            @RequestHeader("Authorization") String token
+            @RequestHeader("Authorization") String token,
+            @RequestParam Integer year,
+            @RequestParam Integer semester
     ) {
         User user = userService.validateUserExist(token);
-        MyApplicationResponse application = applyService.getUserApplication(user);
+        MyApplicationResponse application = applyService.getUserApplication(user, year, semester);
 
         if (application == null) {
             return new ResponseEntity<>("지원서가 없습니다.", HttpStatus.NOT_FOUND);
