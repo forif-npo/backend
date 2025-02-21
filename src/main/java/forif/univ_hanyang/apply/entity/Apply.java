@@ -17,6 +17,8 @@ public class Apply {
     @Id
     private Long applierId; // PK이자 FK
 
+    private Integer applyYear;
+    private Integer applySemester;
     @OneToOne
     @MapsId
     @JoinColumn(name = "applier_id")
