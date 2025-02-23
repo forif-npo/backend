@@ -104,7 +104,7 @@ public class UserService {
         studyUserRepository.deleteAllById_UserId(id);
 
         // 지원서 제거
-        applyRepository.deleteByApplierId(id);
+        applyRepository.deleteById_ApplierId(id);
         mentorStudyRepository.deleteAllById_MentorId(id);
         forifTeamRepository.deleteAllById_UserId(id);
         userRepository.deleteById(id);
