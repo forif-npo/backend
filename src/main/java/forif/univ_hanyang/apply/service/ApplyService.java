@@ -46,7 +46,7 @@ public class ApplyService {
 
         // 모든 applier ID와 study ID를 한 번에 수집
         Set<Long> applierIds = applies.stream()
-                .map(Apply::getApplierId)
+                .map(apply -> apply.getId().getApplierId())
                 .collect(Collectors.toSet());
 
         Set<Integer> studyIds = applies.stream()
@@ -62,9 +62,9 @@ public class ApplyService {
 
         return applies.stream()
                 .map(apply -> {
-                    UserInfoDTO userInfo = userInfoMap.get(apply.getApplierId());
+                    UserInfoDTO userInfo = userInfoMap.get(apply.getId().getApplierId());
                     return new ApplyInfoResponse(
-                            apply.getApplierId(),
+                            apply.getId().getApplierId(),
                             userInfo.getName(),
                             studyNameMap.get(apply.getPrimaryStudy()),
                             studyNameMap.get(apply.getSecondaryStudy()),
@@ -118,7 +118,7 @@ public class ApplyService {
      * 있는지 여부를 판단하기 때문에, 없을 시 예외 처리하지 않고 null 값으로 대체
      */
     public MyApplicationResponse getUserApplication(User user, Integer year, Integer semester) {
-        Apply apply = applyRepository.findByApplierIdAndApplyYearAndApplySemester(user.getId(), year, semester).orElse(null);
+        Apply apply = applyRepository.findById_ApplierIdAndId_ApplyYearAndId_ApplySemester(user.getId(), year, semester).orElse(null);
         if (apply == null) {
             return null;
         }
@@ -154,7 +154,7 @@ public class ApplyService {
 
     @Transactional
     public Apply patchApplication(User user, ApplyRequest request) throws IllegalAccessException, InvocationTargetException {
-        Apply apply = applyRepository.findByApplierId(user.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다."));
+        Apply apply = applyRepository.findById_ApplierId(user.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다."));
         // request 객체에서 apply 객체로 null이 아닌 필드만 복사
         BeanUtils.copyProperties(apply, request);
         if (request.getSecondaryStudy() == null)
@@ -170,7 +170,7 @@ public class ApplyService {
 
     @Transactional
     public void deleteApplication(User user) {
-        applyRepository.deleteByApplierId(user.getId());
+        applyRepository.deleteById_ApplierId(user.getId());
     }
 
 
@@ -190,7 +190,7 @@ public class ApplyService {
 
         // 모든 applier ID를 한 번에 수집
         Set<Long> applierIds = applies.stream()
-                .map(Apply::getApplierId)
+                .map(apply -> apply.getId().getApplierId())
                 .collect(Collectors.toSet());
 
         // 한 번의 쿼리로 모든 사용자 정보를 가져옴
@@ -199,7 +199,7 @@ public class ApplyService {
         return applies.stream()
                 .filter(apply -> apply.getPayStatus().equals(0))
                 .flatMap(apply -> { // flatMap을 사용하여 각 신청(Apply)에 대해 0개 또는 1개의 응답을 생성
-                    UserInfoDTO userInfo = userInfoMap.get(apply.getApplierId());
+                    UserInfoDTO userInfo = userInfoMap.get(apply.getId().getApplierId());
                     List<UserPaymentStatusResponse> responses = new ArrayList<>();
                     if (apply.getPrimaryStatus().equals(1)) {
                         responses.add(createResponse(apply, userInfo, apply.getPrimaryStudy(), true));
@@ -217,7 +217,7 @@ public class ApplyService {
 
         // 모든 applier ID를 한 번에 수집
         Set<Long> applierIds = applies.stream()
-                .map(Apply::getApplierId)
+                .map(apply -> apply.getId().getApplierId())
                 .collect(Collectors.toSet());
 
         // 한 번의 쿼리로 모든 사용자 정보를 가져옴
@@ -226,7 +226,7 @@ public class ApplyService {
         return applies.stream()
                 .filter(apply -> apply.getPayStatus().equals(1))
                 .flatMap(apply -> { // flatMap을 사용하여 각 신청(Apply)에 대해 0개 또는 1개의 응답을 생성
-                    UserInfoDTO userInfo = userInfoMap.get(apply.getApplierId());
+                    UserInfoDTO userInfo = userInfoMap.get(apply.getId().getApplierId());
                     List<UserPaymentStatusResponse> responses = new ArrayList<>();
                     if (apply.getPrimaryStatus().equals(1)) {
                         responses.add(createResponse(apply, userInfo, apply.getPrimaryStudy(), true));
@@ -241,7 +241,7 @@ public class ApplyService {
     private UserPaymentStatusResponse createResponse(Apply apply, UserInfoDTO userInfo, Integer studyId, boolean isPrimary) {
         String studyType = studyId != 0 ? "정규 스터디" : "자율 스터디";
         return new UserPaymentStatusResponse(
-                apply.getApplierId(),
+                apply.getId().getApplierId(),
                 userInfo.getName(),
                 studyId,
                 studyType,
@@ -270,12 +270,12 @@ public class ApplyService {
         List<ApplyInfoResponse> studyResponses1 = new LinkedList<>();
 
         for (Apply apply : primaryStudies) {
-            UserInfoDTO userInfo = getUserInfo(apply.getApplierId());
+            UserInfoDTO userInfo = getUserInfo(apply.getId().getApplierId());
             ApplyInfoResponse applyInfoResponse = new ApplyInfoResponse();
             applyInfoResponse.setName(userInfo.getName());
             applyInfoResponse.setIntro(apply.getPrimaryIntro());
             applyInfoResponse.setPrimaryStudyName(getStudyName(apply.getPrimaryStudy()));
-            applyInfoResponse.setUserId(apply.getApplierId());
+            applyInfoResponse.setUserId(apply.getId().getApplierId());
             applyInfoResponse.setApplyPath(apply.getApplyPath());
             applyInfoResponse.setDepartment(userInfo.getDepartment());
             applyInfoResponse.setPhoneNumber(userInfo.getPhoneNumber());
@@ -288,12 +288,12 @@ public class ApplyService {
         List<ApplyInfoResponse> studyResponses2 = new LinkedList<>();
 
         for (Apply apply : secondaryStudies) {
-            UserInfoDTO userInfo = getUserInfo(apply.getApplierId());
+            UserInfoDTO userInfo = getUserInfo(apply.getId().getApplierId());
             ApplyInfoResponse applyInfoResponse = new ApplyInfoResponse();
             applyInfoResponse.setName(userInfo.getName());
             applyInfoResponse.setIntro(apply.getSecondaryIntro());
             applyInfoResponse.setSecondaryStudyName(getStudyName(apply.getSecondaryStudy()));
-            applyInfoResponse.setUserId(apply.getApplierId());
+            applyInfoResponse.setUserId(apply.getId().getApplierId());
             applyInfoResponse.setApplyPath(apply.getApplyPath());
             applyInfoResponse.setPhoneNumber(userInfo.getPhoneNumber());
 
@@ -311,7 +311,7 @@ public class ApplyService {
 
         Set<Long> applierIds = request.getApplierIds();
         for (Long applierId : applierIds) {
-            Apply apply = applyRepository.findByApplierId(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다. ID: " + applierId));
+            Apply apply = applyRepository.findById_ApplierId(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다. ID: " + applierId));
             apply.setPayStatus(request.getPayStatus());
         }
     }
@@ -347,9 +347,13 @@ public class ApplyService {
 
     private Apply createApply(ApplyRequest request, User user) {
         Apply apply = new Apply();
-        apply.setApplierId(user.getId());
-        apply.setApplyYear(LocalDateTime.now().getYear());
-        apply.setApplySemester(LocalDateTime.now().getMonthValue() <= 6 ? 1 : 2);
+        Apply.ApplyId applyId = new Apply.ApplyId();
+        applyId.setApplierId(user.getId());
+        applyId.setApplyYear(LocalDateTime.now().getYear());
+        applyId.setApplySemester(LocalDateTime.now().getMonthValue() <= 6 ? 1 : 2);
+
+        apply.setId(applyId);
+        apply.setApplier(user);
         apply.setPrimaryStudy(request.getPrimaryStudy());
         apply.setSecondaryStudy(request.getSecondaryStudy());
         apply.setPrimaryIntro(request.getPrimaryIntro());
@@ -380,7 +384,7 @@ public class ApplyService {
     }
 
     private void processApplier(Long applierId, Study study) {
-        Apply apply = applyRepository.findByApplierId(applierId)
+        Apply apply = applyRepository.findById_ApplierId(applierId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서를 찾을 수 없습니다. ID: " + applierId));
 
         User user = userRepository.findById(applierId)
