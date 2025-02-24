@@ -14,6 +14,7 @@ import forif.univ_hanyang.user.repository.ForifTeamRepository;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
 import forif.univ_hanyang.util.CustomBeanUtils;
+import forif.univ_hanyang.util.DateUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -59,8 +60,8 @@ public class UserService {
                     .collect(Collectors.toSet());
 
             // 현재 스터디가 학기 및 연도가 같은 경우만 제거
-            if (recentStudy.getActSemester() == LocalDate.now().getMonthValue() / 7 + 1 &&
-                    recentStudy.getActYear() == LocalDate.now().getYear()) {
+            if (recentStudy.getActSemester() == DateUtils.getCurrentSemester()  &&
+                    recentStudy.getActYear() == DateUtils.getCurrentYear()) {
                 return UserInfoResponse.builder()
                         .id(user.getId())
                         .email(user.getEmail())

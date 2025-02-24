@@ -43,10 +43,12 @@ public class ApplyController {
     )
     @GetMapping
     public ResponseEntity<List<ApplyInfoResponse>> getAllApplications(
-            @RequestHeader("Authorization") String token
+            @RequestHeader("Authorization") String token,
+            @RequestParam Integer year,
+            @RequestParam Integer semester
     ) {
         User user = userService.validateUserExist(token);
-        return new ResponseEntity<>(applyService.getAllApplications(user), HttpStatus.OK);
+        return new ResponseEntity<>(applyService.getAllApplications(user, year, semester), HttpStatus.OK);
     }
 
     @Operation(
