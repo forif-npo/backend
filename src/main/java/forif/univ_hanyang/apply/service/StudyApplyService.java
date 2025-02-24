@@ -13,6 +13,7 @@ import forif.univ_hanyang.study.repository.MentorStudyRepository;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.UserRepository;
+import forif.univ_hanyang.util.DateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -182,8 +183,8 @@ public class StudyApplyService {
         study.setWeekDay(studyApply.getWeekDay());
         study.setOneLiner(studyApply.getOneLiner());
         study.setLocation(studyApply.getLocation());
-        study.setActYear(LocalDateTime.now().getYear());
-        study.setActSemester(LocalDateTime.now().getMonthValue() / 7 + 1);
+        study.setActYear(DateUtils.getCurrentYear());
+        study.setActSemester(DateUtils.getCurrentSemester());
         return study;
     }
 

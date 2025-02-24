@@ -13,6 +13,7 @@ import forif.univ_hanyang.user.entity.StudyUserId;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.StudyUserRepository;
 import forif.univ_hanyang.user.repository.UserRepository;
+import forif.univ_hanyang.util.DateUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.beanutils.BeanUtils;
@@ -39,10 +40,14 @@ public class ApplyService {
     private final ApplyRepository applyRepository;
 
 
-    public List<ApplyInfoResponse> getAllApplications(User user) {
-        if (user.getAuthLv() < 3) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+    @Transactional(readOnly = true)
+    public List<ApplyInfoResponse> getAllApplications(User user, Integer year, Integer semester) {
+        if (user.getAuthLv() < 3) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
 
-        List<Apply> applies = applyRepository.findAll();
+        // DB에서 year와 semester에 해당하는 Apply만 조회
+        List<Apply> applies = applyRepository.findById_ApplyYearAndId_ApplySemester(year, semester);
 
         // 모든 applier ID와 study ID를 한 번에 수집
         Set<Long> applierIds = applies.stream()
@@ -79,6 +84,7 @@ public class ApplyService {
                 })
                 .collect(Collectors.toList());
     }
+
 
     private Map<Long, UserInfoDTO> getUserInfoBulk(Set<Long> userIds) {
         return userRepository.findAllById(userIds).stream()
@@ -161,7 +167,7 @@ public class ApplyService {
             apply.setSecondaryStatus(null);
         else
             apply.setSecondaryStatus(0);
-        apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
+        apply.setApplyDate(LocalDateTime.now().toString());
 
         applyRepository.save(apply);
 
@@ -186,57 +192,61 @@ public class ApplyService {
 
     @Transactional(readOnly = true)
     public List<UserPaymentStatusResponse> getUnpaidUsers() {
-        List<Apply> applies = applyRepository.findAll();
+        List<Apply> applies = applyRepository.findById_ApplyYearAndId_ApplySemesterAndPayStatus(
+                DateUtils.getCurrentYear(), DateUtils.getCurrentSemester(), 0);
 
-        // 모든 applier ID를 한 번에 수집
         Set<Long> applierIds = applies.stream()
                 .map(apply -> apply.getId().getApplierId())
                 .collect(Collectors.toSet());
 
-        // 한 번의 쿼리로 모든 사용자 정보를 가져옴
         Map<Long, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
 
         return applies.stream()
-                .filter(apply -> apply.getPayStatus().equals(0))
-                .flatMap(apply -> { // flatMap을 사용하여 각 신청(Apply)에 대해 0개 또는 1개의 응답을 생성
+                .flatMap(apply -> {
                     UserInfoDTO userInfo = userInfoMap.get(apply.getId().getApplierId());
+                    if(userInfo == null) {
+                        return Stream.empty();
+                    }
                     List<UserPaymentStatusResponse> responses = new ArrayList<>();
-                    if (apply.getPrimaryStatus().equals(1)) {
+                    if (Objects.equals(apply.getPrimaryStatus(), 1)) {
                         responses.add(createResponse(apply, userInfo, apply.getPrimaryStudy(), true));
-                    } else if (apply.getSecondaryStatus().equals(1)) {
+                    } else if (Objects.equals(apply.getSecondaryStatus(), 1)) {
                         responses.add(createResponse(apply, userInfo, apply.getSecondaryStudy(), false));
                     }
                     return responses.stream();
                 })
                 .collect(Collectors.toList());
     }
+
 
     @Transactional(readOnly = true)
     public List<UserPaymentStatusResponse> getPaidUsers() {
-        List<Apply> applies = applyRepository.findAll();
+        List<Apply> applies = applyRepository.findById_ApplyYearAndId_ApplySemesterAndPayStatus(
+                DateUtils.getCurrentYear(), DateUtils.getCurrentSemester(), 1);
 
-        // 모든 applier ID를 한 번에 수집
         Set<Long> applierIds = applies.stream()
                 .map(apply -> apply.getId().getApplierId())
                 .collect(Collectors.toSet());
 
-        // 한 번의 쿼리로 모든 사용자 정보를 가져옴
         Map<Long, UserInfoDTO> userInfoMap = getUserInfoBulk(applierIds);
 
         return applies.stream()
-                .filter(apply -> apply.getPayStatus().equals(1))
-                .flatMap(apply -> { // flatMap을 사용하여 각 신청(Apply)에 대해 0개 또는 1개의 응답을 생성
+                .flatMap(apply -> {
                     UserInfoDTO userInfo = userInfoMap.get(apply.getId().getApplierId());
+                    if(userInfo == null) {
+                        return Stream.empty();
+                    }
                     List<UserPaymentStatusResponse> responses = new ArrayList<>();
-                    if (apply.getPrimaryStatus().equals(1)) {
+                    if (Objects.equals(apply.getPrimaryStatus(), 1)) {
                         responses.add(createResponse(apply, userInfo, apply.getPrimaryStudy(), true));
-                    } else if (apply.getSecondaryStatus().equals(1)) {
+                    } else if (Objects.equals(apply.getSecondaryStatus(), 1)) {
                         responses.add(createResponse(apply, userInfo, apply.getSecondaryStudy(), false));
                     }
                     return responses.stream();
                 })
                 .collect(Collectors.toList());
     }
+
 
     private UserPaymentStatusResponse createResponse(Apply apply, UserInfoDTO userInfo, Integer studyId, boolean isPrimary) {
         String studyType = studyId != 0 ? "정규 스터디" : "자율 스터디";
@@ -349,8 +359,8 @@ public class ApplyService {
         Apply apply = new Apply();
         Apply.ApplyId applyId = new Apply.ApplyId();
         applyId.setApplierId(user.getId());
-        applyId.setApplyYear(LocalDateTime.now().getYear());
-        applyId.setApplySemester(LocalDateTime.now().getMonthValue() <= 6 ? 1 : 2);
+        applyId.setApplyYear(DateUtils.getCurrentYear());
+        applyId.setApplySemester(DateUtils.getCurrentSemester());
 
         apply.setId(applyId);
         apply.setApplier(user);
@@ -364,7 +374,7 @@ public class ApplyService {
         if (request.getSecondaryStudy() != null) {
             apply.setSecondaryStatus(0);
         }
-        apply.setApplyDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
+        apply.setApplyDate(LocalDateTime.now().toString());
         return apply;
     }
 
