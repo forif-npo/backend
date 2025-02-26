@@ -12,6 +12,7 @@ import java.util.List;
 public class FAQResponse {
     private Integer id;
     private Long authorId;
+    private String authorName;
     private String tag;
     private String type;
     private String createdAt;
@@ -24,6 +25,7 @@ public class FAQResponse {
             FAQResponse faqResponse = new FAQResponse();
             faqResponse.setId(post.getId());
             faqResponse.setAuthorId(post.getUser() != null ? post.getUser().getId() : null);
+            faqResponse.setAuthorName(post.getUser() != null ? post.getUser().getName() : null);
             faqResponse.setTag(post.getTag());
             faqResponse.setType(post.getType());
             faqResponse.setCreatedAt(post.getCreatedAt());

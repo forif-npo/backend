@@ -14,6 +14,7 @@ import java.util.List;
 public class AnnouncementResponse {
     private Integer id;
     private Long authorId;
+    private String authorName;
     private String type;
     private String createdAt;
     private String title;
@@ -23,6 +24,7 @@ public class AnnouncementResponse {
         AnnouncementResponse announcementResponse = new AnnouncementResponse();
         announcementResponse.setId(post.getId());
         announcementResponse.setAuthorId(post.getUser() != null ? post.getUser().getId() : null);
+        announcementResponse.setAuthorName(post.getUser() != null ? post.getUser().getName() : null);
         announcementResponse.setType(post.getType());
         announcementResponse.setCreatedAt(post.getCreatedAt());
         announcementResponse.setContent(post.getContent());
@@ -38,6 +40,7 @@ public class AnnouncementResponse {
             AnnouncementResponse announcementResponse = new AnnouncementResponse();
             announcementResponse.setId(post.getId());
             announcementResponse.setAuthorId(post.getUser() != null ? post.getUser().getId() : null);
+            announcementResponse.setAuthorName(post.getUser() != null ? post.getUser().getName() : null);
             announcementResponse.setType(post.getType());
             announcementResponse.setCreatedAt(post.getCreatedAt());
             announcementResponse.setTitle(post.getTitle());
