@@ -24,12 +24,14 @@ import java.util.List;
 public class PostService {
     private final PostRepository postRepository;
 
+    @Transactional
     public List<AnnouncementResponse> getAnnouncements() {
         List<Post> postList = postRepository.findAllByType("공지사항")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공지사항이 없습니다."));
         return AnnouncementResponse.from(postList);
     }
 
+    @Transactional
     public AnnouncementResponse getAnnouncement(Integer id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 공지사항이 없습니다."));
@@ -72,6 +74,7 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    @Transactional
     public List<FAQResponse> getFAQs() {
         List<Post> postList = postRepository.findAllByType("FAQ")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FAQ가 없습니다."));
@@ -119,12 +122,14 @@ public class PostService {
         postRepository.delete(postFAQ);
     }
 
+    @Transactional
     public List<TechResponse> getTechs() {
         List<Post> postList = postRepository.findAllByType("기술 블로그")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기술 블로그가 없습니다."));
         return TechResponse.from(postList);
     }
 
+    @Transactional
     public TechResponse getTech(Integer id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기술 블로그 글이 없습니다."));
