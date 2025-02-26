@@ -3,6 +3,7 @@ package forif.univ_hanyang.post.service;
 import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
 import forif.univ_hanyang.post.dto.request.AnnouncementUpdateRequest;
 import forif.univ_hanyang.post.dto.request.FAQRequest;
+import forif.univ_hanyang.post.dto.request.TechRequest;
 import forif.univ_hanyang.post.dto.response.AnnouncementResponse;
 import forif.univ_hanyang.post.dto.response.FAQResponse;
 import forif.univ_hanyang.post.dto.response.TechResponse;
@@ -128,5 +129,59 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기술 블로그 글이 없습니다."));
         return TechResponse.from(post);
+    }
+
+    @Transactional
+    public TechResponse createTech(User user, TechRequest request) {
+        if(user.getAuthLv() == 1){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
+        Post post = new Post();
+        post.setType("기술 블로그");
+        post.setUser(user);
+        post.setCreatedAt(LocalDateTime.now().toString());
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+
+        postRepository.save(post);
+        return TechResponse.from(post);
+    }
+
+    @Transactional
+    public TechResponse updateTech(User user, Integer id, TechRequest request) {
+        if(user.getAuthLv() == 1){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
+        Post postTech = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기술 블로그 글이 없습니다."));
+
+        if(user.getAuthLv() < 3 && !postTech.getUser().getId().equals(user.getId())){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
+
+        postTech.setTitle(request.getTitle());
+        postTech.setContent(request.getContent());
+        postTech.setTag(request.getTag());
+
+        postRepository.save(postTech);
+
+        return TechResponse.from(postTech);
+    }
+
+    @Transactional
+    public void deleteTech(User user, Integer id) {
+        if(user.getAuthLv() == 1){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
+
+        Post postTech = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기술 블로그 글이 없습니다."));
+
+        if(user.getAuthLv() < 3 && !postTech.getUser().getId().equals(user.getId())){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
+
+
+        postRepository.delete(postTech);
     }
 }

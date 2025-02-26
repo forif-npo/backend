@@ -14,6 +14,7 @@ import java.util.List;
 public class TechResponse {
     private Integer id;
     private Long authorId;
+    private String authorName;
     private String type;
     private String tag;
     private String createdAt;
@@ -26,6 +27,7 @@ public class TechResponse {
             TechResponse techResponse = new TechResponse();
             techResponse.setId(post.getId());
             techResponse.setAuthorId(post.getUser() != null ? post.getUser().getId() : null);
+            techResponse.setAuthorName(post.getUser() != null ? post.getUser().getName() : null);
             techResponse.setTag(post.getTag());
             techResponse.setType(post.getType());
             techResponse.setCreatedAt(post.getCreatedAt());
@@ -40,6 +42,7 @@ public class TechResponse {
         TechResponse techResponse = new TechResponse();
         techResponse.setId(post.getId());
         techResponse.setAuthorId(post.getUser() != null ? post.getUser().getId() : null);
+        techResponse.setAuthorName(post.getUser() != null ? post.getUser().getName() : null);
         techResponse.setType(post.getType());
         techResponse.setTag(post.getTag());
         techResponse.setCreatedAt(post.getCreatedAt());

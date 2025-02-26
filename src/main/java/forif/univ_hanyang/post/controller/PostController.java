@@ -3,6 +3,7 @@ package forif.univ_hanyang.post.controller;
 import forif.univ_hanyang.post.dto.request.AnnouncementRequest;
 import forif.univ_hanyang.post.dto.request.AnnouncementUpdateRequest;
 import forif.univ_hanyang.post.dto.request.FAQRequest;
+import forif.univ_hanyang.post.dto.request.TechRequest;
 import forif.univ_hanyang.post.dto.response.AnnouncementResponse;
 import forif.univ_hanyang.post.dto.response.FAQResponse;
 import forif.univ_hanyang.post.dto.response.TechResponse;
@@ -176,8 +177,8 @@ public class PostController {
     }
 
     @Operation(
-            summary = "기술 스택 조회",
-            description = "전체 기술 스택을 조회함",
+            summary = "기술 블로그 조회",
+            description = "전체 기술 블로그를 조회함",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK"),
                     @ApiResponse(responseCode = "404", description = "요청 데이터에 대한 정보가 없음")
@@ -189,8 +190,8 @@ public class PostController {
     }
 
     @Operation(
-            summary = "기술 스택 조회",
-            description = "해당 기술 스택의 정보를 조회함",
+            summary = "기술 블로그 조회",
+            description = "해당 기술 블로그의 정보를 조회함",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK"),
                     @ApiResponse(responseCode = "404", description = "요청 데이터에 대한 정보가 없음")
@@ -201,6 +202,60 @@ public class PostController {
             @PathVariable Integer id
     ) {
         return new ResponseEntity<>(postService.getTech(id), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "기술 블로그 글 작성",
+            description = "기술 블로그 글을 작성함",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Created"),
+                    @ApiResponse(responseCode = "403", description = "권한이 없음")
+            }
+    )
+    @PostMapping("/techs")
+    public ResponseEntity<TechResponse> createTech(
+            @RequestBody TechRequest request,
+            @RequestHeader("Authorization") String token
+    ) {
+        TechResponse response = postService.createTech(userService.validateUserExist(token), request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "기술 블로그 수정",
+            description = "해당 기술 블로그를 수정함",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "403", description = "권한이 없음")
+            }
+    )
+    @PatchMapping("/techs/{id}")
+    public ResponseEntity<TechResponse> updateTech(
+            @PathVariable Integer id,
+            @RequestBody TechRequest request,
+            @RequestHeader("Authorization") String token
+    ) {
+        TechResponse response = postService.updateTech(userService.validateUserExist(token), id, request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "기술 블로그 삭제",
+            description = "해당 기술 블로그를 삭제함",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @ApiResponse(responseCode = "403", description = "권한이 없음")
+            }
+    )
+    @DeleteMapping("/techs/{id}")
+    public ResponseEntity<Void> deleteTech(
+            @PathVariable Integer id,
+            @RequestHeader("Authorization") String token
+    ) {
+        postService.deleteTech(userService.validateUserExist(token), id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
