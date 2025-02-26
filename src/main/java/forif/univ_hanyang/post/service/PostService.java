@@ -147,6 +147,7 @@ public class PostService {
         post.setCreatedAt(LocalDateTime.now().toString());
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
+        post.setTag(request.getTag());
 
         postRepository.save(post);
         return TechResponse.from(post);
