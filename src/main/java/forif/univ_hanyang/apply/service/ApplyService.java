@@ -321,7 +321,7 @@ public class ApplyService {
 
         Set<Long> applierIds = request.getApplierIds();
         for (Long applierId : applierIds) {
-            Apply apply = applyRepository.findById_ApplierId(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다. ID: " + applierId));
+            Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다. ID: " + applierId));
             apply.setPayStatus(request.getPayStatus());
         }
     }
