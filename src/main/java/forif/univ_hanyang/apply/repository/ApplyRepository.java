@@ -15,6 +15,9 @@ public interface ApplyRepository extends JpaRepository<Apply, Apply.ApplyId> {
             Integer applyYear, Integer applySemester, Integer payStatus);
 
     List<Apply> findById_ApplyYearAndId_ApplySemester(Integer applyYear, Integer applySemester);
+
+    Optional<Apply> findFirstById_ApplierIdOrderByApplyDateDesc(Long applierId);
+
     void deleteById_ApplierId(Long applierId);
 
     void deleteAll();
