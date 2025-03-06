@@ -109,11 +109,13 @@ public class ApplyController {
     @PatchMapping("/me")
     private ResponseEntity<Apply> patchApplication(
             @RequestHeader("Authorization") String token,
+            @RequestParam Integer year,
+            @RequestParam Integer semester,
             @RequestBody ApplyRequest request
     ) throws InvocationTargetException, IllegalAccessException {
         User user = userService.validateUserExist(token);
 
-        return new ResponseEntity<>(applyService.patchApplication(user, request), HttpStatus.OK);
+        return new ResponseEntity<>(applyService.patchApplication(user, request, year, semester), HttpStatus.OK);
     }
 
 
