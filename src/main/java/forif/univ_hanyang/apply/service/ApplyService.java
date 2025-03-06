@@ -159,8 +159,8 @@ public class ApplyService {
 
 
     @Transactional
-    public Apply patchApplication(User user, ApplyRequest request, Integer year, Integer semester) throws IllegalAccessException, InvocationTargetException {
-        Apply apply = applyRepository.findById_ApplierIdAndId_ApplyYearAndId_ApplySemester(user.getId(), year, semester).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다."));
+    public Apply patchApplication(User user, ApplyRequest request) throws IllegalAccessException, InvocationTargetException {
+        Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(user.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다."));
         // request 객체에서 apply 객체로 null이 아닌 필드만 복사
         BeanUtils.copyProperties(apply, request);
         if (request.getSecondaryStudy() == null)
@@ -394,7 +394,7 @@ public class ApplyService {
     }
 
     private void processApplier(Long applierId, Study study) {
-        Apply apply = applyRepository.findById_ApplierId(applierId)
+        Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(applierId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서를 찾을 수 없습니다. ID: " + applierId));
 
         User user = userRepository.findById(applierId)
