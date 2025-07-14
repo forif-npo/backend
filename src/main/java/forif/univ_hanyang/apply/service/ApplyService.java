@@ -160,7 +160,7 @@ public class ApplyService {
 
     @Transactional
     public Apply patchApplication(User user, ApplyRequest request) throws IllegalAccessException, InvocationTargetException {
-        Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(user.getId()).orElseThrow(() -> new ForifException(ErrorCode.APPLY_NOT_FOUND));
+        Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(user.getId()).orElseThrow(() -> new ForifException(ErrorCode.INVALID_APPLICATION));
         // request 객체에서 apply 객체로 null이 아닌 필드만 복사
         BeanUtils.copyProperties(apply, request);
         if (request.getSecondaryStudy() == null)
@@ -321,7 +321,7 @@ public class ApplyService {
 
         Set<Long> applierIds = request.getApplierIds();
         for (Long applierId : applierIds) {
-            Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(applierId).orElseThrow(() -> new ForifException(ErrorCode.APPLY_NOT_FOUND));
+            Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(applierId).orElseThrow(() -> new ForifException(ErrorCode.INVALID_APPLICATION));
             apply.setPayStatus(request.getPayStatus());
         }
     }
@@ -395,7 +395,7 @@ public class ApplyService {
 
     private void processApplier(Long applierId, Study study) {
         Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(applierId)
-                .orElseThrow(() -> new ForifException(ErrorCode.APPLY_NOT_FOUND));
+                .orElseThrow(() -> new ForifException(ErrorCode.INVALID_APPLICATION));
 
         User user = userRepository.findById(applierId)
                 .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND));

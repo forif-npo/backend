@@ -6,13 +6,13 @@ public enum ErrorCode {
     
     // 400 Bad Request
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "FOR001-400", "잘못된 요청입니다."),
-    TEAM_NOT_FOUND_BY_SEMESTER(HttpStatus.BAD_REQUEST, "FOR002-400", "해당 연도, 학기에 해당하는 운영진이 없습니다."),
-    TEAM_NOT_FOUND_BY_STUDENT_ID(HttpStatus.BAD_REQUEST, "FOR003-400", "해당 학번에 해당하는 운영진이 없습니다."),
-    USER_NOT_FOUND_BY_ID(HttpStatus.BAD_REQUEST, "FOR004-400", "ID에 해당하는 유저가 없습니다."),
-    SEMESTER_INFO_NOT_FOUND(HttpStatus.BAD_REQUEST, "FOR005-400", "해당 학기의 정보가 존재하지 않습니다."),
+    INVALID_SEMESTER_TEAM(HttpStatus.BAD_REQUEST, "FOR002-400", "해당 연도, 학기에 해당하는 운영진이 없습니다."),
+    INVALID_STUDENT_ID(HttpStatus.BAD_REQUEST, "FOR003-400", "해당 학번에 해당하는 운영진이 없습니다."),
+    INVALID_USER_ID(HttpStatus.BAD_REQUEST, "FOR004-400", "ID에 해당하는 유저가 없습니다."),
+    INVALID_SEMESTER_INFO(HttpStatus.BAD_REQUEST, "FOR005-400", "해당 학기의 정보가 존재하지 않습니다."),
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "FOR006-400", "입력값이 유효하지 않습니다."),
     STUDY_BAD_REQUEST(HttpStatus.BAD_REQUEST, "FOR007-400", "요청한 스터디가 존재하지 않습니다."),
-    APPLY_NOT_FOUND(HttpStatus.BAD_REQUEST, "FOR008-400", "지원서가 없습니다."),
+    INVALID_APPLICATION(HttpStatus.BAD_REQUEST, "FOR008-400", "지원서가 없습니다."),
     STUDY_ALREADY_APPROVED(HttpStatus.BAD_REQUEST, "FOR009-400", "이미 승인된 스터디입니다."),
     PRIMARY_STUDY_REQUIRED(HttpStatus.BAD_REQUEST, "FOR010-400", "1순위 스터디를 무조건 선택해야 합니다."),
     USER_NOT_APPLIED_TO_STUDY(HttpStatus.BAD_REQUEST, "FOR011-400", "해당 스터디에 지원하지 않은 유저입니다."),
