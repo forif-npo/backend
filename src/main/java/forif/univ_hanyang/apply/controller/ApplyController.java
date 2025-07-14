@@ -22,6 +22,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
+import forif.univ_hanyang.exception.ErrorCode;
+import forif.univ_hanyang.exception.ForifException;
 
 @Tag(name = "지원서", description = "지원서 관련 API")
 @RestController
@@ -174,7 +176,7 @@ public class ApplyController {
     ) {
         User user = userService.validateUserExist(token);
         if (user.getAuthLv() < 3)
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.UNAUTHORIZED_ACCESS);
 
         return new ResponseEntity<>(applyService.getUnpaidUsers(), HttpStatus.OK);
     }
@@ -195,7 +197,7 @@ public class ApplyController {
     ) {
         User user = userService.validateUserExist(token);
         if (user.getAuthLv() == 1)
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.UNAUTHORIZED_ACCESS);
 
         return new ResponseEntity<>(applyService.getPaidUsers(), HttpStatus.OK);
     }

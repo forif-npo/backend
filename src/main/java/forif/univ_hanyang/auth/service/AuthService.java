@@ -2,6 +2,8 @@ package forif.univ_hanyang.auth.service;
 
 import forif.univ_hanyang.auth.dto.request.SignUpRequest;
 import forif.univ_hanyang.auth.dto.response.*;
+import forif.univ_hanyang.exception.ErrorCode;
+import forif.univ_hanyang.exception.ForifException;
 import forif.univ_hanyang.jwt.JwtUtils;
 import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.UserRepository;
@@ -12,13 +14,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
@@ -97,7 +97,7 @@ public class AuthService {
     public User setUser(SignUpRequest request, String access_token) {
         String email = getEmailFromToken(access_token);
         if (userRepository.findByEmail(email).isPresent())
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 사용자입니다.");
+            throw new ForifException(ErrorCode.USER_ALREADY_EXISTS);
 
         Long id = request.getId();
         String name = request.getName();
@@ -121,18 +121,18 @@ public class AuthService {
 
     public AccessTokenResponse getAccessToken(String refresh_token) {
         if (!jwtUtils.validateToken(refresh_token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "토큰이 유효하지 않습니다.");
+            throw new ForifException(ErrorCode.INVALID_TOKEN);
         }
 
         String userId = jwtUtils.getUserIdFromToken(refresh_token);
         Optional<User> user = userRepository.findById(Long.parseLong(userId));
 
         if (user.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다.");
+            throw new ForifException(ErrorCode.USER_NOT_FOUND_404);
         }
 
         if (jwtUtils.isExpired(refresh_token))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다.");
+            throw new ForifException(ErrorCode.TOKEN_EXPIRED);
 
         AccessTokenResponse accessTokenResponse = new AccessTokenResponse();
         accessTokenResponse.setAccess_token(jwtUtils.generateAccessToken(userId));

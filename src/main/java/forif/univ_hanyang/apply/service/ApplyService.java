@@ -6,6 +6,8 @@ import forif.univ_hanyang.apply.dto.request.IsPaidRequest;
 import forif.univ_hanyang.apply.dto.response.*;
 import forif.univ_hanyang.apply.entity.Apply;
 import forif.univ_hanyang.apply.repository.ApplyRepository;
+import forif.univ_hanyang.exception.ErrorCode;
+import forif.univ_hanyang.exception.ForifException;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.repository.StudyRepository;
 import forif.univ_hanyang.user.entity.StudyUser;
@@ -17,10 +19,8 @@ import forif.univ_hanyang.util.DateUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.beanutils.BeanUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
@@ -43,7 +43,7 @@ public class ApplyService {
     @Transactional(readOnly = true)
     public List<ApplyInfoResponse> getAllApplications(User user, Integer year, Integer semester) {
         if (user.getAuthLv() < 3) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
         // DB에서 year와 semester에 해당하는 Apply만 조회
@@ -133,7 +133,7 @@ public class ApplyService {
         AppliedStudyResponse secondaryStudy = new AppliedStudyResponse();
 
         primaryStudy.setId(apply.getPrimaryStudy());
-        primaryStudy.setName(studyRepository.findById(apply.getPrimaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다.")).getName());
+        primaryStudy.setName(studyRepository.findById(apply.getPrimaryStudy()).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND)).getName());
         primaryStudy.setIntroduction(apply.getPrimaryIntro());
         primaryStudy.setStatus(apply.getPrimaryStatus());
 
@@ -145,7 +145,7 @@ public class ApplyService {
             return response;
         }
         secondaryStudy.setId(apply.getSecondaryStudy());
-        secondaryStudy.setName(studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다.")).getName());
+        secondaryStudy.setName(studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND)).getName());
         secondaryStudy.setIntroduction(apply.getSecondaryIntro());
         secondaryStudy.setStatus(apply.getSecondaryStatus());
 
@@ -160,7 +160,7 @@ public class ApplyService {
 
     @Transactional
     public Apply patchApplication(User user, ApplyRequest request) throws IllegalAccessException, InvocationTargetException {
-        Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(user.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다."));
+        Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(user.getId()).orElseThrow(() -> new ForifException(ErrorCode.APPLY_NOT_FOUND));
         // request 객체에서 apply 객체로 null이 아닌 필드만 복사
         BeanUtils.copyProperties(apply, request);
         if (request.getSecondaryStudy() == null)
@@ -262,9 +262,9 @@ public class ApplyService {
 
     @Transactional(readOnly = true)
     public Map<String, List<ApplyInfoResponse>> getAllApplicationsOfStudy(Integer studyId, User user) {
-        if (user.getAuthLv() < 2) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        if (user.getAuthLv() < 2) throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
-        studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다."));
+        studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND));
 
         List<Apply> allApplies = applyRepository.findAll(); // 모든 Apply 엔티티를 가져옴
 
@@ -317,18 +317,18 @@ public class ApplyService {
 
     @Transactional
     public void patchIsPaid(User user, IsPaidRequest request) {
-        if (user.getAuthLv() < 3) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        if (user.getAuthLv() < 3) throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         Set<Long> applierIds = request.getApplierIds();
         for (Long applierId : applierIds) {
-            Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(applierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서가 없습니다. ID: " + applierId));
+            Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(applierId).orElseThrow(() -> new ForifException(ErrorCode.APPLY_NOT_FOUND, "지원서가 없습니다. ID: " + applierId));
             apply.setPayStatus(request.getPayStatus());
         }
     }
 
     @Transactional
     public void deleteAllApplications(User user) {
-        if (user.getAuthLv() != 4) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        if (user.getAuthLv() != 4) throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         applyRepository.deleteAll();
     }
@@ -338,12 +338,12 @@ public class ApplyService {
         if (id == 0)
             return;
         // 1순위 스터디를 선택하지 않은 경우에 대한 처리
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "1순위 스터디를 무조건 선택해야 합니다.");
+        throw new ForifException(ErrorCode.PRIMARY_STUDY_REQUIRED);
     }
 
     private void validateStudy(Integer studyId, User user) {
         Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 존재하지 않습니다. ID: " + studyId));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "스터디가 존재하지 않습니다. ID: " + studyId));
 
         if (isUserMentorOfStudy(study, user)) {
             throw new IllegalArgumentException(study.getName() + "은(는) 자신의 스터디입니다.");
@@ -380,14 +380,14 @@ public class ApplyService {
 
     private Study validateMentorAndStudy(User mentor, AcceptRequest request) {
         if (mentor.getAuthLv() == 1) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
         Study study = studyRepository.findById(request.getStudyId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당하는 스터디가 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디가 없습니다."));
 
         if (request.getStudyId() != 0 && !isUserMentorOfStudy(study, mentor)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 스터디의 멘토가 아닙니다.");
+            throw new ForifException(ErrorCode.NOT_STUDY_MENTOR);
         }
 
         return study;
@@ -395,10 +395,10 @@ public class ApplyService {
 
     private void processApplier(Long applierId, Study study) {
         Apply apply = applyRepository.findFirstById_ApplierIdOrderByApplyDateDesc(applierId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원서를 찾을 수 없습니다. ID: " + applierId));
+                .orElseThrow(() -> new ForifException(ErrorCode.APPLY_NOT_FOUND, "지원서를 찾을 수 없습니다. ID: " + applierId));
 
         User user = userRepository.findById(applierId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다. ID: " + applierId));
+                .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_404, "유저를 찾을 수 없습니다. ID: " + applierId));
 
         validateApplyForStudy(apply, study);
 
@@ -413,7 +413,7 @@ public class ApplyService {
 
     private void validateApplyForStudy(Apply apply, Study study) {
         if (!Objects.equals(apply.getPrimaryStudy(), study.getId()) && !Objects.equals(apply.getSecondaryStudy(), study.getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 스터디에 지원하지 않은 유저입니다.");
+            throw new ForifException(ErrorCode.USER_NOT_APPLIED_TO_STUDY);
         }
     }
 
@@ -449,13 +449,13 @@ public class ApplyService {
                         user.getPhoneNumber(),
                         user.getDepartment()
                 ))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저가 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_404, "유저가 없습니다."));
     }
 
 
     private String getStudyName(Integer studyId) {
         if (studyId == null) return null;
-        return studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "스터디가 없습니다.")).getName();
+        return studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "스터디가 없습니다.")).getName();
     }
 
 

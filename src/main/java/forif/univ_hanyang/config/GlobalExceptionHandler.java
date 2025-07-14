@@ -1,5 +1,6 @@
 package forif.univ_hanyang.config;
 
+import forif.univ_hanyang.exception.ForifException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,12 @@ import org.springframework.web.server.ResponseStatusException;
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    @ExceptionHandler(ForifException.class)
+    public ResponseEntity<String> handleForifException(ForifException e) {
+        logger.error("ForifException 발생: [{}] {}", e.getErrorCode().getCode(), e.getMessage(), e);
+        return new ResponseEntity<>("오류 발생: " + e.getMessage(), e.getErrorCode().getHttpStatus());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         if (e instanceof ResponseStatusException rse) {
@@ -20,6 +27,5 @@ public class GlobalExceptionHandler {
         }
         logger.error("예외 발생: {}", e.getMessage(), e);
         return new ResponseEntity<>("오류 발생: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-
     }
 }

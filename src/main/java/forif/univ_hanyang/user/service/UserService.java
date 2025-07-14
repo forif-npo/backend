@@ -1,6 +1,8 @@
 package forif.univ_hanyang.user.service;
 
 import forif.univ_hanyang.apply.repository.ApplyRepository;
+import forif.univ_hanyang.exception.ErrorCode;
+import forif.univ_hanyang.exception.ForifException;
 import forif.univ_hanyang.jwt.JwtUtils;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.repository.MentorStudyRepository;
@@ -17,9 +19,7 @@ import forif.univ_hanyang.util.CustomBeanUtils;
 import forif.univ_hanyang.util.DateUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -48,10 +48,10 @@ public class UserService {
             // 가장 최근 스터디 유저 찾기
             StudyUser recentStudyUser = userStudies.stream()
                     .max(Comparator.comparingInt(studyUser -> studyUser.getId().getStudyId()))
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 존재하지 않습니다."));
+                    .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND));
 
             Study recentStudy = studyRepository.findById(recentStudyUser.getId().getStudyId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디가 존재하지 않습니다."));
+                    .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND));
 
             // 현재 진행 중인 스터디를 최근 스터디로 설정하고 나머지 스터디는 passedStudyId에 추가
             Set<Integer> studyIds = userStudies.stream()
@@ -118,7 +118,7 @@ public class UserService {
 
         // JWT 토큰 검증
         if (!jwtValidator.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+            throw new ForifException(ErrorCode.INVALID_TOKEN);
         }
 
         // JWT 토큰을 통해 사용자 ID 획득
@@ -127,12 +127,12 @@ public class UserService {
 
         // 사용자 존재 여부 검증
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID에 해당하는 유저가 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_BY_ID));
     }
 
     public List<AllUserInfoResponse> getAllUsersInfo(User admin) {
         if (admin.getAuthLv() != 4)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         List<User> users = userRepository.findAll();
         List<AllUserInfoResponse> allUserInfoResponses = new ArrayList<>();
@@ -150,12 +150,12 @@ public class UserService {
 
     public List<AllUserInfoResponse> getTargetTermUsersInfo(User admin, Integer year, Integer semester) {
         if (admin.getAuthLv() != 4)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         List<AllUserInfoResponse> usersInfo = studyUserRepository.getUserInfoByYearAndSemester(year, semester);
 
         if (usersInfo.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 학기의 정보가 존재하지 않습니다.");
+            throw new ForifException(ErrorCode.SEMESTER_INFO_NOT_FOUND);
 
         return usersInfo;
     }

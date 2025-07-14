@@ -1,5 +1,7 @@
 package forif.univ_hanyang.study.service;
 
+import forif.univ_hanyang.exception.ErrorCode;
+import forif.univ_hanyang.exception.ForifException;
 import forif.univ_hanyang.study.dto.request.StudyPatchRequest;
 import forif.univ_hanyang.study.dto.response.AllStudyInfoResponse;
 import forif.univ_hanyang.study.dto.response.MyCreatedStudiesResponse;
@@ -21,10 +23,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,17 +44,17 @@ public class StudyService {
     @Cacheable(value = "studies", key = "#year + '-' + #semester")
     public List<Study> getStudiesInfo(Integer year, Integer semester) {
         return studyRepository.findAllByActYearAndActSemester(year, semester)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디가 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디가 없습니다."));
     }
 
 
     @Cacheable(value = "study", key = "#studyId")
     public StudyInfoResponse getStudyInfo(Integer studyId) {
         Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
 
         List<StudyPlanResponse> studyPlanResponses = studyPlanRepository.findAllById_StudyIdOrderById_WeekNum(studyId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디의 주간 계획을 찾을 수 없습니다."))
+                .orElseThrow(() -> new ForifException(ErrorCode.WEEKLY_PLAN_NOT_FOUND))
                 .stream().map(StudyPlanResponse::from).collect(Collectors.toList());
 
 
@@ -80,7 +80,7 @@ public class StudyService {
 
     public List<StudyMemberResponse> getStudyMembers(User mentor, Integer studyId) {
         if (mentor.getAuthLv() == 1)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         List<StudyUser> userStudies = studyUserRepository.findAllById_StudyId(studyId);
         List<StudyMemberResponse> userList = new ArrayList<>();
@@ -104,10 +104,10 @@ public class StudyService {
     @CacheEvict(value = "study", key = "#studyId")
     public void updateStudy(User user, Integer studyId, StudyPatchRequest request) {
         if (user.getAuthLv() == 1)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         // 기존 스터디를 찾아옴
-        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
+        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
 
         studyRepository.save(setStudy(study, request));
     }
@@ -115,10 +115,10 @@ public class StudyService {
     @Transactional
     public void deleteStudy(User user, Integer studyId) {
         if (user.getAuthLv() == 1)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         // studyId로 스터디를 찾음
-        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
+        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
         // 해당 스터디 신청 혹은 수강 중인 유저 모두 삭제
         studyUserRepository.deleteAllById_StudyId(studyId);
         // 주간 계획 모두 삭제
@@ -133,9 +133,9 @@ public class StudyService {
     public void deleteUserFromStudy(Integer studyId, Long userId) {
         // studyId로 스터디가 존재하는지 검증
         studyRepository.findById(studyId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
         userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_404, "해당하는 유저를 찾을 수 없습니다."));
 
         StudyUser StudyUser = studyUserRepository.findById_StudyIdAndId_UserId(studyId, userId);
         //유저 삭제
@@ -196,7 +196,7 @@ public class StudyService {
 
     public List<MyCreatedStudiesResponse> getMyCreatedStudies(User user) {
         if (user.getAuthLv() == 1)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         List<MentorStudy> mentorStudies = mentorStudyRepository.findAllById_MentorId(user.getId());
         List<MyCreatedStudiesResponse> result = new ArrayList<>();

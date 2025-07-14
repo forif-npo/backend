@@ -1,11 +1,11 @@
 package forif.univ_hanyang.study.dto.response;
 
+import forif.univ_hanyang.exception.ErrorCode;
+import forif.univ_hanyang.exception.ForifException;
 import forif.univ_hanyang.study.entity.StudyPlan;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 @Getter
 @Setter
@@ -17,7 +17,7 @@ public class StudyPlanResponse {
     public static StudyPlanResponse from(StudyPlan studyPlan) {
         // studyPlan이 null인 경우 예외
         if (studyPlan == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "스터디 플랜이 없습니다.");
+            throw new ForifException(ErrorCode.STUDY_PLAN_NOT_FOUND);
         }
         String section = studyPlan.getSection();
         String content = studyPlan.getContent();

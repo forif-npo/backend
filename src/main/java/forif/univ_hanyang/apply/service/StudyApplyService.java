@@ -6,6 +6,8 @@ import forif.univ_hanyang.apply.dto.response.StudyApplyResponse;
 import forif.univ_hanyang.apply.entity.StudyApply;
 import forif.univ_hanyang.apply.entity.StudyApplyPlan;
 import forif.univ_hanyang.apply.repository.StudyApplyRepository;
+import forif.univ_hanyang.exception.ErrorCode;
+import forif.univ_hanyang.exception.ForifException;
 import forif.univ_hanyang.study.entity.MentorStudy;
 import forif.univ_hanyang.study.entity.Study;
 import forif.univ_hanyang.study.entity.StudyPlan;
@@ -15,10 +17,8 @@ import forif.univ_hanyang.user.entity.User;
 import forif.univ_hanyang.user.repository.UserRepository;
 import forif.univ_hanyang.util.DateUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -42,7 +42,7 @@ public class StudyApplyService {
     @Transactional(readOnly = true)
     public List<StudyApplyResponse> getAppliedStudies(User admin, Integer year, Integer semester) {
         if (admin.getAuthLv() < 3) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
         List<StudyApply> studyApplies = studyApplyRepository.findAllByActYearAndActSemester(year, semester);
@@ -53,10 +53,7 @@ public class StudyApplyService {
         return studyApplies.stream()
                 .map(studyApply -> {
                     if (studyApply.getPrimaryMentor() == null) {
-                        throw new ResponseStatusException(
-                                HttpStatus.BAD_REQUEST,
-                                String.format("스터디 '%s'의 주 멘토 정보가 없습니다.", studyApply.getName())
-                        );
+                        throw new ForifException(ErrorCode.STUDY_APPLICATION_PERIOD_ENDED, String.format("스터디 '%s'의 주 멘토 정보가 없습니다.", studyApply.getName()));
                     }
 
                     StudyApplyResponse response = StudyApplyResponse.from(studyApply);
@@ -77,17 +74,17 @@ public class StudyApplyService {
     @Transactional
     public void updateStudy(StudyApplyRequest request, User admin, Integer applyId) {
         if(admin.getAuthLv() < 3)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         StudyApply studyApply = studyApplyRepository.findById(applyId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 스터디 신청을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_APPLY_NOT_FOUND));
         setStudyApply(request, studyApply);
     }
 
     @Transactional
     public void moveToStudy(User admin, MoveToStudyRequest request) {
         if (admin.getAuthLv() < 3)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         List<StudyApply> studyApplies = studyApplyRepository.findAllWithMentorsById(request.getIdList());
 
@@ -106,20 +103,20 @@ public class StudyApplyService {
 
         for (StudyApply studyApply : studyApplies) {
             if (studyApply.getAcceptanceStatus() == 1) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 승인된 스터디입니다.");
+                throw new ForifException(ErrorCode.STUDY_ALREADY_APPROVED);
             }
 
             studyApply.setAcceptanceStatus(1);
 
             User primaryMentor = mentorMap.get(studyApply.getPrimaryMentor().getId());
             if (primaryMentor == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "1순위 멘토를 찾을 수 없습니다.");
+                throw new ForifException(ErrorCode.FIRST_MENTOR_NOT_FOUND);
             }
 
             User secondaryMentor = studyApply.getSecondaryMentor() != null ?
                     mentorMap.get(studyApply.getSecondaryMentor().getId()) : null;
             if (studyApply.getSecondaryMentor() != null && secondaryMentor == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "2순위 멘토를 찾을 수 없습니다.");
+                throw new ForifException(ErrorCode.SECOND_MENTOR_NOT_FOUND);
             }
 
             Study study = createStudyFromApply(studyApply, primaryMentor, secondaryMentor);
@@ -157,7 +154,7 @@ public class StudyApplyService {
     @Transactional
     protected void setMentor(Study study, Long mentorId, Integer mentorNum) {
         MentorStudy mentorStudy = new MentorStudy();
-        User mentor = userRepository.findById(mentorId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
+        User mentor = userRepository.findById(mentorId).orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_404));
         MentorStudy.MentorStudyId mentorStudyId = new MentorStudy.MentorStudyId();
         mentorStudyId.setMentorId(mentorId);
         mentorStudyId.setStudyId(study.getId());
@@ -191,12 +188,12 @@ public class StudyApplyService {
     @Transactional
     protected void setStudyApply(StudyApplyRequest request, StudyApply newStudy) {
         User primaryMentor = userRepository.findById(request.getPrimaryMentorId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_404));
         newStudy.setPrimaryMentor(primaryMentor);
         newStudy.setPrimaryMentorId(primaryMentor.getId());
         if(request.getSecondaryMentorId() != null) {
             User secondaryMentor = userRepository.findById(request.getSecondaryMentorId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
+                    .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_404));
             newStudy.setSecondaryMentor(secondaryMentor);
             newStudy.setSecondaryMentorId(secondaryMentor.getId());
         }
