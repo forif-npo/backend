@@ -44,14 +44,14 @@ public class StudyService {
     @Cacheable(value = "studies", key = "#year + '-' + #semester")
     public List<Study> getStudiesInfo(Integer year, Integer semester) {
         return studyRepository.findAllByActYearAndActSemester(year, semester)
-                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디가 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND));
     }
 
 
     @Cacheable(value = "study", key = "#studyId")
     public StudyInfoResponse getStudyInfo(Integer studyId) {
         Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND));
 
         List<StudyPlanResponse> studyPlanResponses = studyPlanRepository.findAllById_StudyIdOrderById_WeekNum(studyId)
                 .orElseThrow(() -> new ForifException(ErrorCode.WEEKLY_PLAN_NOT_FOUND))
@@ -107,7 +107,7 @@ public class StudyService {
             throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
         // 기존 스터디를 찾아옴
-        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
+        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND));
 
         studyRepository.save(setStudy(study, request));
     }
@@ -117,8 +117,8 @@ public class StudyService {
         if (user.getAuthLv() == 1)
             throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
-        // studyId로 스터디를 찾음
-        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
+        // studyId로 스터디를 찾음  
+        Study study = studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND));
         // 해당 스터디 신청 혹은 수강 중인 유저 모두 삭제
         studyUserRepository.deleteAllById_StudyId(studyId);
         // 주간 계획 모두 삭제
@@ -133,9 +133,9 @@ public class StudyService {
     public void deleteUserFromStudy(Integer studyId, Long userId) {
         // studyId로 스터디가 존재하는지 검증
         studyRepository.findById(studyId)
-                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND, "해당하는 스터디를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND));
         userRepository.findById(userId)
-                .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_404, "해당하는 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND));
 
         StudyUser StudyUser = studyUserRepository.findById_StudyIdAndId_UserId(studyId, userId);
         //유저 삭제
