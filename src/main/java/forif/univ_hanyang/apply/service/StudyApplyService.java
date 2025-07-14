@@ -53,7 +53,7 @@ public class StudyApplyService {
         return studyApplies.stream()
                 .map(studyApply -> {
                     if (studyApply.getPrimaryMentor() == null) {
-                        throw new ForifException(ErrorCode.STUDY_APPLICATION_PERIOD_ENDED, String.format("스터디 '%s'의 주 멘토 정보가 없습니다.", studyApply.getName()));
+                        throw new ForifException(ErrorCode.STUDY_APPLICATION_PERIOD_ENDED);
                     }
 
                     StudyApplyResponse response = StudyApplyResponse.from(studyApply);
@@ -154,7 +154,7 @@ public class StudyApplyService {
     @Transactional
     protected void setMentor(Study study, Long mentorId, Integer mentorNum) {
         MentorStudy mentorStudy = new MentorStudy();
-        User mentor = userRepository.findById(mentorId).orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_404));
+        User mentor = userRepository.findById(mentorId).orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND));
         MentorStudy.MentorStudyId mentorStudyId = new MentorStudy.MentorStudyId();
         mentorStudyId.setMentorId(mentorId);
         mentorStudyId.setStudyId(study.getId());
@@ -188,12 +188,12 @@ public class StudyApplyService {
     @Transactional
     protected void setStudyApply(StudyApplyRequest request, StudyApply newStudy) {
         User primaryMentor = userRepository.findById(request.getPrimaryMentorId())
-                .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_404));
+                .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND));
         newStudy.setPrimaryMentor(primaryMentor);
         newStudy.setPrimaryMentorId(primaryMentor.getId());
         if(request.getSecondaryMentorId() != null) {
             User secondaryMentor = userRepository.findById(request.getSecondaryMentorId())
-                    .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_404));
+                    .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND));
             newStudy.setSecondaryMentor(secondaryMentor);
             newStudy.setSecondaryMentorId(secondaryMentor.getId());
         }
