@@ -133,7 +133,7 @@ public class ApplyService {
         AppliedStudyResponse secondaryStudy = new AppliedStudyResponse();
 
         primaryStudy.setId(apply.getPrimaryStudy());
-        primaryStudy.setName(studyRepository.findById(apply.getPrimaryStudy()).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND_BAD_REQUEST)).getName());
+        primaryStudy.setName(studyRepository.findById(apply.getPrimaryStudy()).orElseThrow(() -> new ForifException(ErrorCode.STUDY_BAD_REQUEST)).getName());
         primaryStudy.setIntroduction(apply.getPrimaryIntro());
         primaryStudy.setStatus(apply.getPrimaryStatus());
 
@@ -145,7 +145,7 @@ public class ApplyService {
             return response;
         }
         secondaryStudy.setId(apply.getSecondaryStudy());
-        secondaryStudy.setName(studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND_BAD_REQUEST)).getName());
+        secondaryStudy.setName(studyRepository.findById(apply.getSecondaryStudy()).orElseThrow(() -> new ForifException(ErrorCode.STUDY_BAD_REQUEST)).getName());
         secondaryStudy.setIntroduction(apply.getSecondaryIntro());
         secondaryStudy.setStatus(apply.getSecondaryStatus());
 
@@ -264,7 +264,7 @@ public class ApplyService {
     public Map<String, List<ApplyInfoResponse>> getAllApplicationsOfStudy(Integer studyId, User user) {
         if (user.getAuthLv() < 2) throw new ForifException(ErrorCode.INSUFFICIENT_PERMISSION);
 
-        studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND_BAD_REQUEST));
+        studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_BAD_REQUEST));
 
         List<Apply> allApplies = applyRepository.findAll(); // 모든 Apply 엔티티를 가져옴
 
@@ -343,10 +343,10 @@ public class ApplyService {
 
     private void validateStudy(Integer studyId, User user) {
         Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND_BAD_REQUEST));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_BAD_REQUEST));
 
         if (isUserMentorOfStudy(study, user)) {
-            throw new IllegalArgumentException(study.getName() + "은(는) 자신의 스터디입니다.");
+            throw new ForifException(ErrorCode.BAD_REQUEST);
         }
     }
 
@@ -384,7 +384,7 @@ public class ApplyService {
         }
 
         Study study = studyRepository.findById(request.getStudyId())
-                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND_BAD_REQUEST));
+                .orElseThrow(() -> new ForifException(ErrorCode.STUDY_BAD_REQUEST));
 
         if (request.getStudyId() != 0 && !isUserMentorOfStudy(study, mentor)) {
             throw new ForifException(ErrorCode.NOT_STUDY_MENTOR);
@@ -455,7 +455,7 @@ public class ApplyService {
 
     private String getStudyName(Integer studyId) {
         if (studyId == null) return null;
-        return studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_NOT_FOUND_BAD_REQUEST)).getName();
+        return studyRepository.findById(studyId).orElseThrow(() -> new ForifException(ErrorCode.STUDY_BAD_REQUEST)).getName();
     }
 
 
