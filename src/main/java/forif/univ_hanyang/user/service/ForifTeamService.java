@@ -17,7 +17,7 @@ public class ForifTeamService {
 
     public List<ForifTeamResponse> getForifTeamByActYearAndActSemester(Integer actYear, Integer actSemester) {
         List<ForifTeam> forifTeams = forifTeamRepository.findAllById_ActYearAndId_ActSemester(actYear, actSemester)
-                .orElseThrow(() -> new ForifException(ErrorCode.TEAM_NOT_FOUND_BY_SEMESTER));
+                .orElseThrow(() -> new ForifException(ErrorCode.INVALID_SEMESTER_TEAM));
 
         return forifTeams.stream()
                 .map(forifTeam -> ForifTeamResponse.builder()
@@ -35,7 +35,7 @@ public class ForifTeamService {
 
     public ForifTeamResponse getForifTeamById(Long id) {
         ForifTeam forifTeam = forifTeamRepository.findById_UserId(id)
-                .orElseThrow(() -> new ForifException(ErrorCode.TEAM_NOT_FOUND_BY_STUDENT_ID));
+                .orElseThrow(() -> new ForifException(ErrorCode.INVALID_STUDENT_ID));
 
         return ForifTeamResponse.builder()
                 .actYear(forifTeam.getId().getActYear())

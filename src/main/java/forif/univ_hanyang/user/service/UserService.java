@@ -127,7 +127,7 @@ public class UserService {
 
         // 사용자 존재 여부 검증
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ForifException(ErrorCode.USER_NOT_FOUND_BY_ID));
+                .orElseThrow(() -> new ForifException(ErrorCode.INVALID_USER_ID));
     }
 
     public List<AllUserInfoResponse> getAllUsersInfo(User admin) {
@@ -155,7 +155,7 @@ public class UserService {
         List<AllUserInfoResponse> usersInfo = studyUserRepository.getUserInfoByYearAndSemester(year, semester);
 
         if (usersInfo.isEmpty())
-            throw new ForifException(ErrorCode.SEMESTER_INFO_NOT_FOUND);
+            throw new ForifException(ErrorCode.INVALID_SEMESTER_INFO);
 
         return usersInfo;
     }

@@ -128,7 +128,7 @@ public class AuthService {
         Optional<User> user = userRepository.findById(Long.parseLong(userId));
 
         if (user.isEmpty()) {
-            throw new ForifException(ErrorCode.USER_NOT_FOUND_404);
+            throw new ForifException(ErrorCode.USER_NOT_FOUND);
         }
 
         if (jwtUtils.isExpired(refresh_token))
