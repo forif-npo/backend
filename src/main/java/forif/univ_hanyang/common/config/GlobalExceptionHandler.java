@@ -7,7 +7,6 @@ import forif.univ_hanyang.common.exception.ErrorCode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -61,16 +60,5 @@ public class GlobalExceptionHandler {
             null
         );
         return new ResponseEntity<>(response, e.getStatusCode());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<CommonApiErrorResponse> handleException(Exception e) {
-        logger.error("예외 발생: {}", e.getMessage(), e);
-        CommonApiErrorResponse response = CommonApiErrorResponse.of(
-            ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
-            ErrorCode.INTERNAL_SERVER_ERROR.getMessage(),
-            null
-        );
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

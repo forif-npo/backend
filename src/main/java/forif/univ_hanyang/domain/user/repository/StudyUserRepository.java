@@ -19,7 +19,7 @@ public interface StudyUserRepository extends JpaRepository<StudyUser, Long> {
     StudyUser findById_StudyIdAndId_UserId(Integer studyId, Long userId);
     List<StudyUser> findByUser(User user);
 
-    @Query("SELECT new forif.univ_hanyang.user.dto.response.AllUserInfoResponse(u.id, u.name, u.email, u.phoneNumber, u.department, s.name) " +
+    @Query("SELECT new forif.univ_hanyang.domain.user.dto.response.AllUserInfoResponse(u.id, u.name, u.email, u.phoneNumber, u.department, s.name) " +
             "FROM StudyUser su " +
             "JOIN su.user u " +
             "JOIN su.study s " +
