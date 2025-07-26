@@ -29,6 +29,7 @@ import javax.crypto.spec.SecretKeySpec
 
 import org.springframework.http.*
 import org.springframework.web.client.RestTemplate
+import forif.univ_hanyang.common.dto.response.CommonApiResponse
 
 
 @Service
@@ -131,8 +132,7 @@ class AlimTalkService(
         return variables
     }
 
-
-    fun getKakaoTemplates(user: User): ResponseEntity<String> {
+    fun getKakaoTemplates(user: User): CommonApiResponse<String> {
         if(user.authLv < 3)
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "알림 톡 템플릿을 조회할 권한이 없습니다.")
 
@@ -150,15 +150,16 @@ class AlimTalkService(
         val entity = HttpEntity<String>(headers)
 
         // GET 요청 보내기
-        return RestTemplate().exchange(
+        val result = RestTemplate().exchange(
             url,
             HttpMethod.GET,
             entity,
             String::class.java
         )
+        return CommonApiResponse.of(result.body)
     }
 
-    fun getAlimTalkLogs(user: User): ResponseEntity<String> {
+    fun getAlimTalkLogs(user: User): CommonApiResponse<String> {
         if(user.authLv < 3)
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "알림 톡 로그를 조회할 권한이 없습니다.")
 
@@ -176,12 +177,13 @@ class AlimTalkService(
         val entity = HttpEntity<String>(headers)
 
         // GET 요청 보내기
-        return RestTemplate().exchange(
+        val result = RestTemplate().exchange(
             url,
             HttpMethod.GET,
             entity,
             String::class.java
         )
+        return CommonApiResponse.of(result.body)
     }
 
     private fun getHeaders(): String? {

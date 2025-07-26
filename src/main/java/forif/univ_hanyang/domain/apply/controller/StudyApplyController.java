@@ -1,6 +1,7 @@
 package forif.univ_hanyang.domain.apply.controller;
 
 import forif.univ_hanyang.common.security.jwt.RequireJWT;
+import forif.univ_hanyang.common.dto.response.CommonApiResponse;
 import forif.univ_hanyang.domain.apply.dto.request.MoveToStudyRequest;
 import forif.univ_hanyang.domain.apply.dto.request.StudyApplyRequest;
 import forif.univ_hanyang.domain.apply.dto.response.StudyApplyResponse;
@@ -11,7 +12,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,11 +36,11 @@ public class StudyApplyController {
     )
     @RequireJWT
     @PostMapping
-    public ResponseEntity<Void> createStudyApplication(
+    public ResponseEntity<CommonApiResponse<Void>> createStudyApplication(
             @RequestBody StudyApplyRequest request
     ) {
         studyApplyService.applyStudy(request);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
     @Operation(
@@ -53,13 +53,13 @@ public class StudyApplyController {
             }
     )
     @GetMapping
-    public ResponseEntity<List<StudyApplyResponse>> getAllAppliedStudiesBy(
+    public ResponseEntity<CommonApiResponse<List<StudyApplyResponse>>> getAllAppliedStudiesBy(
             @RequestHeader("Authorization") String token,
             @RequestParam Integer year,
             @RequestParam Integer semester
     ) {
         User admin = userService.validateUserExist(token);
-        return new ResponseEntity<>(studyApplyService.getAppliedStudies(admin, year, semester), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(studyApplyService.getAppliedStudies(admin, year, semester)));
     }
 
     @Operation(
@@ -71,7 +71,7 @@ public class StudyApplyController {
             }
     )
     @PatchMapping("/{applyId}")
-    public ResponseEntity<Void> updateStudyApplication(
+    public ResponseEntity<CommonApiResponse<Void>> updateStudyApplication(
             @RequestBody StudyApplyRequest request,
             @PathVariable Integer applyId,
             @RequestHeader("Authorization") String token
@@ -79,7 +79,7 @@ public class StudyApplyController {
         User user = userService.validateUserExist(token);
         studyApplyService.updateStudy(request, user, applyId);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
 
@@ -94,13 +94,13 @@ public class StudyApplyController {
             }
     )
     @PostMapping("/move")
-    public ResponseEntity<String> moveToStudy(
+    public ResponseEntity<CommonApiResponse<String>> moveToStudy(
             @RequestHeader("Authorization") String token,
             @RequestBody MoveToStudyRequest request
     ) {
         User admin = userService.validateUserExist(token);
         studyApplyService.moveToStudy(admin, request);
-        return new ResponseEntity<>("정규 스터디로 이동 완료", HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of("정규 스터디로 이동 완료"));
     }
 
 }

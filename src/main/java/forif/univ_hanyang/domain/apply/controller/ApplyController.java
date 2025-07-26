@@ -1,17 +1,5 @@
 package forif.univ_hanyang.domain.apply.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Map;
-
 import forif.univ_hanyang.domain.apply.dto.request.AcceptRequest;
 import forif.univ_hanyang.domain.apply.dto.request.ApplyRequest;
 import forif.univ_hanyang.domain.apply.dto.request.IsPaidRequest;
@@ -22,10 +10,22 @@ import forif.univ_hanyang.domain.apply.entity.Apply;
 import forif.univ_hanyang.domain.apply.service.ApplyService;
 import forif.univ_hanyang.domain.user.entity.User;
 import forif.univ_hanyang.domain.user.service.UserService;
+import forif.univ_hanyang.common.dto.response.CommonApiResponse;
 import forif.univ_hanyang.common.exception.ErrorCode;
 import forif.univ_hanyang.common.exception.ForifException;
 
-@Tag(name = "지원서", description = "지원서 관련 API")
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/applications")
@@ -44,13 +44,13 @@ public class ApplyController {
             }
     )
     @GetMapping
-    public ResponseEntity<List<ApplyInfoResponse>> getAllApplications(
+    public ResponseEntity<CommonApiResponse<List<ApplyInfoResponse>>> getAllApplications(
             @RequestHeader("Authorization") String token,
             @RequestParam Integer year,
             @RequestParam Integer semester
     ) {
         User user = userService.validateUserExist(token);
-        return new ResponseEntity<>(applyService.getAllApplications(user, year, semester), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(applyService.getAllApplications(user, year, semester)));
     }
 
     @Operation(
@@ -63,14 +63,12 @@ public class ApplyController {
             }
     )
     @PostMapping
-    public ResponseEntity<Void> applyStudy(
+    public ResponseEntity<CommonApiResponse<Void>> applyStudy(
             @RequestHeader("Authorization") String token,
             @RequestBody ApplyRequest request) {
-
         User user = userService.validateUserExist(token);
         applyService.applyStudy(request, user);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
     @Operation(
@@ -84,20 +82,18 @@ public class ApplyController {
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<?> getUserApplication(
+    public ResponseEntity<CommonApiResponse<MyApplicationResponse>> getUserApplication(
             @RequestHeader("Authorization") String token,
             @RequestParam Integer year,
             @RequestParam Integer semester
     ) {
         User user = userService.validateUserExist(token);
         MyApplicationResponse application = applyService.getUserApplication(user, year, semester);
-
         if (application == null) {
-            return new ResponseEntity<>("지원서가 없습니다.", HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonApiResponse.of(null));
         }
-        return new ResponseEntity<>(application, HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(application));
     }
-
 
     @Operation(
             summary = "지원서 수정",
@@ -109,15 +105,13 @@ public class ApplyController {
             }
     )
     @PatchMapping("/me")
-    private ResponseEntity<Apply> patchApplication(
+    public ResponseEntity<CommonApiResponse<Apply>> patchApplication(
             @RequestHeader("Authorization") String token,
             @RequestBody ApplyRequest request
     ) throws InvocationTargetException, IllegalAccessException {
         User user = userService.validateUserExist(token);
-
-        return new ResponseEntity<>(applyService.patchApplication(user, request), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(applyService.patchApplication(user, request)));
     }
-
 
     @Operation(
             summary = "지원서 삭제",
@@ -129,16 +123,13 @@ public class ApplyController {
             }
     )
     @DeleteMapping("/me")
-    private ResponseEntity<Void> deleteApplication(
+    public ResponseEntity<CommonApiResponse<Void>> deleteApplication(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-
         applyService.deleteApplication(user);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
-
 
     @Operation(
             summary = "지원서 수락",
@@ -151,13 +142,12 @@ public class ApplyController {
             }
     )
     @PostMapping("/accept")
-    public ResponseEntity<Void> acceptApplications(
+    public ResponseEntity<CommonApiResponse<Void>> acceptApplications(
             @RequestBody AcceptRequest request,
             @RequestHeader("Authorization") String token) {
         User mentor = userService.validateUserExist(token);
         applyService.acceptApplications(mentor, request);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
     @Operation(
@@ -171,14 +161,13 @@ public class ApplyController {
             }
     )
     @GetMapping("/unpaid-users")
-    public ResponseEntity<List<UserPaymentStatusResponse>> getUnpaidUsers(
+    public ResponseEntity<CommonApiResponse<List<UserPaymentStatusResponse>>> getUnpaidUsers(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
         if (user.getAuthLv() < 3)
             throw new ForifException(ErrorCode.UNAUTHORIZED_ACCESS);
-
-        return new ResponseEntity<>(applyService.getUnpaidUsers(), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(applyService.getUnpaidUsers()));
     }
 
     @Operation(
@@ -192,14 +181,13 @@ public class ApplyController {
             }
     )
     @GetMapping("/paid-users")
-    public ResponseEntity<List<UserPaymentStatusResponse>> getPaidUsers(
+    public ResponseEntity<CommonApiResponse<List<UserPaymentStatusResponse>>> getPaidUsers(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
         if (user.getAuthLv() == 1)
             throw new ForifException(ErrorCode.UNAUTHORIZED_ACCESS);
-
-        return new ResponseEntity<>(applyService.getPaidUsers(), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(applyService.getPaidUsers()));
     }
 
     @Operation(
@@ -214,16 +202,16 @@ public class ApplyController {
             }
     )
     @GetMapping("/{studyId}")
-    public ResponseEntity<?> getAllApplicationsOfStudy(
+    public ResponseEntity<CommonApiResponse<Map<String, List<ApplyInfoResponse>>>> getAllApplicationsOfStudy(
             @PathVariable Integer studyId,
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
         Map<String, List<ApplyInfoResponse>> applications = applyService.getAllApplicationsOfStudy(studyId, user);
         if (applications.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonApiResponse.of(null));
         }
-        return new ResponseEntity<>(applications, HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(applications));
     }
 
     @Operation(
@@ -232,22 +220,18 @@ public class ApplyController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK"),
                     @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
-                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
-                    @ApiResponse(responseCode = "403", description = "FORBIDDEN")
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
             }
     )
     @PatchMapping("/payment-status")
-    public ResponseEntity<Void> patchIsPaid(
+    public ResponseEntity<CommonApiResponse<Void>> patchIsPaid(
             @RequestHeader("Authorization") String token,
             @RequestBody IsPaidRequest request
     ) {
         User user = userService.validateUserExist(token);
-
         applyService.patchIsPaid(user, request);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
-
 
     @Operation(
             summary = "모든 지원서 삭제",
@@ -255,20 +239,15 @@ public class ApplyController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK"),
                     @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
-                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
-                    @ApiResponse(responseCode = "403", description = "FORBIDDEN"
-                    )
+                    @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
             }
     )
     @DeleteMapping
-    public ResponseEntity<Void> deleteAllApplications(
+    public ResponseEntity<CommonApiResponse<Void>> deleteAllApplications(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
         applyService.deleteAllApplications(user);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
-
-
 }

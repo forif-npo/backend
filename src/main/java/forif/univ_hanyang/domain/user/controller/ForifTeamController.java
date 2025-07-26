@@ -4,12 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import forif.univ_hanyang.domain.user.dto.response.ForifTeamResponse;
 import forif.univ_hanyang.domain.user.service.ForifTeamService;
+import forif.univ_hanyang.common.dto.response.CommonApiResponse;
 
 import java.util.List;
 
@@ -29,11 +29,11 @@ public class ForifTeamController {
             }
     )
     @GetMapping
-    public ResponseEntity<List<ForifTeamResponse>> getForifTeamByYearAndSemester(
+    public ResponseEntity<CommonApiResponse<List<ForifTeamResponse>>> getForifTeamByYearAndSemester(
             @RequestParam Integer year,
             @RequestParam Integer semester
     ) {
-        return new ResponseEntity<>(forifTeamService.getForifTeamByActYearAndActSemester(year, semester), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(forifTeamService.getForifTeamByActYearAndActSemester(year, semester)));
     }
 
     @Operation(
@@ -45,9 +45,9 @@ public class ForifTeamController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<ForifTeamResponse> getForifTeamById(
+    public ResponseEntity<CommonApiResponse<ForifTeamResponse>> getForifTeamById(
             @PathVariable Long id
     ){
-        return new ResponseEntity<>(forifTeamService.getForifTeamById(id), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(forifTeamService.getForifTeamById(id)));
     }
 }

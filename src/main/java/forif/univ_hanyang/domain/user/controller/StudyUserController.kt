@@ -1,6 +1,7 @@
 package forif.univ_hanyang.domain.user.controller
 
 import forif.univ_hanyang.common.security.jwt.RequireJWT
+import forif.univ_hanyang.common.dto.response.CommonApiResponse
 import forif.univ_hanyang.domain.user.dto.request.StudyUserDTO
 import forif.univ_hanyang.domain.user.entity.StudyUser
 import forif.univ_hanyang.domain.user.service.StudyUserService
@@ -50,9 +51,9 @@ class StudyUserController(
     )
     @RequireJWT
     @GetMapping("/users/{userId}")
-    fun getStudyUserByUserId(@PathVariable userId: Long): ResponseEntity<List<StudyUser>> {
+    fun getStudyUserByUserId(@PathVariable userId: Long): ResponseEntity<CommonApiResponse<List<StudyUser>>> {
         val userStudyPasses = studyUserService.getStudyUserByUserId(userId)
-        return ResponseEntity(userStudyPasses, HttpStatus.OK)
+        return ResponseEntity.ok(CommonApiResponse.of(userStudyPasses))
     }
 
     @Operation(summary = "스터디의 유저 수료 조회", description = "스터디의 유저 수료를 조회합니다.")
@@ -67,11 +68,11 @@ class StudyUserController(
     fun getStudyUserByStudyId(
         @PathVariable studyId: Int,
         @RequestHeader("Authorization") token: String
-    ): ResponseEntity<List<StudyUser>> {
+    ): ResponseEntity<CommonApiResponse<List<StudyUser>>> {
         val admin = userService.validateUserExist(token)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "해당하는 유저가 없습니다.")
         val userStudyPasses = studyUserService.getStudyUserByStudyId(admin, studyId)
-        return ResponseEntity(userStudyPasses, HttpStatus.OK)
+        return ResponseEntity.ok(CommonApiResponse.of(userStudyPasses))
     }
 
     @Operation(summary = "유저의 스터디 수료 삭제", description = "유저의 스터디 수료를 삭제합니다.")

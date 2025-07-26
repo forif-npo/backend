@@ -1,6 +1,7 @@
 package forif.univ_hanyang.domain.study.controller;
 
 import forif.univ_hanyang.common.security.jwt.RequireJWT;
+import forif.univ_hanyang.common.dto.response.CommonApiResponse;
 import forif.univ_hanyang.domain.study.dto.request.StudyPatchRequest;
 import forif.univ_hanyang.domain.study.dto.response.AllStudyInfoResponse;
 import forif.univ_hanyang.domain.study.dto.response.MyCreatedStudiesResponse;
@@ -38,12 +39,12 @@ public class StudyController {
             }
     )
     @GetMapping
-    public ResponseEntity<List<AllStudyInfoResponse>> getAllStudiesInfo(
+    public ResponseEntity<CommonApiResponse<List<AllStudyInfoResponse>>> getAllStudiesInfo(
             @RequestParam(value = "year") Integer year,
             @RequestParam(value = "semester") Integer semester
     ) {
         List<Study> studies = studyService.getStudiesInfo(year, semester);
-        return new ResponseEntity<>(studyService.convertToStudyInfoResponse(studies, year, semester), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(studyService.convertToStudyInfoResponse(studies, year, semester)));
     }
 
     @Operation(

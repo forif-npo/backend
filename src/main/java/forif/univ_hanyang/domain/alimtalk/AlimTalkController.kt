@@ -2,7 +2,8 @@ package forif.univ_hanyang.domain.alimtalk
 
 import forif.univ_hanyang.domain.user.service.UserService
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.responses.ApiResponse
+import forif.univ_hanyang.common.dto.response.CommonApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponse 
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import lombok.RequiredArgsConstructor
@@ -34,10 +35,11 @@ class AlimTalkController(
     fun sendAlimTalk(
         @RequestHeader("Authorization") token: String,
         @RequestBody request: AlimTalkRequest
-    ): Any {
+    ): ResponseEntity<CommonApiResponse<Any>> {
         val user = userService.validateUserExist(token)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자 정보를 찾을 수 없습니다.")
-        return alimTalkService.sendAlimTalk(user, request)
+        val result = alimTalkService.sendAlimTalk(user, request)
+        return ResponseEntity.ok(CommonApiResponse.of(result))
     }
 
     @Operation(
@@ -54,10 +56,11 @@ class AlimTalkController(
     @GetMapping("/templates")
     fun getKakaoTemplates(
         @RequestHeader("Authorization") token: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<CommonApiResponse<Any>> {
         val user = userService.validateUserExist(token)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자 정보를 찾을 수 없습니다.")
-        return alimTalkService.getKakaoTemplates(user)
+        val result = alimTalkService.getKakaoTemplates(user).body
+        return ResponseEntity.ok(CommonApiResponse.of(result))
     }
 
     @Operation(
@@ -74,11 +77,11 @@ class AlimTalkController(
     @GetMapping("/logs")
     fun getAlimTalkLogs(
         @RequestHeader("Authorization") token: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<CommonApiResponse<Any>> {
         val user = userService.validateUserExist(token)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자 정보를 찾을 수 없습니다.")
-        return alimTalkService.getAlimTalkLogs(user)
+        val result = alimTalkService.getAlimTalkLogs(user).body
+        return ResponseEntity.ok(CommonApiResponse.of(result))
     }
-
 }
 

@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import forif.univ_hanyang.common.dto.response.CommonApiResponse
 
 @Tag(name = "출석", description = "출석 관련 API")
 @RestController
@@ -67,8 +68,8 @@ class AttendanceController(
     )
     @RequireJWT
     @GetMapping("/studies/{studyId}")
-    fun getAttendanceForStudy(@PathVariable studyId: Int): ResponseEntity<List<StudyAttendanceResponse>> {
-        return ResponseEntity(attendanceService.getAttendanceForStudy(studyId), HttpStatus.OK)
+    fun getAttendanceForStudy(@PathVariable studyId: Int): ResponseEntity<CommonApiResponse<List<StudyAttendanceResponse>>> {
+        return ResponseEntity.ok(CommonApiResponse.of(attendanceService.getAttendanceForStudy(studyId)))
     }
 
     @Operation(
@@ -84,7 +85,7 @@ class AttendanceController(
     )
     @RequireJWT
     @GetMapping("/users/{userId}")
-    fun getAttendanceForUser(@PathVariable userId: Long): ResponseEntity<List<UserAttendanceResponse>> {
-        return ResponseEntity(attendanceService.getAttendanceForUser(userId), HttpStatus.OK)
+    fun getAttendanceForUser(@PathVariable userId: Long): ResponseEntity<CommonApiResponse<List<UserAttendanceResponse>>> {
+        return ResponseEntity.ok(CommonApiResponse.of(attendanceService.getAttendanceForUser(userId)))
     }
 }

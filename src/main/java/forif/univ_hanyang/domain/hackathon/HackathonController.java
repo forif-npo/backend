@@ -4,12 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import forif.univ_hanyang.common.dto.response.CommonApiResponse;
 
 @Tag(name = "해커톤", description = "해커톤 관련 API")
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class HackathonController {
             }
     )
     @GetMapping
-    public ResponseEntity<List<HackathonResponse>> getHackathons() {
-        return new ResponseEntity<>(hackathonService.getHackathons(), HttpStatus.OK);
+    public ResponseEntity<CommonApiResponse<List<HackathonResponse>>> getHackathons() {
+        return ResponseEntity.ok(CommonApiResponse.of(hackathonService.getHackathons()));
     }
 }

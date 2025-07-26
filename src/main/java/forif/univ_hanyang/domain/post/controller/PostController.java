@@ -1,5 +1,6 @@
 package forif.univ_hanyang.domain.post.controller;
 
+import forif.univ_hanyang.common.dto.response.CommonApiResponse;
 import forif.univ_hanyang.domain.post.dto.request.AnnouncementRequest;
 import forif.univ_hanyang.domain.post.dto.request.AnnouncementUpdateRequest;
 import forif.univ_hanyang.domain.post.dto.request.FAQRequest;
@@ -13,7 +14,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +36,8 @@ public class PostController {
             }
     )
     @GetMapping("/announcements")
-    public ResponseEntity<List<AnnouncementResponse>> getAnnouncements() {
-        return new ResponseEntity<>(postService.getAnnouncements(), HttpStatus.OK);
+    public ResponseEntity<CommonApiResponse<List<AnnouncementResponse>>> getAnnouncements() {
+        return ResponseEntity.ok(CommonApiResponse.of(postService.getAnnouncements()));
     }
 
     @Operation(
@@ -49,10 +49,10 @@ public class PostController {
             }
     )
     @GetMapping("/announcements/{id}")
-    public ResponseEntity<AnnouncementResponse> getAnnouncement(
+    public ResponseEntity<CommonApiResponse<AnnouncementResponse>> getAnnouncement(
             @PathVariable Integer id
     ) {
-        return new ResponseEntity<>(postService.getAnnouncement(id), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(postService.getAnnouncement(id)));
     }
 
     @Operation(
@@ -64,12 +64,12 @@ public class PostController {
             }
     )
     @PostMapping("/announcements")
-    public ResponseEntity<Void> createAnnouncement(
+    public ResponseEntity<CommonApiResponse<Void>> createAnnouncement(
             @RequestBody AnnouncementRequest announcementRequest,
             @RequestHeader("Authorization") String token
     ) {
         postService.createAnnouncement(userService.validateUserExist(token), announcementRequest);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
     @Operation(
@@ -82,13 +82,13 @@ public class PostController {
             }
     )
     @PatchMapping("/announcements/{id}")
-    public ResponseEntity<Void> updateAnnouncement(
+    public ResponseEntity<CommonApiResponse<Void>> updateAnnouncement(
             @PathVariable Integer id,
             @RequestBody AnnouncementUpdateRequest request,
             @RequestHeader("Authorization") String token
     ) {
         postService.updateAnnouncement(userService.validateUserExist(token), id, request);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
     @Operation(
@@ -101,12 +101,12 @@ public class PostController {
             }
     )
     @DeleteMapping("/announcements/{id}")
-    public ResponseEntity<Void> deleteAnnouncement(
+    public ResponseEntity<CommonApiResponse<Void>> deleteAnnouncement(
             @PathVariable Integer id,
             @RequestHeader("Authorization") String token
     ) {
         postService.deleteAnnouncement(userService.validateUserExist(token), id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
     @Operation(
@@ -118,8 +118,8 @@ public class PostController {
             }
     )
     @GetMapping("/faqs")
-    public ResponseEntity<List<FAQResponse>> getFAQs() {
-        return new ResponseEntity<>(postService.getFAQs(), HttpStatus.OK);
+    public ResponseEntity<CommonApiResponse<List<FAQResponse>>> getFAQs() {
+        return ResponseEntity.ok(CommonApiResponse.of(postService.getFAQs()));
     }
 
     @Operation(
@@ -131,12 +131,12 @@ public class PostController {
             }
     )
     @PostMapping("/faqs")
-    public ResponseEntity<Void> createFAQ(
+    public ResponseEntity<CommonApiResponse<Void>> createFAQ(
             @RequestBody FAQRequest request,
             @RequestHeader("Authorization") String token
             ) {
         postService.createFAQ(userService.validateUserExist(token), request);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
     @Operation(
@@ -149,13 +149,13 @@ public class PostController {
             }
     )
     @PatchMapping("/faqs/{id}")
-    public ResponseEntity<Void> updateFAQ(
+    public ResponseEntity<CommonApiResponse<Void>> updateFAQ(
             @PathVariable Integer id,
             @RequestBody FAQRequest request,
             @RequestHeader("Authorization") String token
     ) {
         postService.updateFAQ(userService.validateUserExist(token), id, request);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
     @Operation(
@@ -168,12 +168,12 @@ public class PostController {
             }
     )
     @DeleteMapping("/faqs/{id}")
-    public ResponseEntity<Void> deleteFAQ(
+    public ResponseEntity<CommonApiResponse<Void>> deleteFAQ(
             @PathVariable Integer id,
             @RequestHeader("Authorization") String token
     ) {
         postService.deleteFAQ(userService.validateUserExist(token), id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
     @Operation(
@@ -185,8 +185,8 @@ public class PostController {
             }
     )
     @GetMapping("/techs")
-    public ResponseEntity<List<TechResponse>> getTechs() {
-        return new ResponseEntity<>(postService.getTechs(), HttpStatus.OK);
+    public ResponseEntity<CommonApiResponse<List<TechResponse>>> getTechs() {
+        return ResponseEntity.ok(CommonApiResponse.of(postService.getTechs()));
     }
 
     @Operation(
@@ -198,10 +198,10 @@ public class PostController {
             }
     )
     @GetMapping("/techs/{id}")
-    public ResponseEntity<TechResponse> getTech(
+    public ResponseEntity<CommonApiResponse<TechResponse>> getTech(
             @PathVariable Integer id
     ) {
-        return new ResponseEntity<>(postService.getTech(id), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(postService.getTech(id)));
     }
 
     @Operation(
@@ -213,12 +213,12 @@ public class PostController {
             }
     )
     @PostMapping("/techs")
-    public ResponseEntity<TechResponse> createTech(
+    public ResponseEntity<CommonApiResponse<TechResponse>> createTech(
             @RequestBody TechRequest request,
             @RequestHeader("Authorization") String token
     ) {
         TechResponse response = postService.createTech(userService.validateUserExist(token), request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseEntity.ok(CommonApiResponse.of(response));
     }
 
     @Operation(
@@ -231,13 +231,13 @@ public class PostController {
             }
     )
     @PatchMapping("/techs/{id}")
-    public ResponseEntity<TechResponse> updateTech(
+    public ResponseEntity<CommonApiResponse<TechResponse>> updateTech(
             @PathVariable Integer id,
             @RequestBody TechRequest request,
             @RequestHeader("Authorization") String token
     ) {
         TechResponse response = postService.updateTech(userService.validateUserExist(token), id, request);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(response));
     }
 
     @Operation(
@@ -250,12 +250,12 @@ public class PostController {
             }
     )
     @DeleteMapping("/techs/{id}")
-    public ResponseEntity<Void> deleteTech(
+    public ResponseEntity<CommonApiResponse<Void>> deleteTech(
             @PathVariable Integer id,
             @RequestHeader("Authorization") String token
     ) {
         postService.deleteTech(userService.validateUserExist(token), id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
 }

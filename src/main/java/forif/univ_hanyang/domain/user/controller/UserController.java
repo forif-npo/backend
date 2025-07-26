@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +12,7 @@ import forif.univ_hanyang.domain.user.dto.response.AllUserInfoResponse;
 import forif.univ_hanyang.domain.user.dto.response.UserInfoResponse;
 import forif.univ_hanyang.domain.user.entity.User;
 import forif.univ_hanyang.domain.user.service.UserService;
+import forif.univ_hanyang.common.dto.response.CommonApiResponse;
 
 import java.util.List;
 
@@ -32,11 +32,11 @@ public class UserController {
             }
     )
     @GetMapping("/auth/profile")
-    public ResponseEntity<UserInfoResponse> getUser(
+    public ResponseEntity<CommonApiResponse<UserInfoResponse>> getUser(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
-        return new ResponseEntity<>(userService.getUserInfo(user), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(userService.getUserInfo(user)));
     }
 
     @Operation(
@@ -49,13 +49,13 @@ public class UserController {
             }
     )
     @PatchMapping("/auth/profile")
-    public ResponseEntity<User> patchUser(
+    public ResponseEntity<CommonApiResponse<User>> patchUser(
             @RequestHeader("Authorization") String token,
             @RequestBody UserPatchRequest request
     ) {
         User user = userService.validateUserExist(token);
 
-        return new ResponseEntity<>(userService.patchUser(request, user), HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(userService.patchUser(request, user)));
     }
 
     @Operation(
@@ -68,13 +68,13 @@ public class UserController {
             }
     )
     @DeleteMapping("/auth/profile")
-    public ResponseEntity<Void> deleteUser(
+    public ResponseEntity<CommonApiResponse<Void>> deleteUser(
             @RequestHeader("Authorization") String token
     ) {
         User user = userService.validateUserExist(token);
         userService.deleteUser(user);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(null));
     }
 
 
@@ -89,13 +89,12 @@ public class UserController {
             }
     )
     @GetMapping("/users")
-    public ResponseEntity<List<AllUserInfoResponse>> getAllUsers(
+    public ResponseEntity<CommonApiResponse<List<AllUserInfoResponse>>> getAllUsers(
             @RequestHeader("Authorization") String token
     ) {
         User admin = userService.validateUserExist(token);
         List<AllUserInfoResponse> allUserInfoResponses = userService.getAllUsersInfo(admin);
-
-        return new ResponseEntity<>(allUserInfoResponses, HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(allUserInfoResponses));
     }
 
     @Operation(
@@ -109,15 +108,14 @@ public class UserController {
             }
     )
     @GetMapping("/users/terms")
-    public ResponseEntity<List<AllUserInfoResponse>> getTargetTermUsers(
+    public ResponseEntity<CommonApiResponse<List<AllUserInfoResponse>>> getTargetTermUsers(
             @RequestHeader("Authorization") String token,
             @RequestParam Integer year,
             @RequestParam Integer semester
     ) {
         User admin = userService.validateUserExist(token);
         List<AllUserInfoResponse> allUserInfoResponses = userService.getTargetTermUsersInfo(admin, year, semester);
-
-        return new ResponseEntity<>(allUserInfoResponses, HttpStatus.OK);
+        return ResponseEntity.ok(CommonApiResponse.of(allUserInfoResponses));
     }
 
 }
