@@ -54,8 +54,10 @@ class AlimTalkService(
         if (user.authLv < 3)
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "알림 톡을 보낼 권한이 없습니다.")
         return CompletableFuture.supplyAsync {
-            request.receivers.map { receiver ->
-                sendMessageToReceiver(receiver, request)
+            request.receivers.chunked(30).flatMap { batch ->
+                batch.map { receiver ->
+                    sendMessageToReceiver(receiver, request)
+                }
             }
         }
     }
@@ -99,18 +101,22 @@ class AlimTalkService(
             )
         )
 
-        return try {
-            val response = messageService.send(message)
-            logger.info("Message sent successfully: $response")
-            "Success"
-        } catch (e: NurigoMessageNotReceivedException) {
-            logger.error("Failed to send message", e)
-            "Failed message list: ${e.failedMessageList}"
-            "Failed message: ${e.message}"
-        } catch (e: Exception) {
-            logger.error("Unexpected error while sending message", e)
-            "Failed: ${e.message}"
+        val maxRetries = 2
+        for (attempt in 1..maxRetries + 1) {
+            try {
+                val response = messageService.send(message)
+                logger.info("Message sent successfully to $receiver: $response")
+                return "Success"
+            } catch (e: NurigoMessageNotReceivedException) {
+                logger.error("Failed to send message to $receiver (attempt $attempt/${maxRetries + 1}), failedList: ${e.failedMessageList}", e)
+                if (attempt > maxRetries) return "Failed: ${e.message}"
+            } catch (e: Exception) {
+                logger.error("Failed to send message to $receiver (attempt $attempt/${maxRetries + 1})", e)
+                if (attempt > maxRetries) return "Failed: ${e.message}"
+            }
+            Thread.sleep(1000L * attempt)
         }
+        return "Failed"
     }
 
     private fun createVariables(user: User, request: AlimTalkRequest): HashMap<String, String> {
